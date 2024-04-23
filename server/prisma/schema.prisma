@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Table user_account {
+//   id integer [primary key]
+//   company_id int
+//   username varchar
+//   password varchar
+//   fullname varchar
+//   create_time date //auto input create date
+//   edit_time timestamp
+//   role varchar //ตำแหน่ง Admin, User
+// }
+
+// Table company{
+//   id integer [primary key]
+//   companyName varchar
+//   address varchar
+//   phone_number varchar
+//   email varchar
+//   dpo varchar
+// }
+
+// Table department {
+//   id integer [primary key]
+//   department varchar
+//   company_id int 
+// }
+
+model user_account {
+  id               Int      @id @default(autoincrement())
+  username         String   @unique
+  password         String
+  fullname         String
+  email            String   @unique
+  role             String   @default("user")
+  company_id       Int
+  edit_time        DateTime
+  create_time      DateTime @default(now())
+  company_relation company  @relation(fields: [company_id], references: [id])
+}
+
+model company {
+  id           Int            @id @default(autoincrement())
+  companyName  String
+  address      String
+  phone_number String
+  email        String         @unique
+  dpo          String?
+  user_account user_account[]
+  department   department[]
+}
+
+model department {
+  id               Int     @id @default(autoincrement())
+  departmentName   String
+  company_id       Int
+  company_relation company @relation(fields: [company_id], references: [id])
+}

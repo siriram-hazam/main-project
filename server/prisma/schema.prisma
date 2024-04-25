@@ -44,7 +44,7 @@ model user_account {
   username         String   @unique
   password         String
   fullname         String
-  email            String   @unique
+  email            String   @unique //เพิ่มมาใหม่
   role             String   @default("user")
   company_id       Int
   edit_time        DateTime
@@ -61,11 +61,70 @@ model company {
   dpo          String?
   user_account user_account[]
   department   department[]
+  // company_information company_information[]
+  information  information[]
 }
 
 model department {
-  id               Int     @id @default(autoincrement())
+  id               Int        @id @default(autoincrement())
   departmentName   String
   company_id       Int
-  company_relation company @relation(fields: [company_id], references: [id])
+  company_relation company    @relation(fields: [company_id], references: [id])
+  category         category[]
+}
+
+model information {
+  id                   Int                    @id @default(autoincrement())
+  activity             String
+  status               String //เพิ่มมาใหม่สถานะเช่น รอตรวจสอบ ผ่าน จากผู้จัดการ
+  company_id           Int
+  create_time          DateTime               @default(now())
+  company_relation     company                @relation(fields: [company_id], references: [id])
+  // company_information  company_information[]
+  category_information category_information[]
+  poi_information      poi_information[]
+}
+
+// model company_information {
+//   information_id       Int
+//   company_id           Int
+//   information_relation information @relation(fields: [information_id], references: [id])
+//   company_relation     company     @relation(fields: [company_id], references: [id])
+
+//   @@id([information_id, company_id])
+// }
+
+model category {
+  id                   Int                    @id @default(autoincrement())
+  category             String
+  department_id        Int
+  department_relation  department             @relation(fields: [department_id], references: [id])
+  category_information category_information[]
+}
+
+model category_information {
+  information_id       Int
+  category_id          Int
+  information_relation information @relation(fields: [information_id], references: [id])
+  category_relation    category    @relation(fields: [category_id], references: [id])
+
+  @@id([information_id, category_id])
+}
+
+model poi_information {
+  information_id       Int
+  poi_id               Int
+  information_relation information   @relation(fields: [information_id], references: [id])
+  poi_relation         piece_of_info @relation(fields: [poi_id], references: [id])
+
+  @@id([information_id, poi_id])
+}
+
+//--------------------------------------------------------------------------------------
+
+model piece_of_info {
+  id              Int               @id @default(autoincrement())
+  info            String
+  poi_information poi_information[]
+  // พน.มาตัดสินใจกับตารางนี้ว่าจะยังไงดีให้หัวมารวมที่ตารางที่ดีไหมจะได้ดึงมาง่ายๆ
 }

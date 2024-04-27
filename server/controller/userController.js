@@ -1,9 +1,21 @@
 import prisma from "../db/db.config.js";
 
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 
 export const createUser = async (req, res) => {
-    const { username, password, fullname, email, role, company_id, edit_time } = req.body
+    const { username, password, fullname, email, role, company_id } = req.body
+
+    // const companyData = await prisma.company.findFirst({
+    //     where: {
+    //         companyName: companyName,
+    //     },
+    //     select: {
+    //         id: true,
+    //         companyName: true,
+    //     }
+    // })
+
+    // console.log(companyData.id)
 
     const findEmail = await prisma.user_account.findUnique({
         where: { email: email }

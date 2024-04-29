@@ -57,7 +57,6 @@ export const deleteDepartment = async (req, res) => {
     } catch (error) {
         console.error(error.message)
     }
-
 }
 
 export const fetchDepartment = async (req, res) => {

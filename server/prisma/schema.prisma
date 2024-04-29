@@ -54,6 +54,7 @@ model information {
   // company_id           Int
   create_time          DateTime               @default(now())
   // company_relation     company                @relation(fields: [company_id], references: [id])
+  createBy             String
   company_information  company_information[]
   category_information category_information[]
   poi_information      poi_information[]

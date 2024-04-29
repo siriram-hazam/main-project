@@ -14,16 +14,17 @@ datasource db {
 }
 
 model user_account {
-  id               Int      @id @default(autoincrement())
-  username         String   @unique
+  id               Int           @id @default(autoincrement())
+  username         String        @unique
   password         String
   fullname         String
-  email            String   @unique //เพิ่มมาใหม่
-  role             String   @default("user")
+  email            String        @unique //เพิ่มมาใหม่
+  role             String        @default("user")
   company_id       Int
   edit_time        DateTime
-  create_time      DateTime @default(now())
-  company_relation company  @relation(fields: [company_id], references: [id])
+  create_time      DateTime      @default(now())
+  company_relation company       @relation(fields: [company_id], references: [id])
+  information      information[]
 }
 
 model company {
@@ -48,16 +49,17 @@ model department {
 }
 
 model information {
-  id                   Int                    @id @default(autoincrement())
-  activity             String
-  status               String //เพิ่มมาใหม่สถานะเช่น รอตรวจสอบ ผ่าน จากผู้จัดการ
+  id                    Int                    @id @default(autoincrement())
+  activity              String
+  status                String //เพิ่มมาใหม่สถานะเช่น รอตรวจสอบ ผ่าน จากผู้จัดการ
   // company_id           Int
-  create_time          DateTime               @default(now())
+  create_time           DateTime               @default(now())
   // company_relation     company                @relation(fields: [company_id], references: [id])
-  createBy             String
-  company_information  company_information[]
-  category_information category_information[]
-  poi_information      poi_information[]
+  createBy              Int
+  user_account_relation user_account           @relation(fields: [createBy], references: [id])
+  company_information   company_information[]
+  category_information  category_information[]
+  poi_information       poi_information[]
 }
 
 model company_information {

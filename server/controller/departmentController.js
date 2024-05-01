@@ -11,7 +11,7 @@ export const createDepartment = async (req, res) => {
             }
         })
 
-        return res.json({ companyData: companyData, data: newDepartment, message: 'Created Department!!' })
+        return res.json({ data: newDepartment, message: 'Created Department!!' })
 
     } catch (error) {
         console.error(error.message)

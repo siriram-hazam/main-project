@@ -28,24 +28,25 @@ model user_account {
 }
 
 model company {
-  id                  Int                   @id @default(autoincrement())
-  companyName         String
-  address             String
-  phone_number        String
-  email               String                @unique
-  dpo                 String?
-  user_account        user_account[]
-  department          department[]
-  company_information company_information[]
-  // information  information[]
+  id           Int            @id @default(autoincrement())
+  companyName  String
+  address      String
+  phone_number String
+  email        String         @unique
+  dpo          String?
+  user_account user_account[]
+  department   department[]
+  // company_information company_information[]
+  information  information[]
 }
 
 model department {
-  id               Int        @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   departmentName   String
   company_id       Int
-  company_relation company    @relation(fields: [company_id], references: [id])
+  company_relation company       @relation(fields: [company_id], references: [id])
   category         category[]
+  information      information[]
 }
 
 model information {
@@ -57,19 +58,23 @@ model information {
   // company_relation     company                @relation(fields: [company_id], references: [id])
   createBy              Int
   user_account_relation user_account           @relation(fields: [createBy], references: [id])
-  company_information   company_information[]
+  company_id            Int
+  company_relation      company                @relation(fields: [company_id], references: [id])
+  department_id         Int 
+  department_relation   department             @relation(fields: [department_id], references: [id])
+  // company_information   company_information[]
   category_information  category_information[]
   poi_information       poi_information[]
 }
 
-model company_information {
-  information_id       Int
-  company_id           Int
-  information_relation information @relation(fields: [information_id], references: [id])
-  company_relation     company     @relation(fields: [company_id], references: [id])
+// model company_information {
+//   information_id       Int
+//   company_id           Int
+//   information_relation information @relation(fields: [information_id], references: [id])
+//   company_relation     company     @relation(fields: [company_id], references: [id])
 
-  @@id([information_id, company_id])
-}
+//   @@id([information_id, company_id])
+// }
 
 model category {
   id                   Int                    @id @default(autoincrement())

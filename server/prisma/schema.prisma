@@ -60,11 +60,22 @@ model information {
   user_account_relation user_account           @relation(fields: [createBy], references: [id])
   company_id            Int
   company_relation      company                @relation(fields: [company_id], references: [id])
-  department_id         Int 
+  department_id         Int
   department_relation   department             @relation(fields: [department_id], references: [id])
   // company_information   company_information[]
   category_information  category_information[]
   poi_information       poi_information[]
+
+  information_info_stored_period        information_info_stored_period[]
+  information_info_placed               information_info_placed[]
+  information_info_allowed_ps           information_info_allowed_ps[]
+  information_info_allowed_ps_condition information_info_allowed_ps_condition[]
+  information_info_access               information_info_access[]
+  information_info_access_condition     information_info_access_condition[]
+  information_info_ps_usedbyrole_inside information_info_ps_usedbyrole_inside[]
+  information_info_ps_sendto_outside    information_info_ps_sendto_outside[]
+  information_info_ps_destroying        information_info_ps_destroying[]
+  information_info_ps_destroyer         information_info_ps_destroyer[]
 }
 
 // model company_information {
@@ -105,25 +116,26 @@ model poi_information {
 //=====================================================================
 
 model piece_of_info {
-  id                            Int                             @id @default(autoincrement())
-  info                          String
-  poi_information               poi_information[]
-  poi_info_owner                poi_info_owner[]
-  poi_info_from                 poi_info_from[]
-  poi_info_format               poi_info_format[]
-  poi_info_type                 poi_info_type[]
-  poi_info_objective            poi_info_objective[]
-  poi_info_lawbase              poi_info_lawbase[]
-  poi_info_stored_period        poi_info_stored_period[]
-  poi_info_placed               poi_info_placed[]
-  poi_info_allowed_ps           poi_info_allowed_ps[]
-  poi_info_allowed_ps_condition poi_info_allowed_ps_condition[]
-  poi_info_access               poi_info_access[]
-  poi_info_access_condition     poi_info_access_condition[]
-  poi_info_ps_usedbyrole_inside poi_info_ps_usedbyrole_inside[]
-  poi_info_ps_sendto_outside    poi_info_ps_sendto_outside[]
-  poi_info_ps_destroying        poi_info_ps_destroying[]
-  poi_info_ps_destroyer         poi_info_ps_destroyer[]
+  id                 Int                  @id @default(autoincrement())
+  info               String
+  poi_information    poi_information[]
+  poi_info_owner     poi_info_owner[]
+  poi_info_from      poi_info_from[]
+  poi_info_format    poi_info_format[]
+  poi_info_type      poi_info_type[]
+  poi_info_objective poi_info_objective[]
+  poi_info_lawbase   poi_info_lawbase[]
+
+  // poi_info_stored_period        poi_info_stored_period[]
+  // poi_info_placed               poi_info_placed[]
+  // poi_info_allowed_ps           poi_info_allowed_ps[]
+  // poi_info_allowed_ps_condition poi_info_allowed_ps_condition[]
+  // poi_info_access               poi_info_access[]
+  // poi_info_access_condition     poi_info_access_condition[]
+  // poi_info_ps_usedbyrole_inside poi_info_ps_usedbyrole_inside[]
+  // poi_info_ps_sendto_outside    poi_info_ps_sendto_outside[]
+  // poi_info_ps_destroying        poi_info_ps_destroying[]
+  // poi_info_ps_destroyer         poi_info_ps_destroyer[]
 }
 
 //--------------------------------------------------------------
@@ -236,180 +248,280 @@ model poi_info_lawbase {
 
 //--------------------------------------------------------------
 model info_stored_period {
-  id                     Int                      @id @default(autoincrement())
-  period_                String
-  poi_info_stored_period poi_info_stored_period[]
+  id                             Int                              @id @default(autoincrement())
+  period_                        String
+  // poi_info_stored_period poi_info_stored_period[]
+  information_info_stored_period information_info_stored_period[]
 }
 
-model poi_info_stored_period {
-  info_stored_period          Int
-  poi_id                      Int
-  info_stored_period_relation info_stored_period @relation(fields: [info_stored_period], references: [id])
-  poi_relation                piece_of_info      @relation(fields: [poi_id], references: [id])
+model information_info_stored_period {
+  information_id              Int
+  info_stored_period_id       Int
+  information_relation        information        @relation(fields: [information_id], references: [id])
+  info_stored_period_relation info_stored_period @relation(fields: [info_stored_period_id], references: [id])
 
-  @@id([info_stored_period, poi_id])
+  @@id([information_id, info_stored_period_id])
 }
+
+// model poi_info_stored_period {
+//   info_stored_period          Int
+//   poi_id                      Int
+//   info_stored_period_relation info_stored_period @relation(fields: [info_stored_period], references: [id])
+//   poi_relation                piece_of_info      @relation(fields: [poi_id], references: [id])
+
+//   @@id([info_stored_period, poi_id])
+// }
 
 //--------------------------------------------------------------
 
 //--------------------------------------------------------------
 model info_placed {
-  id              Int               @id @default(autoincrement())
-  placed_         String
-  poi_info_placed poi_info_placed[]
+  id                      Int                       @id @default(autoincrement())
+  placed_                 String
+  // poi_info_placed poi_info_placed[]
+  information_info_placed information_info_placed[]
 }
 
-model poi_info_placed {
+model information_info_placed {
+  information_id       Int
   info_placed_id       Int
-  poi_id               Int
-  info_placed_relation info_placed   @relation(fields: [info_placed_id], references: [id])
-  poi_relation         piece_of_info @relation(fields: [poi_id], references: [id])
+  information_relation information @relation(fields: [information_id], references: [id])
+  info_placed_relation info_placed @relation(fields: [info_placed_id], references: [id])
 
-  @@id([info_placed_id, poi_id])
+  @@id([information_id, info_placed_id])
 }
+
+// model poi_info_placed {
+//   info_placed_id       Int
+//   poi_id               Int
+//   info_placed_relation info_placed   @relation(fields: [info_placed_id], references: [id])
+//   poi_relation         piece_of_info @relation(fields: [poi_id], references: [id])
+
+//   @@id([info_placed_id, poi_id])
+// }
 
 //--------------------------------------------------------------
 
 //--------------------------------------------------------------
 model info_allowed_ps {
-  id                  Int                   @id @default(autoincrement())
-  allowed_ps_         String
-  poi_info_allowed_ps poi_info_allowed_ps[]
+  id                          Int                           @id @default(autoincrement())
+  allowed_ps_                 String
+  // poi_info_allowed_ps poi_info_allowed_ps[]
+  information_info_allowed_ps information_info_allowed_ps[]
 }
 
-model poi_info_allowed_ps {
+model information_info_allowed_ps {
+  information_id           Int
   info_allowed_ps_id       Int
-  poi_id                   Int
+  information_relation     information     @relation(fields: [information_id], references: [id])
   info_allowed_ps_relation info_allowed_ps @relation(fields: [info_allowed_ps_id], references: [id])
-  poi_relation             piece_of_info   @relation(fields: [poi_id], references: [id])
 
-  @@id([info_allowed_ps_id, poi_id])
+  @@id([information_id, info_allowed_ps_id])
 }
+
+// model poi_info_allowed_ps {
+//   info_allowed_ps_id       Int
+//   poi_id                   Int
+//   info_allowed_ps_relation info_allowed_ps @relation(fields: [info_allowed_ps_id], references: [id])
+//   poi_relation             piece_of_info   @relation(fields: [poi_id], references: [id])
+
+//   @@id([info_allowed_ps_id, poi_id])
+// }
 
 //--------------------------------------------------------------
 
 //--------------------------------------------------------------
 model info_allowed_ps_condition {
-  id                            Int                             @id @default(autoincrement())
-  allowed_ps_condition_         String
-  poi_info_allowed_ps_condition poi_info_allowed_ps_condition[]
+  id                                    Int                                     @id @default(autoincrement())
+  allowed_ps_condition_                 String
+  // poi_info_allowed_ps_condition poi_info_allowed_ps_condition[]
+  information_info_allowed_ps_condition information_info_allowed_ps_condition[]
 }
 
-model poi_info_allowed_ps_condition {
+model information_info_allowed_ps_condition {
+  information_id                     Int
   info_allowed_ps_condition_id       Int
-  poi_id                             Int
+  information_relation               information               @relation(fields: [information_id], references: [id])
   info_allowed_ps_condition_relation info_allowed_ps_condition @relation(fields: [info_allowed_ps_condition_id], references: [id])
-  poi_relation                       piece_of_info             @relation(fields: [poi_id], references: [id])
 
-  @@id([info_allowed_ps_condition_id, poi_id])
+  @@id([information_id, info_allowed_ps_condition_id])
 }
+
+// model poi_info_allowed_ps_condition {
+//   info_allowed_ps_condition_id       Int
+//   poi_id                             Int
+//   info_allowed_ps_condition_relation info_allowed_ps_condition @relation(fields: [info_allowed_ps_condition_id], references: [id])
+//   poi_relation                       piece_of_info             @relation(fields: [poi_id], references: [id])
+
+//   @@id([info_allowed_ps_condition_id, poi_id])
+// }
 
 //--------------------------------------------------------------
 
 //--------------------------------------------------------------
 model info_access {
-  id              Int               @id @default(autoincrement())
-  access_         String
-  poi_info_access poi_info_access[]
+  id                      Int                       @id @default(autoincrement())
+  access_                 String
+  // poi_info_access poi_info_access[]
+  information_info_access information_info_access[]
 }
 
-model poi_info_access {
+model information_info_access {
+  information_id       Int
   info_access_id       Int
-  poi_id               Int
-  info_access_relation info_access   @relation(fields: [info_access_id], references: [id])
-  poi_relation         piece_of_info @relation(fields: [poi_id], references: [id])
+  information_relation information @relation(fields: [information_id], references: [id])
+  info_access_relation info_access @relation(fields: [info_access_id], references: [id])
 
-  @@id([info_access_id, poi_id])
+  @@id([information_id, info_access_id])
 }
+
+// model poi_info_access {
+//   info_access_id       Int
+//   poi_id               Int
+//   info_access_relation info_access   @relation(fields: [info_access_id], references: [id])
+//   poi_relation         piece_of_info @relation(fields: [poi_id], references: [id])
+
+//   @@id([info_access_id, poi_id])
+// }
 
 //--------------------------------------------------------------
 
 //--------------------------------------------------------------
 model info_access_condition {
-  id                        Int                         @id @default(autoincrement())
-  access_condition_         String
-  poi_info_access_condition poi_info_access_condition[]
+  id                                Int                                 @id @default(autoincrement())
+  access_condition_                 String
+  // poi_info_access_condition poi_info_access_condition[]
+  information_info_access_condition information_info_access_condition[]
 }
 
-model poi_info_access_condition {
+model information_info_access_condition {
+  information_id                 Int
   info_access_condition_id       Int
-  poi_id                         Int
+  information_relation           information           @relation(fields: [information_id], references: [id])
   info_access_condition_relation info_access_condition @relation(fields: [info_access_condition_id], references: [id])
-  poi_relation                   piece_of_info         @relation(fields: [poi_id], references: [id])
 
-  @@id([info_access_condition_id, poi_id])
+  @@id([information_id, info_access_condition_id])
 }
+
+// model poi_info_access_condition {
+//   info_access_condition_id       Int
+//   poi_id                         Int
+//   info_access_condition_relation info_access_condition @relation(fields: [info_access_condition_id], references: [id])
+//   poi_relation                   piece_of_info         @relation(fields: [poi_id], references: [id])
+
+//   @@id([info_access_condition_id, poi_id])
+// }
 
 //--------------------------------------------------------------
 
 //--------------------------------------------------------------
 model info_ps_usedbyrole_inside {
-  id                            Int                             @id @default(autoincrement())
-  use_by_role_                  String
-  poi_info_ps_usedbyrole_inside poi_info_ps_usedbyrole_inside[]
+  id                                    Int                                     @id @default(autoincrement())
+  use_by_role_                          String
+  // poi_info_ps_usedbyrole_inside poi_info_ps_usedbyrole_inside[]
+  information_info_ps_usedbyrole_inside information_info_ps_usedbyrole_inside[]
 }
 
-model poi_info_ps_usedbyrole_inside {
-  info_ps_usedbyrole_inside_id          Int
-  poi_id                                Int
-  info_ps_usedbyrole_inside_id_relation info_ps_usedbyrole_inside @relation(fields: [info_ps_usedbyrole_inside_id], references: [id])
-  poi_relation                          piece_of_info             @relation(fields: [poi_id], references: [id])
+model information_info_ps_usedbyrole_inside {
+  information_id                     Int
+  info_ps_usedbyrole_inside_id       Int
+  information_relation               information               @relation(fields: [information_id], references: [id])
+  info_ps_usedbyrole_inside_relation info_ps_usedbyrole_inside @relation(fields: [info_ps_usedbyrole_inside_id], references: [id])
 
-  @@id([info_ps_usedbyrole_inside_id, poi_id])
+  @@id([information_id, info_ps_usedbyrole_inside_id])
 }
+
+// model poi_info_ps_usedbyrole_inside {
+//   info_ps_usedbyrole_inside_id          Int
+//   poi_id                                Int
+//   info_ps_usedbyrole_inside_id_relation info_ps_usedbyrole_inside @relation(fields: [info_ps_usedbyrole_inside_id], references: [id])
+//   poi_relation                          piece_of_info             @relation(fields: [poi_id], references: [id])
+
+//   @@id([info_ps_usedbyrole_inside_id, poi_id])
+// }
 
 //--------------------------------------------------------------
 
 //--------------------------------------------------------------
 model info_ps_sendto_outside {
-  id                         Int                          @id @default(autoincrement())
-  sendto_                    String
-  poi_info_ps_sendto_outside poi_info_ps_sendto_outside[]
+  id                                 Int                                  @id @default(autoincrement())
+  sendto_                            String
+  // poi_info_ps_sendto_outside poi_info_ps_sendto_outside[]
+  information_info_ps_sendto_outside information_info_ps_sendto_outside[]
 }
 
-model poi_info_ps_sendto_outside {
+model information_info_ps_sendto_outside {
+  information_id                  Int
   info_ps_sendto_outside_id       Int
-  poi_id                          Int
+  information_relation            information            @relation(fields: [information_id], references: [id])
   info_ps_sendto_outside_relation info_ps_sendto_outside @relation(fields: [info_ps_sendto_outside_id], references: [id])
-  poi_relation                    piece_of_info          @relation(fields: [poi_id], references: [id])
 
-  @@id([info_ps_sendto_outside_id, poi_id])
+  @@id([information_id, info_ps_sendto_outside_id])
 }
+
+// model poi_info_ps_sendto_outside {
+//   info_ps_sendto_outside_id       Int
+//   poi_id                          Int
+//   info_ps_sendto_outside_relation info_ps_sendto_outside @relation(fields: [info_ps_sendto_outside_id], references: [id])
+//   poi_relation                    piece_of_info          @relation(fields: [poi_id], references: [id])
+
+//   @@id([info_ps_sendto_outside_id, poi_id])
+// }
 
 //--------------------------------------------------------------
 
 //--------------------------------------------------------------
 model info_ps_destroying {
-  id                     Int                      @id @default(autoincrement())
-  destroying_            String
-  poi_info_ps_destroying poi_info_ps_destroying[]
+  id                             Int                              @id @default(autoincrement())
+  destroying_                    String
+  // poi_info_ps_destroying poi_info_ps_destroying[]
+  information_info_ps_destroying information_info_ps_destroying[]
 }
 
-model poi_info_ps_destroying {
+model information_info_ps_destroying {
+  information_id              Int
   info_ps_destroying_id       Int
-  poi_id                      Int
+  information_relation        information        @relation(fields: [information_id], references: [id])
   info_ps_destroying_relation info_ps_destroying @relation(fields: [info_ps_destroying_id], references: [id])
-  poi_relation                piece_of_info      @relation(fields: [poi_id], references: [id])
 
-  @@id([info_ps_destroying_id, poi_id])
+  @@id([information_id, info_ps_destroying_id])
 }
+
+// model poi_info_ps_destroying {
+//   info_ps_destroying_id       Int
+//   poi_id                      Int
+//   info_ps_destroying_relation info_ps_destroying @relation(fields: [info_ps_destroying_id], references: [id])
+//   poi_relation                piece_of_info      @relation(fields: [poi_id], references: [id])
+
+//   @@id([info_ps_destroying_id, poi_id])
+// }
 
 //--------------------------------------------------------------
 
 //--------------------------------------------------------------
 model info_ps_destroyer {
-  id                    Int                     @id @default(autoincrement())
-  destroyer_            String
-  poi_info_ps_destroyer poi_info_ps_destroyer[]
+  id                            Int                             @id @default(autoincrement())
+  destroyer_                    String
+  // poi_info_ps_destroyer poi_info_ps_destroyer[]
+  information_info_ps_destroyer information_info_ps_destroyer[]
 }
 
-model poi_info_ps_destroyer {
+model information_info_ps_destroyer {
+  information_id             Int
   info_ps_destroyer_id       Int
-  poi_id                     Int
+  information_relation       information       @relation(fields: [information_id], references: [id])
   info_ps_destroyer_relation info_ps_destroyer @relation(fields: [info_ps_destroyer_id], references: [id])
-  poi_relation               piece_of_info     @relation(fields: [poi_id], references: [id])
 
-  @@id([info_ps_destroyer_id, poi_id])
+  @@id([information_id, info_ps_destroyer_id])
 }
+
+// model poi_info_ps_destroyer {
+//   info_ps_destroyer_id       Int
+//   poi_id                     Int
+//   info_ps_destroyer_relation info_ps_destroyer @relation(fields: [info_ps_destroyer_id], references: [id])
+//   poi_relation               piece_of_info     @relation(fields: [poi_id], references: [id])
+
+//   @@id([info_ps_destroyer_id, poi_id])
+// }
 
 //--------------------------------------------------------------

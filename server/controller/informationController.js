@@ -8,24 +8,24 @@ export const createInformation = async (req, res) => {
         createBy, //fontend auto add from session
         company_id, //frontend auto add from session
         category,
-        department_id, //fontend show department name but map to department id then send to backend
-        poi_relations,
+        department_id, //fontend show text but map to id then send to backend
+        poi_relations, //fontend show text but map to id then send to backend
         // poi_info_owner, //ย้ายไปใน poi_relations
         // poi_info_from,
         // poi_info_format,
         // poi_info_type,
         // poi_info_objective,
         // poi_info_lawbase,
-        poi_info_stored_period,
-        poi_info_placed,
-        poi_info_allowed_ps,
-        poi_info_allowed_ps_condition,
-        poi_info_access,
-        poi_info_access_condition,
-        poi_info_ps_usedbyrole_inside,
-        poi_info_ps_sendto_outside,
-        poi_info_ps_destroying,
-        poi_info_ps_destroyer
+        info_stored_period, //fontend show text but map to id then send to backend
+        info_placed, //fontend show text but map to id then send to backend
+        info_allowed_ps, //fontend show text but map to id then send to backend
+        info_allowed_ps_condition, //fontend show text but map to id then send to backend
+        info_access, //fontend show text but map to id then send to backend
+        info_access_condition, //fontend show text but map to id then send to backend
+        info_ps_usedbyrole_inside, //fontend show text but map to id then send to backend
+        info_ps_sendto_outside, //fontend show text but map to id then send to backend
+        info_ps_destroying, //fontend show text but map to id then send to backend
+        info_ps_destroyer //fontend show text but map to id then send to backend
     } = req.body;
 
     // {
@@ -54,7 +54,17 @@ export const createInformation = async (req, res) => {
     //                                     "poi_info_objective": 1,
     //                                     "poi_info_lawbase": [2, 3]
     //                                 }
-    //                             ]
+    //                             ],
+    //                                 "info_stored_period" : [1, 2, 3],
+    //                                 "info_placed" : [1, 2],
+    //                                 "info_allowed_ps" : [1, 2, 3],
+    //                                 "info_allowed_ps_condition" : [1, 2, 3],
+    //                                 "info_access" : [1, 2],
+    //                                 "info_access_condition" : [1, 2],
+    //                                 "info_ps_usedbyrole_inside" : [1, 2, 3],
+    //                                 "info_ps_sendto_outside" : [4, 5],
+    //                                 "info_ps_destroying" : [1, 2, 3],
+    //                                 "info_ps_destroyer" : [1]
     // }
 
     // console.log(req.body)
@@ -225,11 +235,288 @@ export const createInformation = async (req, res) => {
                 //             in: poi_info_lawbase
                 //         }
                 //     }
-                // }
+                // },
+                information_info_stored_period: {
+                    create: info_stored_period.map(item => (
+                        {
+                            info_stored_period_id: item
+                        }
+                    ))
+                },
+                information_info_placed: {
+                    create: info_placed.map(item => (
+                        {
+                            info_placed_id: item
+                        }
+                    ))
+                },
+                information_info_allowed_ps: {
+                    create: info_allowed_ps.map(item => (
+                        {
+                            info_allowed_ps_id: item
+                        }
+                    ))
+                },
+                information_info_allowed_ps_condition: {
+                    create: info_allowed_ps_condition.map(item => (
+                        {
+                            info_allowed_ps_condition_id: item
+                        }
+                    ))
+                },
+                information_info_access: {
+                    create: info_access.map(item => (
+                        {
+                            info_access_id: item
+                        }
+                    ))
+                },
+                information_info_access_condition: {
+                    create: info_access_condition.map(item => (
+                        {
+                            info_access_condition_id: item
+                        }
+                    ))
+                },
+                information_info_ps_usedbyrole_inside: {
+                    create: info_ps_usedbyrole_inside.map(item => (
+                        {
+                            info_ps_usedbyrole_inside_id: item
+                        }
+                    ))
+                },
+                information_info_ps_sendto_outside: {
+                    create: info_ps_sendto_outside.map(item => (
+                        {
+                            info_ps_sendto_outside_id: item
+                        }
+                    ))
+                },
+                information_info_ps_destroying: {
+                    create: info_ps_destroying.map(item => (
+                        {
+                            info_ps_destroying_id: item
+                        }
+                    ))
+                },
+                information_info_ps_destroyer: {
+                    create: info_ps_destroyer.map(item => (
+                        {
+                            info_ps_destroyer_id: item
+                        }
+                    ))
+                }
             }
         })
 
         return res.json({ status: 200, message: newInformation })
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+export const getInformation = async (req, res) => {
+    try {
+        const information = await prisma.information.findMany({
+            select: {
+                activity: true,
+                status: true,
+                create_time: true,
+                user_account_relation: {
+                    select: {
+                        id: true,
+                        username: true
+                    }
+                },
+                company_relation: {
+                    select: {
+                        id: true,
+                        companyName: true,
+                    }
+                },
+                category_information: {
+                    select: {
+                        category_relation: {
+                            select: {
+                                category: true,
+                                department_relation: true
+                            }
+                        }
+                    }
+                },
+                poi_information: {
+                    select: {
+                        poi_relation: {
+                            select: {
+                                info: true,
+                                poi_info_owner: {
+                                    select: {
+                                        info_owner_relation: {
+                                            select: {
+                                                owner_: true
+                                            }
+                                        }
+                                    }
+                                },
+                                poi_info_from: {
+                                    select: {
+                                        info_from_relation: {
+                                            select: {
+                                                from_: true
+                                            }
+                                        }
+                                    }
+                                },
+                                poi_info_format: {
+                                    select: {
+                                        info_format_relation: {
+                                            select: {
+                                                format_: true
+                                            }
+                                        }
+                                    }
+                                },
+                                poi_info_type: {
+                                    select: {
+                                        info_type_relation: {
+                                            select: {
+                                                type_: true
+                                            }
+                                        }
+                                    }
+                                },
+                                poi_info_objective: {
+                                    select: {
+                                        info_objective_relation: {
+                                            select: {
+                                                objective_: true
+                                            }
+                                        }
+                                    }
+                                },
+                                poi_info_lawbase: {
+                                    select: {
+                                        info_lawbase_relation: {
+                                            select: {
+                                                lawBase_: true
+                                            }
+                                        }
+                                    }
+                                },
+                            }
+                        }
+                    }
+                },
+                information_info_stored_period: {
+                    select: {
+                        info_stored_period_relation: {
+                            select: {
+                                period_: true
+                            }
+                        }
+                    }
+                },
+                information_info_placed: {
+                    select: {
+                        info_placed_relation: {
+                            select: {
+                                placed_: true
+                            }
+                        }
+                    }
+                },
+                information_info_allowed_ps: {
+                    select: {
+                        info_allowed_ps_relation: {
+                            select: {
+                                allowed_ps_: true
+                            }
+                        }
+                    }
+                },
+                information_info_allowed_ps_condition: {
+                    select: {
+                        info_allowed_ps_condition_relation: {
+                            select: {
+                                allowed_ps_condition_: true
+                            }
+                        }
+                    }
+                },
+                information_info_access: {
+                    select: {
+                        info_access_relation: {
+                            select: {
+                                access_: true
+                            }
+                        }
+                    }
+                },
+                information_info_access_condition: {
+                    select: {
+                        info_access_condition_relation: {
+                            select: {
+                                access_condition_: true
+                            }
+                        }
+                    }
+                },
+                information_info_ps_usedbyrole_inside: {
+                    select: {
+                        info_ps_usedbyrole_inside_relation: {
+                            select: {
+                                use_by_role_: true
+                            }
+                        }
+                    }
+                },
+                information_info_ps_sendto_outside: {
+                    select: {
+                        info_ps_sendto_outside_relation: {
+                            select: {
+                                sendto_: true
+                            }
+                        }
+                    }
+                },
+                information_info_ps_destroying: {
+                    select: {
+                        info_ps_destroying_relation: {
+                            select: {
+                                destroying_: true
+                            }
+                        }
+                    }
+                },
+                information_info_ps_destroyer: {
+                    select: {
+                        info_ps_destroyer_relation: {
+                            select: {
+                                destroyer_: true
+                            }
+                        }
+
+                    }
+                }
+            }
+        })
+        return res.json({ status: 200, message: information })
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+export const deleteInformation = async (req, res) => {
+    const id = req.params.id
+
+    try {
+        await prisma.information.delete({
+            where: {
+                id: Number(id)
+            }
+        })
+
+        return res.json({ status: 200, message: 'Deleted Information!!' })
     } catch (error) {
         console.error(error)
     }

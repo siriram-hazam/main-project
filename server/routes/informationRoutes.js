@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { createInformation } from "../controller/informationController.js"
+import { createInformation, getInformation } from "../controller/informationController.js"
 
 const router = Router();
 
 router.post('/', createInformation);
+router.get('/', getInformation);
+
 
 export default router;

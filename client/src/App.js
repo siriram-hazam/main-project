@@ -1,7 +1,12 @@
+
+import { Fragment } from 'react';
+
+import Page from './components/Page';
+
 export default function App() {
   return (
-    <h1 className="animate__animated animate__fadeInRight animate__slow animate__infinite text-3xl font-bold underline">
-      Hello world!
-    </h1>
+    <Fragment>
+      <Page />
+    </Fragment>
   )
 }

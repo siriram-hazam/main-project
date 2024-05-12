@@ -20,29 +20,69 @@ export default function Page() {
           <span className="text-3xl font-semibold">Record Of Processing</span>
         </div>
         <nav className="flex-1">
-          <p className="ml-5 mb-2 font-medium text-gray-500">Navigate</p>
+          <p className="ml-5 mb-2 font-medium text-gray-500">Navigate :</p>
           <a
-            className="ml-7 pl-4 my-1 w-58 border-l-2 border-gray-100 text-gray-500 hover:border-gray-800 hover:text-gray-800 block"
+            className="ml-8 pl-4 my-1 w-58 border-l-2 border-gray-100 text-gray-500 hover:border-gray-800 hover:text-gray-800 block"
+            href="#"
+          >
+            Activities
+          </a>
+          <a
+            className="ml-8 pl-4 my-1 w-58 border-l-2 border-gray-100 text-gray-500 hover:border-gray-800 hover:text-gray-800 block"
             href="#"
           >
             asd
           </a>
           <a
-            className="ml-7 pl-4 my-1 w-58 border-l-2 border-gray-100 text-gray-500 hover:border-gray-800 hover:text-gray-800 block"
-            href="#"
-          >
-            asd
-          </a>
-          <a
-            className="ml-7 pl-4 my-1 w-58 border-l-2 border-gray-100 text-gray-500 hover:border-gray-800 hover:text-gray-800 block"
+            className="ml-8 pl-4 my-1 w-58 border-l-2 border-gray-100 text-gray-500 hover:border-gray-800 hover:text-gray-800 block"
             href="#"
           >
             asd
           </a>
 
-          <p className="ml-5 mb-2 mt-3 font-medium text-gray-500">
-            Team Member
+          <p className="ml-5 mt-3 font-medium text-gray-500">
+            Team Member :
           </p>
+          <div className="bg-neutral-400 mx-8 px-2 py-2 mt-2 w-fit max-w-52 rounded-md flex shadow-md item-center ">
+            <img className="w-10 h-10 rounded-full" src={require('../img/Siriram1.jpg')} alt="" />
+            <div className="px-3">
+              <p className="text-md text-gray-700">Siriam Hazam</p>
+              <p className="text-xs text-gray-300">Full Stack Developer</p>
+            </div>
+          </div>
+
+          <div className="bg-neutral-400 mx-8 px-2 py-2 mt-2 w-fit max-w-52 rounded-md flex shadow-md item-center ">
+            <img className="w-10 h-10 rounded-full" src={require('../img/Siriram1.jpg')} alt="" />
+            <div className="px-3">
+              <p className="text-md text-gray-700">Siriam Hazam</p>
+              <p className="text-xs text-gray-300">Full Stack Developer</p>
+            </div>
+          </div>
+
+          <div className="bg-neutral-400 mx-8 px-2 py-2 mt-2 w-fit max-w-52 rounded-md flex shadow-md item-center ">
+            <img className="w-10 h-10 rounded-full" src={require('../img/Siriram1.jpg')} alt="" />
+            <div className="px-3">
+              <p className="text-md text-gray-700">Siriam Hazam</p>
+              <p className="text-xs text-gray-300">Full Stack Developer</p>
+            </div>
+          </div>
+
+          <div className="bg-neutral-400 mx-8 px-2 py-2 mt-2 w-fit max-w-52 rounded-md flex shadow-md item-center ">
+            <img className="w-10 h-10 rounded-full" src={require('../img/Siriram1.jpg')} alt="" />
+            <div className="px-3">
+              <p className="text-md text-gray-700">Siriam Hazam</p>
+              <p className="text-xs text-gray-300">Full Stack Developer</p>
+            </div>
+          </div>
+
+          <div className="bg-neutral-400 mx-8 px-2 py-2 mt-2 w-fit max-w-52 rounded-md flex shadow-md item-center ">
+            <img className="w-10 h-10 rounded-full" src={require('../img/Siriram1.jpg')} alt="" />
+            <div className="px-3">
+              <p className="text-md text-gray-700">Siriam Hazam</p>
+              <p className="text-xs text-gray-300">Full Stack Developer</p>
+            </div>
+          </div>
+
         </nav>
       </div>
 
@@ -54,7 +94,7 @@ export default function Page() {
             onClick={() => setMenuOpen(!menuOpen)}
           />
 
-          <h1 className="text-nowrap border border-gray-300 bg-gray-400 text-gray-200 rounded-3xl content-center px-5 py-1 drop-shadow-xl mr-2">
+          <h1 className="text-nowrap  bg-neutral-400 text-gray-200 rounded-3xl content-center px-5 py-1 drop-shadow-md mr-2">
             บริษัท ทดสอasdasdasdaบ จำกัด
           </h1>
         </div>

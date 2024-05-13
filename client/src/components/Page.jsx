@@ -5,6 +5,12 @@ import { FiMenu } from "react-icons/fi";
 export default function Page() {
   const [menuOpen, setMenuOpen] = useState(true);
 
+  const [showModal, setShowModal] = useState(false); // State เพื่อเก็บค่าการแสดงโมเดล
+  // ฟังก์ชันที่เรียกเมื่อคลิกที่ table-row-group เพื่อแสดงโมเดล
+  const handleRowClick = () => {
+    setShowModal(true);
+  };
+
   return (
     <div className="flex min-h-screen min-w-max flex-nowrap">
       <div
@@ -78,6 +84,17 @@ export default function Page() {
           </h1>
         </div>
 
+        {/* ส่วนโมเดล */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-8 rounded-lg shadow-md">
+              {/* เนื้อหาของโมเดล */}
+              <h2>โมเดล</h2>
+              <button onClick={() => setShowModal(false)}>ปิด</button>
+            </div>
+          </div>
+        )}
+
         <div className="container p-4 mx-auto mb-5 min-w-max">
           <div className="flex mb-5">
             <div className="ml-auto space-x-2 flex-nowrap text-sm">
@@ -112,7 +129,10 @@ export default function Page() {
                 <div className="table-cell py-1 px-2 border-b-2 border-neutral-300"></div>
               </div>
             </div>
-            <div className="table-row-group hover:bg-gray-100 cursor-pointer text-neutral-600">
+            <div
+              className="table-row-group hover:bg-gray-100 cursor-pointer text-neutral-600"
+              onClick={() => setShowModal(!showModal)}
+            >
               <div className="table-row">
                 <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
                   ข้อมูลกิจกรรม 1

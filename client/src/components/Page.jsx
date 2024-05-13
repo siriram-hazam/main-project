@@ -5,21 +5,6 @@ import { FiMenu } from "react-icons/fi";
 export default function Page() {
   const [menuOpen, setMenuOpen] = useState(true);
 
-  // JavaScript
-  document.querySelectorAll('[data-toggle="modal"]').forEach((item) => {
-    item.addEventListener("click", (event) => {
-      document
-        .querySelector(item.getAttribute("data-target"))
-        .classList.remove("hidden");
-    });
-  });
-
-  document.querySelectorAll(".close").forEach((item) => {
-    item.addEventListener("click", (event) => {
-      document.querySelector(".modal").classList.add("hidden");
-    });
-  });
-
   return (
     <div className="flex min-h-screen min-w-max flex-nowrap">
       <div
@@ -81,7 +66,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="flex-1 flex-nowrap text-nowrap ">
+      <div className="flex-1 flex-nowrap text-nowrap">
         <div className="flex justify-between min-h-12 h-auto bg-neutral-200 border-gray-500 drop-shadow place-items-center max-w-full space-x-4 pr-4">
           <FiMenu
             color="gray"
@@ -105,79 +90,87 @@ export default function Page() {
             </div>
           </div>
 
-          {/* <div class="w-full min-w-max bg-neutral-300 rounded-md px-3 py-2 flex justify-between place-items-center text-xs font-bold">
-            <p class="w-1/4">กิจกรรมงานที่บันทึก</p>
-            <p class="w-1/4">แผนก</p>
-            <p class="w-1/4">สถานะการตรวจสอบ</p>
-            <p class="w-1/4"></p>
-          </div>
-
-          <div class="w-full min-w-max bg-white rounded-md px-3 py-2 flex justify-between place-items-center text-sm">
-            <p class="w-1/4">ข้อมูลกิจกรรม</p>
-            <p class="w-1/4">ข้อมูลแผนก</p>
-            <p class="w-1/4">ข้อมูลสถานะ</p>
-            <button class="w-1/4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-              ปุ่ม
-            </button>
-          </div> */}
-
-          {/* <!-- HTML --> */}
-          <table class="w-full min-w-max bg-neutral-300 rounded-md text-xs">
-            <thead>
-              <tr class="font-bold">
-                <th class="px-3 py-2">กิจกรรมงานที่บันทึก</th>
-                <th class="px-3 py-2">แผนก</th>
-                <th class="px-3 py-2">สถานะการตรวจสอบ</th>
-                <th class="px-3 py-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                class="bg-white hover:bg-gray-100 cursor-pointer"
-                data-toggle="modal"
-                data-target="#myModal"
-              >
-                <td class="px-3 py-2">ข้อมูลกิจกรรม 1</td>
-                <td class="px-3 py-2">ข้อมูลแผนก 1</td>
-                <td class="px-3 py-2">ข้อมูลสถานะ 1</td>
-                <td class="px-3 py-2">
-                  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    ปุ่ม
+          <div className="table w-full text-sm">
+            <div className="table-header-group bg-neutral-200 font-semibold text-neutral-800">
+              <div className="table-row rounded-full">
+                <div className="table-cell py-1 px-2 border-b-2 border-neutral-300">
+                  กิจกรรมงานที่บันทึก
+                </div>
+                <div className="table-cell py-1 px-2 border-b-2 border-neutral-300">
+                  แผนก
+                </div>
+                <div className="table-cell py-1 px-2 border-b-2 border-neutral-300">
+                  สถานะการตรวจสอบ
+                </div>
+                <div className="table-cell py-1 px-2 border-b-2 border-neutral-300">
+                  เวลาที่บันทึก
+                </div>
+                <div className="table-cell py-1 px-2 border-b-2 border-neutral-300">
+                  ผู้บันทึก
+                </div>
+                <div className="table-cell py-1 px-2 border-b-2 border-neutral-300"></div>
+                <div className="table-cell py-1 px-2 border-b-2 border-neutral-300"></div>
+              </div>
+            </div>
+            <div className="table-row-group hover:bg-gray-100 cursor-pointer text-neutral-600">
+              <div className="table-row">
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  ข้อมูลกิจกรรม 1
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  ข้อมูลแผนก 1
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  ข้อมูลสถานะ 1
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  ข้อมูลเวลา 1
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  ข้อมูลผู้บันทึก 1
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  <button className="text-neutral-500 hover:text-black">
+                    แก้ไข
                   </button>
-                </td>
-              </tr>
-              <tr
-                class="bg-white hover:bg-gray-100 cursor-pointer"
-                data-toggle="modal"
-                data-target="#myModal"
-              >
-                <td class="px-3 py-2">ข้อมูลกิจกรรม 2</td>
-                <td class="px-3 py-2">ข้อมูลแผนก 2</td>
-                <td class="px-3 py-2">ข้อมูลสถานะ 2</td>
-                <td class="px-3 py-2">
-                  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    ปุ่ม
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  <input type="checkbox" />
+                </div>
+              </div>
+            </div>
+            <div className="table-row-group hover:bg-gray-100 cursor-pointer text-neutral-600">
+              <div className="table-row">
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  ข้อมูลกิจกรรม 1
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  ข้อมูลแผนก 1
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  ข้อมูลสถานะ 1
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  ข้อมูลเวลา 1
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  ข้อมูลผู้บันทึก 1
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  <button className="text-neutral-500 hover:text-black">
+                    แก้ไข
                   </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          {/* <!-- Modal --> */}
-          <div
-            id="myModal"
-            class="modal hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center"
-          >
-            <div class="modal-content bg-white rounded-md p-8">
-              <span class="close absolute top-0 right-0 m-4 text-2xl cursor-pointer">
-                &times;
-              </span>
-              <p>ข้อมูลที่ต้องการแสดง</p>
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  <input type="checkbox" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <footer></footer>
+        <footer className="text-center text-xs mt-auto">
+          &#169;2024 Siriram Hazam, Thanokorn Sittikorn. All Rights Reserved.
+        </footer>
       </div>
     </div>
   );

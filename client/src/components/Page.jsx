@@ -5,11 +5,9 @@ import { FiMenu } from "react-icons/fi";
 export default function Page() {
   const [menuOpen, setMenuOpen] = useState(true);
 
-  const [showModal, setShowModal] = useState(false); // State เพื่อเก็บค่าการแสดงโมเดล
-  // ฟังก์ชันที่เรียกเมื่อคลิกที่ table-row-group เพื่อแสดงโมเดล
-  const handleRowClick = () => {
-    setShowModal(true);
-  };
+  const [showCreateactivityModal, setShowCreateactivityModal] = useState(false);
+  const [showActivityModal, setShowActivityModal] = useState(false);
+  const [showEditactivityModal, setShowEditactivityModal] = useState(false);
 
   return (
     <div className="flex min-h-screen min-w-max flex-nowrap">
@@ -84,13 +82,39 @@ export default function Page() {
           </h1>
         </div>
 
-        {/* ส่วนโมเดล */}
-        {showModal && (
+        {/* Modal Activities */}
+        {showActivityModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-white p-8 rounded-lg shadow-md">
               {/* เนื้อหาของโมเดล */}
-              <h2>โมเดล</h2>
-              <button onClick={() => setShowModal(false)}>ปิด</button>
+              <h2>โมเดล show</h2>
+              <button onClick={() => setShowActivityModal(false)}>ปิด</button>
+            </div>
+          </div>
+        )}
+
+        {/* Create Modal Activities */}
+        {showCreateactivityModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-8 rounded-lg shadow-md">
+              {/* เนื้อหาของโมเดล */}
+              <h2>โมเดล Create</h2>
+              <button onClick={() => setShowCreateactivityModal(false)}>
+                ปิด
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Modal Activities */}
+        {showEditactivityModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-8 rounded-lg shadow-md">
+              {/* เนื้อหาของโมเดล */}
+              <h2>โมเดล Edit</h2>
+              <button onClick={() => setShowEditactivityModal(false)}>
+                ปิด
+              </button>
             </div>
           </div>
         )}
@@ -98,7 +122,12 @@ export default function Page() {
         <div className="container p-4 mx-auto mb-5 min-w-max">
           <div className="flex mb-5">
             <div className="ml-auto space-x-2 flex-nowrap text-sm">
-              <button className="bg-neutral-300 p-2 rounded-3xl px-3 text-gray-700">
+              <button
+                className="bg-neutral-300 p-2 rounded-3xl px-3 text-gray-700"
+                onClick={() =>
+                  setShowCreateactivityModal(!showCreateactivityModal)
+                }
+              >
                 Add Activities
               </button>
               <button className="bg-neutral-300 p-2 rounded-3xl px-3 text-gray-700">
@@ -127,36 +156,7 @@ export default function Page() {
                 </div>
                 <div className="table-cell py-1 px-2 border-b-2 border-neutral-300"></div>
                 <div className="table-cell py-1 px-2 border-b-2 border-neutral-300"></div>
-              </div>
-            </div>
-            <div
-              className="table-row-group hover:bg-gray-100 cursor-pointer text-neutral-600"
-              onClick={() => setShowModal(!showModal)}
-            >
-              <div className="table-row">
-                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
-                  ข้อมูลกิจกรรม 1
-                </div>
-                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
-                  ข้อมูลแผนก 1
-                </div>
-                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
-                  ข้อมูลสถานะ 1
-                </div>
-                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
-                  ข้อมูลเวลา 1
-                </div>
-                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
-                  ข้อมูลผู้บันทึก 1
-                </div>
-                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
-                  <button className="text-neutral-500 hover:text-black">
-                    แก้ไข
-                  </button>
-                </div>
-                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
-                  <input type="checkbox" />
-                </div>
+                <div className="table-cell py-1 px-2 border-b-2 border-neutral-300"></div>
               </div>
             </div>
             <div className="table-row-group hover:bg-gray-100 cursor-pointer text-neutral-600">
@@ -177,7 +177,20 @@ export default function Page() {
                   ข้อมูลผู้บันทึก 1
                 </div>
                 <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
-                  <button className="text-neutral-500 hover:text-black">
+                  <button
+                    className="text-neutral-500 hover:text-black"
+                    onClick={() => setShowActivityModal(!showActivityModal)}
+                  >
+                    ดู
+                  </button>
+                </div>
+                <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
+                  <button
+                    className="text-neutral-500 hover:text-black"
+                    onClick={() =>
+                      setShowEditactivityModal(!showEditactivityModal)
+                    }
+                  >
                     แก้ไข
                   </button>
                 </div>

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { GoRepo } from "react-icons/go";
 import { FiMenu } from "react-icons/fi";
+import { IoCloseOutline } from "react-icons/io5";
 
 export default function Page() {
   const [menuOpen, setMenuOpen] = useState(true);
 
-  const [showCreateactivityModal, setShowCreateactivityModal] = useState(false);
+  const [showCreateactivityModal, setShowCreateactivityModal] = useState(true);
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [showEditactivityModal, setShowEditactivityModal] = useState(false);
 
@@ -85,36 +86,50 @@ export default function Page() {
         {/* Modal Activities */}
         {showActivityModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-8 rounded-lg shadow-md">
+            <div className="bg-white p-8 rounded-lg shadow-md w-11/12 h-5/6">
               {/* เนื้อหาของโมเดล */}
-              <h2>โมเดล show</h2>
-              <button onClick={() => setShowActivityModal(false)}>ปิด</button>
+              <div className="flex justify-between items-center mb-2">
+                <p></p>
+                <IoCloseOutline
+                  className="w-8 h-8 cursor-pointer"
+                  onClick={() => setShowActivityModal(false)}
+                />
+              </div>
+              <div>dhcklgdfhg</div>
             </div>
           </div>
         )}
 
-        {/* Create Modal Activities */}
+        {/* Modal Create Activities */}
         {showCreateactivityModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-8 rounded-lg shadow-md">
+            <div className="bg-white p-8 rounded-lg shadow-md w-11/12 h-5/6">
               {/* เนื้อหาของโมเดล */}
-              <h2>โมเดล Create</h2>
-              <button onClick={() => setShowCreateactivityModal(false)}>
-                ปิด
-              </button>
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-xl font-semibold">สร้างกิจกรรมงาน</p>
+                <IoCloseOutline
+                  className="w-8 h-8 cursor-pointer"
+                  onClick={() => setShowCreateactivityModal(false)}
+                />
+              </div>
+              <div>dhcklgdfhg</div>
             </div>
           </div>
         )}
 
-        {/* Edit Modal Activities */}
+        {/* Modal Edit Activities */}
         {showEditactivityModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-8 rounded-lg shadow-md">
+            <div className="bg-white p-8 rounded-lg shadow-md w-11/12 h-5/6">
               {/* เนื้อหาของโมเดล */}
-              <h2>โมเดล Edit</h2>
-              <button onClick={() => setShowEditactivityModal(false)}>
-                ปิด
-              </button>
+              <div className="flex justify-between items-center mb-2">
+                <p></p>
+                <IoCloseOutline
+                  className="w-8 h-8 cursor-pointer"
+                  onClick={() => setShowEditactivityModal(false)}
+                />
+              </div>
+              <div>dhcklgdfhg</div>
             </div>
           </div>
         )}

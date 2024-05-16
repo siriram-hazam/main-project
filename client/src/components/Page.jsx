@@ -1,14 +1,26 @@
 import React, { useState } from "react";
 import { GoRepo } from "react-icons/go";
 import { FiMenu } from "react-icons/fi";
-import { IoCloseOutline } from "react-icons/io5";
+
+import InfoActivityModal from "./InfoActivityModal.jsx";
+import EditActivityModal from "./EditActivityModal.jsx";
+import CreateActivityModal from "./CreateActivityModal.jsx";
 
 export default function Page() {
   const [menuOpen, setMenuOpen] = useState(true);
 
-  const [showCreateactivityModal, setShowCreateactivityModal] = useState(true);
-  const [showActivityModal, setShowActivityModal] = useState(false);
+  const [showInfoActivityModal, setShowInfoActivityModal] = useState(false);
+  const toggleInfoActivityModal = () => {
+    setShowInfoActivityModal(!showInfoActivityModal);
+  };
+  const [showCreateactivityModal, setShowCreateactivityModal] = useState(false);
+  const toggleCreateactivityModal = () => {
+    setShowCreateactivityModal(!showCreateactivityModal);
+  };
   const [showEditactivityModal, setShowEditactivityModal] = useState(false);
+  const toggleEditactivityModal = () => {
+    setShowEditactivityModal(!showEditactivityModal);
+  };
 
   return (
     <div className="flex min-h-screen min-w-max flex-nowrap">
@@ -83,56 +95,23 @@ export default function Page() {
           </h1>
         </div>
 
-        {/* Modal Activities */}
-        {showActivityModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-8 rounded-lg shadow-md w-11/12 h-5/6">
-              {/* เนื้อหาของโมเดล */}
-              <div className="flex justify-between items-center mb-2">
-                <p></p>
-                <IoCloseOutline
-                  className="w-8 h-8 cursor-pointer"
-                  onClick={() => setShowActivityModal(false)}
-                />
-              </div>
-              <div>dhcklgdfhg</div>
-            </div>
-          </div>
-        )}
+        {/* Modal Info Activities */}
+        <InfoActivityModal
+          show={showInfoActivityModal}
+          onClose={toggleInfoActivityModal}
+        />
 
         {/* Modal Create Activities */}
-        {showCreateactivityModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-8 rounded-lg shadow-md w-11/12 h-5/6">
-              {/* เนื้อหาของโมเดล */}
-              <div className="flex justify-between items-center mb-2">
-                <p className="text-xl font-semibold">สร้างกิจกรรมงาน</p>
-                <IoCloseOutline
-                  className="w-8 h-8 cursor-pointer"
-                  onClick={() => setShowCreateactivityModal(false)}
-                />
-              </div>
-              <div>dhcklgdfhg</div>
-            </div>
-          </div>
-        )}
+        <CreateActivityModal
+          show={showCreateactivityModal}
+          onClose={toggleCreateactivityModal}
+        />
 
         {/* Modal Edit Activities */}
-        {showEditactivityModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-8 rounded-lg shadow-md w-11/12 h-5/6">
-              {/* เนื้อหาของโมเดล */}
-              <div className="flex justify-between items-center mb-2">
-                <p></p>
-                <IoCloseOutline
-                  className="w-8 h-8 cursor-pointer"
-                  onClick={() => setShowEditactivityModal(false)}
-                />
-              </div>
-              <div>dhcklgdfhg</div>
-            </div>
-          </div>
-        )}
+        <EditActivityModal
+          show={showEditactivityModal}
+          onClose={toggleEditactivityModal}
+        />
 
         <div className="container p-4 mx-auto mb-5 min-w-max">
           <div className="flex mb-5">
@@ -153,7 +132,7 @@ export default function Page() {
 
           <div className="table w-full text-sm">
             <div className="table-header-group bg-neutral-200 font-semibold text-neutral-800">
-              <div className="table-row rounded-full">
+              <div className="table-row">
                 <div className="table-cell py-1 px-2 border-b-2 border-neutral-300">
                   กิจกรรมงานที่บันทึก
                 </div>
@@ -194,7 +173,7 @@ export default function Page() {
                 <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
                   <button
                     className="text-neutral-500 hover:text-black"
-                    onClick={() => setShowActivityModal(!showActivityModal)}
+                    onClick={toggleInfoActivityModal}
                   >
                     ดู
                   </button>
@@ -202,9 +181,7 @@ export default function Page() {
                 <div className="table-cell py-2 px-2 border-b-2 border-neutral-300">
                   <button
                     className="text-neutral-500 hover:text-black"
-                    onClick={() =>
-                      setShowEditactivityModal(!showEditactivityModal)
-                    }
+                    onClick={toggleEditactivityModal}
                   >
                     แก้ไข
                   </button>

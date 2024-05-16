@@ -34,7 +34,11 @@ module.exports = {
         900: '#171717',
       },
     },
-    extend: {},
+    extend: {
+      maxWidth: {
+      '11/12': '91.666667%',
+      }
+    },
   },
   plugins: [],
 }

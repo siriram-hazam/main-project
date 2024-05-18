@@ -23,7 +23,7 @@ export default function Page() {
   };
 
   return (
-    <div className="flex min-h-screen min-w-max flex-nowrap">
+    <div className="flex min-h-screen flex-nowrap">
       <div
         id="menu"
         className={`bg-neutral-200 w-64 flex flex-col drop-shadow-xl ${
@@ -84,7 +84,7 @@ export default function Page() {
       </div>
 
       <div className="flex-1 flex-nowrap text-nowrap">
-        <div className="flex justify-between min-h-12 h-auto bg-neutral-200 border-gray-500 drop-shadow place-items-center max-w-full space-x-4 pr-4">
+        <div className="flex justify-between min-h-12 bg-neutral-200 border-gray-500 drop-shadow place-items-center max-w-full space-x-4 pr-4">
           <FiMenu
             color="gray"
             className="w-8 h-8 ml-4 cursor-pointer hover:bg-gray-50 rounded-md drop-shadow-xl "

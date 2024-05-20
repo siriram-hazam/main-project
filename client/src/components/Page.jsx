@@ -13,7 +13,7 @@ export default function Page() {
   const toggleInfoActivityModal = () => {
     setShowInfoActivityModal(!showInfoActivityModal);
   };
-  const [showCreateactivityModal, setShowCreateactivityModal] = useState(false);
+  const [showCreateactivityModal, setShowCreateactivityModal] = useState(true);
   const toggleCreateactivityModal = () => {
     setShowCreateactivityModal(!showCreateactivityModal);
   };
@@ -23,7 +23,7 @@ export default function Page() {
   };
 
   return (
-    <div className="flex min-h-screen flex-nowrap">
+    <div className="flex min-h-screen min-w-max flex-nowrap">
       <div
         id="menu"
         className={`bg-neutral-200 w-64 flex flex-col drop-shadow-xl ${

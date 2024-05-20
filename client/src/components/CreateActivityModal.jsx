@@ -1,6 +1,7 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { IoCloseOutline } from "react-icons/io5";
 import UseAutoResizeInput from "./UseAutoResizeInput.jsx";
+import UseDynamicInputs from "./UseDynamicInputs.jsx";
 
 const CreateActivityModal = ({ show, onClose }) => {
   const { inputRef: inputRef1, resizeInput: resizeInput1 } =
@@ -30,20 +31,71 @@ const CreateActivityModal = ({ show, onClose }) => {
   const { inputRef: inputRef13, resizeInput: resizeInput13 } =
     UseAutoResizeInput();
 
+  const { containerRef: containerRef1, addInput: addInput1 } =
+    UseDynamicInputs();
+  const { containerRef: containerRef2, addInput: addInput2 } =
+    UseDynamicInputs();
+  const { containerRef: containerRef3, addInput: addInput3 } =
+    UseDynamicInputs();
+  const { containerRef: containerRef4, addInput: addInput4 } =
+    UseDynamicInputs();
+  const { containerRef: containerRef5, addInput: addInput5 } =
+    UseDynamicInputs();
+  const { containerRef: containerRef6, addInput: addInput6 } =
+    UseDynamicInputs();
+  const { containerRef: containerRef7, addInput: addInput7 } =
+    UseDynamicInputs();
+  const { containerRef: containerRef8, addInput: addInput8 } =
+    UseDynamicInputs();
+  const { containerRef: containerRef9, addInput: addInput9 } =
+    UseDynamicInputs();
+  const { containerRef: containerRef10, addInput: addInput10 } =
+    UseDynamicInputs();
+
   const tableBodyRef = useRef(null);
+
+  // const [formData, setFormData] = useState({
+  //   activity: "",
+  //   status: "pending",
+  //   createBy: "",
+  //   company_id: "",
+  //   category: "",
+  //   department_id: "",
+  //   poi_relations: [
+  //     {
+  //       info: "",
+  //       poi_info_owner: "",
+  //       poi_info_from: "",
+  //       poi_info_format: "",
+  //       poi_info_type: "",
+  //       poi_info_objective: "",
+  //       poi_info_lawbase: [],
+  //     },
+  //   ],
+  //   info_stored_period: [],
+  //   info_placed: [],
+  //   info_allowed_ps: [],
+  //   info_allowed_ps_condition: [],
+  //   info_access: [],
+  //   info_access_condition: [],
+  //   info_ps_usedbyrole_inside: [],
+  //   info_ps_sendto_outside: [],
+  //   info_ps_destroying: [],
+  //   info_ps_destroyer: [],
+  // });
 
   const handleAddRow = () => {
     const newRow = document.createElement("div");
     newRow.className = "table-row";
 
     const fields = [
-      "processedData",
-      "dataOwner",
-      "dataSource",
-      "dataFormat",
-      "dataType",
-      "dataPurpose",
-      "legalBasis",
+      "info",
+      "poi_info_owner",
+      "poi_info_from",
+      "poi_info_format",
+      "poi_info_type",
+      "poi_info_objective",
+      "poi_info_lawbase",
     ];
     fields.forEach(() => {
       const newCell = document.createElement("div");
@@ -63,7 +115,7 @@ const CreateActivityModal = ({ show, onClose }) => {
     <>
       {/* Modal Create Activities */}
       {show && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center ">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-8 rounded-lg shadow-md max-w-11/12 w-11/12 max-h-dvh text-sm overflow-auto">
             {/* เนื้อหาของโมเดล */}
             <div className="flex justify-between items-center mb-3 pb-3 border-b-4">
@@ -194,124 +246,204 @@ const CreateActivityModal = ({ show, onClose }) => {
               </button>
             </div>
 
-            <div className="mb-1">
-              ระยะเวลาการจัดเก็บ (ปี/นับจาก) :
-              <input
-                ref={inputRef4}
-                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
-                type="text"
-                placeholder="กรอกข้อมูล"
-                onChange={resizeInput4}
-                style={{ minWidth: "200px", maxWidth: "75%" }}
-              />
+            <div className="flex max-w-full">
+              <div className="mb-1" ref={containerRef1}>
+                ระยะเวลาการจัดเก็บ (ปี/นับจาก) :
+                <input
+                  ref={inputRef4}
+                  className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                  type="text"
+                  placeholder="กรอกข้อมูล"
+                  onChange={resizeInput4}
+                  style={{ minWidth: "200px", maxWidth: "75%" }}
+                />
+              </div>
+              <button
+                className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
+                onClick={addInput1}
+              >
+                +
+              </button>
             </div>
 
-            <div className="mb-1">
-              แหล่งจัดเก็บข้อมูลส่วนบุคคล :
-              <input
-                ref={inputRef5}
-                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
-                type="text"
-                placeholder="กรอกข้อมูล"
-                onChange={resizeInput5}
-                style={{ minWidth: "200px", maxWidth: "75%" }}
-              />
+            <div className="flex max-w-full">
+              <div className="mb-1" ref={containerRef2}>
+                แหล่งจัดเก็บข้อมูลส่วนบุคคล :
+                <input
+                  ref={inputRef5}
+                  className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                  type="text"
+                  placeholder="กรอกข้อมูล"
+                  onChange={resizeInput5}
+                  style={{ minWidth: "200px", maxWidth: "75%" }}
+                />
+              </div>
+              <button
+                className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
+                onClick={addInput2}
+              >
+                +
+              </button>
             </div>
 
-            <div className="mb-1">
-              บุคคลที่มีสิทธิเข้าถึงข้อมูล :
-              <input
-                ref={inputRef6}
-                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
-                type="text"
-                placeholder="กรอกข้อมูล"
-                onChange={resizeInput6}
-                style={{ minWidth: "200px", maxWidth: "75%" }}
-              />
+            <div className="flex max-w-full">
+              <div className="mb-1" ref={containerRef3}>
+                บุคคลที่มีสิทธิเข้าถึงข้อมูล :
+                <input
+                  ref={inputRef6}
+                  className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                  type="text"
+                  placeholder="กรอกข้อมูล"
+                  onChange={resizeInput6}
+                  style={{ minWidth: "200px", maxWidth: "75%" }}
+                />
+              </div>
+              <button
+                className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
+                onClick={addInput3}
+              >
+                +
+              </button>
             </div>
 
-            <div className="mb-1">
-              เงื่อนไขเกี่ยวกับบุคคลที่มีสิทธิเข้าถึงข้อมูล :
-              <input
-                ref={inputRef7}
-                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
-                type="text"
-                placeholder="กรอกข้อมูล"
-                onChange={resizeInput7}
-                style={{ minWidth: "200px", maxWidth: "75%" }}
-              />
+            <div className="flex max-w-full">
+              <div className="mb-1" ref={containerRef4}>
+                เงื่อนไขเกี่ยวกับบุคคลที่มีสิทธิเข้าถึงข้อมูล :
+                <input
+                  ref={inputRef7}
+                  className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                  type="text"
+                  placeholder="กรอกข้อมูล"
+                  onChange={resizeInput7}
+                  style={{ minWidth: "200px", maxWidth: "75%" }}
+                />
+              </div>
+              <button
+                className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
+                onClick={addInput4}
+              >
+                +
+              </button>
             </div>
 
-            <div className="mb-1">
-              วิธีการเข้าถึงข้อมูล :
-              <input
-                ref={inputRef8}
-                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
-                type="text"
-                placeholder="กรอกข้อมูล"
-                onChange={resizeInput8}
-                style={{ minWidth: "200px", maxWidth: "75%" }}
-              />
+            <div className="flex max-w-full">
+              <div className="mb-1" ref={containerRef5}>
+                วิธีการเข้าถึงข้อมูล :
+                <input
+                  ref={inputRef8}
+                  className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                  type="text"
+                  placeholder="กรอกข้อมูล"
+                  onChange={resizeInput8}
+                  style={{ minWidth: "200px", maxWidth: "75%" }}
+                />
+              </div>
+              <button
+                className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
+                onClick={addInput5}
+              >
+                +
+              </button>
             </div>
 
-            <div className="mb-1">
-              เงื่อนไขในการเข้าถึงข้อมูล :
-              <input
-                ref={inputRef9}
-                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
-                type="text"
-                placeholder="กรอกข้อมูล"
-                onChange={resizeInput9}
-                style={{ minWidth: "200px", maxWidth: "75%" }}
-              />
+            <div className="flex max-w-full">
+              <div className="mb-1" ref={containerRef6}>
+                เงื่อนไขในการเข้าถึงข้อมูล :
+                <input
+                  ref={inputRef9}
+                  className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                  type="text"
+                  placeholder="กรอกข้อมูล"
+                  onChange={resizeInput9}
+                  style={{ minWidth: "200px", maxWidth: "75%" }}
+                />
+              </div>
+              <button
+                className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
+                onClick={addInput6}
+              >
+                +
+              </button>
             </div>
 
-            <div className="mb-1">
-              ข้อมูลส่วนบุคคลถูกใช้โดยตำแหน่งใดบ้าง (ภายในองค์กร) :
-              <input
-                ref={inputRef10}
-                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
-                type="text"
-                placeholder="กรอกข้อมูล"
-                onChange={resizeInput10}
-                style={{ minWidth: "200px", maxWidth: "75%" }}
-              />
+            <div className="flex max-w-full">
+              <div className="mb-1" ref={containerRef7}>
+                ข้อมูลส่วนบุคคลถูกใช้โดยตำแหน่งใดบ้าง (ภายในองค์กร) :
+                <input
+                  ref={inputRef10}
+                  className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                  type="text"
+                  placeholder="กรอกข้อมูล"
+                  onChange={resizeInput10}
+                  style={{ minWidth: "200px", maxWidth: "75%" }}
+                />
+              </div>
+              <button
+                className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
+                onClick={addInput7}
+              >
+                +
+              </button>
             </div>
 
-            <div className="mb-1">
-              ข้อมูลส่วนบุคคลถูกส่งต่อ/เปิดเภยให้ใครบ้าง (ภายนอกองค์กร) :
-              <input
-                ref={inputRef11}
-                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
-                type="text"
-                placeholder="กรอกข้อมูล"
-                onChange={resizeInput11}
-                style={{ minWidth: "200px", maxWidth: "75%" }}
-              />
+            <div className="flex max-w-full">
+              <div className="mb-1" ref={containerRef8}>
+                ข้อมูลส่วนบุคคลถูกส่งต่อ/เปิดเภยให้ใครบ้าง (ภายนอกองค์กร) :
+                <input
+                  ref={inputRef11}
+                  className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                  type="text"
+                  placeholder="กรอกข้อมูล"
+                  onChange={resizeInput11}
+                  style={{ minWidth: "200px", maxWidth: "75%" }}
+                />
+              </div>
+              <button
+                className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
+                onClick={addInput8}
+              >
+                +
+              </button>
             </div>
 
-            <div className="mb-1">
-              วิธีการทำลายข้อมูลส่วนบุคคล :
-              <input
-                ref={inputRef12}
-                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
-                type="text"
-                placeholder="กรอกข้อมูล"
-                onChange={resizeInput12}
-                style={{ minWidth: "200px", maxWidth: "75%" }}
-              />
+            <div className="flex max-w-full">
+              <div className="mb-1" ref={containerRef9}>
+                วิธีการทำลายข้อมูลส่วนบุคคล :
+                <input
+                  ref={inputRef12}
+                  className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                  type="text"
+                  placeholder="กรอกข้อมูล"
+                  onChange={resizeInput12}
+                  style={{ minWidth: "200px", maxWidth: "75%" }}
+                />
+              </div>
+              <button
+                className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
+                onClick={addInput9}
+              >
+                +
+              </button>
             </div>
 
-            <div className="mb-1">
-              ผู้อนุมัติการทำลายข้อมูลส่วนบุคคล :
-              <input
-                ref={inputRef13}
-                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
-                type="text"
-                placeholder="กรอกข้อมูล"
-                onChange={resizeInput13}
-                style={{ minWidth: "200px", maxWidth: "75%" }}
-              />
+            <div className="flex max-w-full">
+              <div className="mb-1" ref={containerRef10}>
+                ผู้อนุมัติการทำลายข้อมูลส่วนบุคคล :
+                <input
+                  ref={inputRef13}
+                  className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                  type="text"
+                  placeholder="กรอกข้อมูล"
+                  onChange={resizeInput13}
+                  style={{ minWidth: "200px", maxWidth: "75%" }}
+                />
+              </div>
+              <button
+                className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
+                onClick={addInput10}
+              >
+                +
+              </button>
             </div>
 
             <div className="flex justify-between mt-3">

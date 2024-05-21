@@ -20,6 +20,9 @@ const CreateActivityModal = ({ show, onClose }) => {
     info_ps_destroyer: [null],
   });
 
+  // State to force re-render
+  const [, setForceRender] = useState(false);
+
   const poiRelationsRefs = useRef([
     {
       info: null,
@@ -28,7 +31,7 @@ const CreateActivityModal = ({ show, onClose }) => {
       poi_info_format: null,
       poi_info_type: null,
       poi_info_objective: null,
-      poi_info_lawbase: null,
+      poi_info_lawbase: [null],
     },
   ]);
 
@@ -56,7 +59,7 @@ const CreateActivityModal = ({ show, onClose }) => {
           poi_info_format: null,
           poi_info_type: null,
           poi_info_objective: null,
-          poi_info_lawbase: null,
+          poi_info_lawbase: [null],
         },
       ];
       setFieldRefs({
@@ -82,7 +85,9 @@ const CreateActivityModal = ({ show, onClose }) => {
       poi_info_format: ref.poi_info_format.value,
       poi_info_type: ref.poi_info_type.value,
       poi_info_objective: ref.poi_info_objective.value,
-      poi_info_lawbase: ref.poi_info_lawbase.value,
+      poi_info_lawbase: ref.poi_info_lawbase.map(
+        (lawbaseRef) => lawbaseRef.value
+      ),
     }));
 
     const formData = {
@@ -125,8 +130,9 @@ const CreateActivityModal = ({ show, onClose }) => {
       poi_info_format: null,
       poi_info_type: null,
       poi_info_objective: null,
-      poi_info_lawbase: null,
+      poi_info_lawbase: [null],
     });
+    setForceRender((prev) => !prev); // Force re-render
   };
 
   const handleAddField = (field) => {
@@ -136,13 +142,18 @@ const CreateActivityModal = ({ show, onClose }) => {
     }));
   };
 
+  const handleAddPoiInfoLawbase = (index) => {
+    const newRefs = [...poiRelationsRefs.current];
+    newRefs[index].poi_info_lawbase.push(null);
+    poiRelationsRefs.current = newRefs;
+    setForceRender((prev) => !prev); // Force re-render
+  };
+
   return (
     <>
-      {/* Modal Create Activities */}
       {show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-8 rounded-lg shadow-md max-w-11/12 w-11/12 max-h-dvh text-sm overflow-auto">
-            {/* เนื้อหาของโมเดล */}
             <div className="flex justify-between items-center mb-3 pb-3 border-b-4">
               <p className="text-xl font-semibold">สร้างกิจกรรมงาน</p>
               <IoCloseOutline
@@ -207,19 +218,43 @@ const CreateActivityModal = ({ show, onClose }) => {
                   {Array.from({ length: poiRelationsCount }).map((_, index) => (
                     <div className="table-row" key={index}>
                       {Object.keys(poiRelationsRefs.current[index]).map(
-                        (key) => (
-                          <div className="table-cell p-2 border" key={key}>
+                        (key) =>
+                          key !== "poi_info_lawbase" && (
+                            <div className="table-cell p-2 border" key={key}>
+                              <input
+                                ref={(el) =>
+                                  (poiRelationsRefs.current[index][key] = el)
+                                }
+                                className="placeholder-gray-500 border rounded-md px-3 pl-2 py-0.5 box-border mt-2 mr-2 w-full"
+                                type="text"
+                                placeholder="กรอกข้อมูล"
+                              />
+                            </div>
+                          )
+                      )}
+                      <div className="table-cell p-2 border">
+                        {poiRelationsRefs.current[index].poi_info_lawbase.map(
+                          (_, idx) => (
                             <input
+                              key={idx}
                               ref={(el) =>
-                                (poiRelationsRefs.current[index][key] = el)
+                                (poiRelationsRefs.current[
+                                  index
+                                ].poi_info_lawbase[idx] = el)
                               }
-                              className="placeholder-gray-500 border rounded-md px-3 pl-2 py-0.5 box-border mt-2 mr-2 w-full"
+                              className="placeholder-gray-500 border rounded-md px-3 pl-2 py-0.5 box-border mt-2 mr-2 w-full block"
                               type="text"
                               placeholder="กรอกข้อมูล"
                             />
-                          </div>
-                        )
-                      )}
+                          )
+                        )}
+                        <button
+                          className="mt-2 px-3 py-2 bg-blue-500 text-black rounded hover:text-neutral-400"
+                          onClick={() => handleAddPoiInfoLawbase(index)}
+                        >
+                          เพิ่มฐานทางกฏหมาย
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -251,7 +286,7 @@ const CreateActivityModal = ({ show, onClose }) => {
                   className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
                   onClick={() => handleAddField(field)}
                 >
-                  +
+                  เพิ่ม
                 </button>
               </div>
             ))}

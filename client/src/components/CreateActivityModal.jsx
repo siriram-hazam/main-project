@@ -1,39 +1,35 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoCloseOutline } from "react-icons/io5";
 
 const CreateActivityModal = ({ show, onClose }) => {
-  const activityRef = useRef(null);
-  const categoryRef = useRef(null);
-  const departmentRef = useRef(null);
+  const [activity, setActivity] = useState("");
+  const [category, setCategory] = useState("");
+  const [department, setDepartment] = useState("");
 
-  const [poiRelationsCount, setPoiRelationsCount] = useState(1);
-  const [fieldRefs, setFieldRefs] = useState({
-    info_stored_period: [null],
-    info_placed: [null],
-    info_allowed_ps: [null],
-    info_allowed_ps_condition: [null],
-    info_access: [null],
-    info_access_condition: [null],
-    info_ps_usedbyrole_inside: [null],
-    info_ps_sendto_outside: [null],
-    info_ps_destroying: [null],
-    info_ps_destroyer: [null],
-  });
-
-  // State to force re-render
-  const [, setForceRender] = useState(false);
-
-  const poiRelationsRefs = useRef([
+  const [poiRelations, setPoiRelations] = useState([
     {
-      info: null,
-      poi_info_owner: null,
-      poi_info_from: null,
-      poi_info_format: null,
-      poi_info_type: null,
-      poi_info_objective: null,
-      poi_info_lawbase: [null],
+      info: "",
+      poi_info_owner: "",
+      poi_info_from: "",
+      poi_info_format: "",
+      poi_info_type: "",
+      poi_info_objective: "",
+      poi_info_lawbase: [""],
     },
   ]);
+
+  const [fieldRefs, setFieldRefs] = useState({
+    info_stored_period: [""],
+    info_placed: [""],
+    info_allowed_ps: [""],
+    info_allowed_ps_condition: [""],
+    info_access: [""],
+    info_access_condition: [""],
+    info_ps_usedbyrole_inside: [""],
+    info_ps_sendto_outside: [""],
+    info_ps_destroying: [""],
+    info_ps_destroyer: [""],
+  });
 
   const labels = {
     info_stored_period: "ระยะเวลาที่จัดเก็บข้อมูล",
@@ -50,103 +46,104 @@ const CreateActivityModal = ({ show, onClose }) => {
 
   useEffect(() => {
     if (show) {
-      setPoiRelationsCount(1);
-      poiRelationsRefs.current = [
+      // Reset states when modal is opened
+      setActivity("");
+      setCategory("");
+      setDepartment("");
+      setPoiRelations([
         {
-          info: null,
-          poi_info_owner: null,
-          poi_info_from: null,
-          poi_info_format: null,
-          poi_info_type: null,
-          poi_info_objective: null,
-          poi_info_lawbase: [null],
+          info: "",
+          poi_info_owner: "",
+          poi_info_from: "",
+          poi_info_format: "",
+          poi_info_type: "",
+          poi_info_objective: "",
+          poi_info_lawbase: [""],
         },
-      ];
+      ]);
       setFieldRefs({
-        info_stored_period: [null],
-        info_placed: [null],
-        info_allowed_ps: [null],
-        info_allowed_ps_condition: [null],
-        info_access: [null],
-        info_access_condition: [null],
-        info_ps_usedbyrole_inside: [null],
-        info_ps_sendto_outside: [null],
-        info_ps_destroying: [null],
-        info_ps_destroyer: [null],
+        info_stored_period: [""],
+        info_placed: [""],
+        info_allowed_ps: [""],
+        info_allowed_ps_condition: [""],
+        info_access: [""],
+        info_access_condition: [""],
+        info_ps_usedbyrole_inside: [""],
+        info_ps_sendto_outside: [""],
+        info_ps_destroying: [""],
+        info_ps_destroyer: [""],
       });
     }
   }, [show]);
 
   const handleSubmit = () => {
-    const poi_relations = poiRelationsRefs.current.map((ref) => ({
-      info: ref.info.value,
-      poi_info_owner: ref.poi_info_owner.value,
-      poi_info_from: ref.poi_info_from.value,
-      poi_info_format: ref.poi_info_format.value,
-      poi_info_type: ref.poi_info_type.value,
-      poi_info_objective: ref.poi_info_objective.value,
-      poi_info_lawbase: ref.poi_info_lawbase.map(
-        (lawbaseRef) => lawbaseRef.value
-      ),
-    }));
-
     const formData = {
-      activity: activityRef.current.value,
+      activity,
       status: "pending",
       createBy: 1,
       company_id: 1,
-      category: categoryRef.current.value,
-      department_id: departmentRef.current.value,
-      poi_relations,
-      info_stored_period: fieldRefs.info_stored_period.map((ref) => ref.value),
-      info_placed: fieldRefs.info_placed.map((ref) => ref.value),
-      info_allowed_ps: fieldRefs.info_allowed_ps.map((ref) => ref.value),
-      info_allowed_ps_condition: fieldRefs.info_allowed_ps_condition.map(
-        (ref) => ref.value
-      ),
-      info_access: fieldRefs.info_access.map((ref) => ref.value),
-      info_access_condition: fieldRefs.info_access_condition.map(
-        (ref) => ref.value
-      ),
-      info_ps_usedbyrole_inside: fieldRefs.info_ps_usedbyrole_inside.map(
-        (ref) => ref.value
-      ),
-      info_ps_sendto_outside: fieldRefs.info_ps_sendto_outside.map(
-        (ref) => ref.value
-      ),
-      info_ps_destroying: fieldRefs.info_ps_destroying.map((ref) => ref.value),
-      info_ps_destroyer: fieldRefs.info_ps_destroyer.map((ref) => ref.value),
+      category,
+      department_id: department,
+      poi_relations: poiRelations,
+      info_stored_period: fieldRefs.info_stored_period,
+      info_placed: fieldRefs.info_placed,
+      info_allowed_ps: fieldRefs.info_allowed_ps,
+      info_allowed_ps_condition: fieldRefs.info_allowed_ps_condition,
+      info_access: fieldRefs.info_access,
+      info_access_condition: fieldRefs.info_access_condition,
+      info_ps_usedbyrole_inside: fieldRefs.info_ps_usedbyrole_inside,
+      info_ps_sendto_outside: fieldRefs.info_ps_sendto_outside,
+      info_ps_destroying: fieldRefs.info_ps_destroying,
+      info_ps_destroyer: fieldRefs.info_ps_destroyer,
     };
 
     console.log(JSON.stringify(formData));
   };
 
   const handleAddPoiRelation = () => {
-    setPoiRelationsCount(poiRelationsCount + 1);
-    poiRelationsRefs.current.push({
-      info: null,
-      poi_info_owner: null,
-      poi_info_from: null,
-      poi_info_format: null,
-      poi_info_type: null,
-      poi_info_objective: null,
-      poi_info_lawbase: [null],
-    });
-    setForceRender((prev) => !prev); // Force re-render
+    setPoiRelations([
+      ...poiRelations,
+      {
+        info: "",
+        poi_info_owner: "",
+        poi_info_from: "",
+        poi_info_format: "",
+        poi_info_type: "",
+        poi_info_objective: "",
+        poi_info_lawbase: [""],
+      },
+    ]);
   };
 
   const handleAddField = (field) => {
     setFieldRefs((prevRefs) => ({
       ...prevRefs,
-      [field]: [...prevRefs[field], null],
+      [field]: [...prevRefs[field], ""],
     }));
   };
 
   const handleAddPoiInfoLawbase = (index) => {
-    const newRefs = [...poiRelationsRefs.current];
-    newRefs[index].poi_info_lawbase.push(null);
-    poiRelationsRefs.current = newRefs;
-    setForceRender((prev) => !prev); // Force re-render
+    const newRelations = [...poiRelations];
+    newRelations[index].poi_info_lawbase.push("");
+    setPoiRelations(newRelations);
+  };
+
+  const handlePoiRelationChange = (index, key, value) => {
+    const newRelations = [...poiRelations];
+    newRelations[index][key] = value;
+    setPoiRelations(newRelations);
+  };
+
+  const handlePoiInfoLawbaseChange = (index, idx, value) => {
+    const newRelations = [...poiRelations];
+    newRelations[index].poi_info_lawbase[idx] = value;
+    setPoiRelations(newRelations);
+  };
+
+  const handleFieldChange = (field, idx, value) => {
+    const newFields = { ...fieldRefs };
+    newFields[field][idx] = value;
+    setFieldRefs(newFields);
   };
 
   return (
@@ -164,7 +161,8 @@ const CreateActivityModal = ({ show, onClose }) => {
             <div className="mb-1">
               กิจกรรมงานที่บันทึกรายการ :
               <input
-                ref={activityRef}
+                value={activity}
+                onChange={(e) => setActivity(e.target.value)}
                 className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
                 type="text"
                 placeholder="กรอกข้อมูล"
@@ -174,7 +172,8 @@ const CreateActivityModal = ({ show, onClose }) => {
             <div className="mb-1">
               หน่วยงานที่บันทึกรายการ :
               <input
-                ref={departmentRef}
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
                 className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
                 type="text"
                 placeholder="กรอกข้อมูล"
@@ -184,7 +183,8 @@ const CreateActivityModal = ({ show, onClose }) => {
             <div className="mb-1">
               ประเภทงาน :
               <input
-                ref={categoryRef}
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
                 className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
                 type="text"
                 placeholder="กรอกข้อมูล"
@@ -215,39 +215,45 @@ const CreateActivityModal = ({ show, onClose }) => {
                   </div>
                 </div>
                 <div className="table-row-group">
-                  {Array.from({ length: poiRelationsCount }).map((_, index) => (
+                  {poiRelations.map((relation, index) => (
                     <div className="table-row" key={index}>
-                      {Object.keys(poiRelationsRefs.current[index]).map(
+                      {Object.keys(relation).map(
                         (key) =>
                           key !== "poi_info_lawbase" && (
-                            <div className="table-cell p-2 border" key={key}>
+                            <div key={key} className="table-cell p-2 border">
                               <input
-                                ref={(el) =>
-                                  (poiRelationsRefs.current[index][key] = el)
-                                }
                                 className="placeholder-gray-500 border rounded-md px-3 pl-2 py-0.5 box-border mt-2 mr-2 w-full"
                                 type="text"
                                 placeholder="กรอกข้อมูล"
+                                value={relation[key]}
+                                onChange={(e) =>
+                                  handlePoiRelationChange(
+                                    index,
+                                    key,
+                                    e.target.value
+                                  )
+                                }
                               />
                             </div>
                           )
                       )}
                       <div className="table-cell p-2 border">
-                        {poiRelationsRefs.current[index].poi_info_lawbase.map(
-                          (_, idx) => (
-                            <input
-                              key={idx}
-                              ref={(el) =>
-                                (poiRelationsRefs.current[
-                                  index
-                                ].poi_info_lawbase[idx] = el)
-                              }
-                              className="placeholder-gray-500 border rounded-md px-3 pl-2 py-0.5 box-border mt-2 mr-2 w-full block"
-                              type="text"
-                              placeholder="กรอกข้อมูล"
-                            />
-                          )
-                        )}
+                        {relation.poi_info_lawbase.map((lawbase, idx) => (
+                          <input
+                            key={idx}
+                            className="placeholder-gray-500 border rounded-md px-3 pl-2 py-0.5 box-border mt-2 mr-2 w-full block"
+                            type="text"
+                            placeholder="กรอกข้อมูล"
+                            value={lawbase}
+                            onChange={(e) =>
+                              handlePoiInfoLawbaseChange(
+                                index,
+                                idx,
+                                e.target.value
+                              )
+                            }
+                          />
+                        ))}
                         <button
                           className="mt-2 px-3 py-2 bg-blue-500 text-black rounded hover:text-neutral-400"
                           onClick={() => handleAddPoiInfoLawbase(index)}
@@ -271,14 +277,17 @@ const CreateActivityModal = ({ show, onClose }) => {
               <div className="flex max-w-full" key={index}>
                 <div className="mb-1">
                   {labels[field]}:
-                  {fieldRefs[field].map((_, idx) => (
+                  {fieldRefs[field].map((fieldValue, idx) => (
                     <input
                       key={idx}
-                      ref={(el) => (fieldRefs[field][idx] = el)}
                       className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
                       type="text"
                       placeholder="กรอกข้อมูล"
                       style={{ minWidth: "200px", maxWidth: "75%" }}
+                      value={fieldValue}
+                      onChange={(e) =>
+                        handleFieldChange(field, idx, e.target.value)
+                      }
                     />
                   ))}
                 </div>

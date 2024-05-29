@@ -4,7 +4,34 @@ import { IoCloseOutline } from "react-icons/io5";
 const CreateActivityModal = ({ show, onClose }) => {
   const [activity, setActivity] = useState("");
   const [category, setCategory] = useState("");
+
   const [department, setDepartment] = useState("");
+  const [showOptionsDepartment, setShowOptionsDepartment] = useState(false);
+  const [filteredOptionsDepartment, setFilteredOptionsDepartment] = useState(
+    []
+  );
+  const jsonOptionsDepartment = [
+    { id: 1, name: "IT" },
+    { id: 2, name: "HR" },
+    { id: 3, name: "Finance" },
+    { id: 4, name: "Marketing" },
+  ];
+  useEffect(() => {
+    setFilteredOptionsDepartment(
+      department
+        ? jsonOptionsDepartment.filter((option) =>
+            option.name.toLowerCase().includes(department.toLowerCase())
+          )
+        : jsonOptionsDepartment
+    );
+  }, [department, jsonOptionsDepartment]);
+  const handleInputFocusDepartment = () => {
+    setShowOptionsDepartment(true);
+  };
+  const handleOptionClickDepartment = (option) => {
+    setDepartment(option.name);
+    setShowOptionsDepartment(false);
+  };
 
   const [poiRelations, setPoiRelations] = useState([
     {
@@ -46,7 +73,6 @@ const CreateActivityModal = ({ show, onClose }) => {
 
   useEffect(() => {
     if (show) {
-      // Reset states when modal is opened
       setActivity("");
       setCategory("");
       setDepartment("");
@@ -169,16 +195,30 @@ const CreateActivityModal = ({ show, onClose }) => {
                 style={{ minWidth: "200px", maxWidth: "75%" }}
               />
             </div>
-            <div className="mb-1">
+            <div className="relative mb-1">
               หน่วยงานที่บันทึกรายการ :
               <input
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
+                onFocus={handleInputFocusDepartment}
                 className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
                 type="text"
                 placeholder="กรอกข้อมูล"
                 style={{ minWidth: "200px", maxWidth: "75%" }}
               />
+              {showOptionsDepartment && (
+                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                  {filteredOptionsDepartment.map((option) => (
+                    <div
+                      key={option.id}
+                      onClick={() => handleOptionClickDepartment(option)}
+                      className="cursor-pointer px-4 py-2 hover:bg-gray-200"
+                    >
+                      {option.name}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="mb-1">
               ประเภทงาน :
@@ -191,7 +231,7 @@ const CreateActivityModal = ({ show, onClose }) => {
                 style={{ minWidth: "200px", maxWidth: "75%" }}
               />
             </div>
-            <div className="w-full h-full overflow-auto hover:overflow-auto p-2 pb-3 mt-2">
+            <div className="w-full h-full overflow-auto p-2 pb-3 mt-2">
               <div className="table w-fit border-collapse">
                 <div className="table-header-group bg-gray-200">
                   <div className="table-row">

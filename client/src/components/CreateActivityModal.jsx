@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { IoCloseOutline } from "react-icons/io5";
 
 const CreateActivityModal = ({ show, onClose }) => {
@@ -10,12 +10,18 @@ const CreateActivityModal = ({ show, onClose }) => {
   const [filteredOptionsDepartment, setFilteredOptionsDepartment] = useState(
     []
   );
+  const [highlightedIndexDepartment, setHighlightedIndexDepartment] =
+    useState(-1);
+
   const jsonOptionsDepartment = [
     { id: 1, name: "IT" },
     { id: 2, name: "HR" },
     { id: 3, name: "Finance" },
     { id: 4, name: "Marketing" },
   ];
+
+  const wrapperRef = useRef(null);
+
   useEffect(() => {
     setFilteredOptionsDepartment(
       department
@@ -25,9 +31,55 @@ const CreateActivityModal = ({ show, onClose }) => {
         : jsonOptionsDepartment
     );
   }, [department, jsonOptionsDepartment]);
+
+  useEffect(() => {
+    if (showOptionsDepartment) {
+      const handleClickOutside = (event) => {
+        if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+          setShowOptionsDepartment(false);
+        }
+      };
+
+      const handleKeyDown = (event) => {
+        if (event.key === "Escape") {
+          setShowOptionsDepartment(false);
+        } else if (event.key === "ArrowDown") {
+          setHighlightedIndexDepartment((prevIndex) =>
+            Math.min(prevIndex + 1, filteredOptionsDepartment.length - 1)
+          );
+        } else if (event.key === "ArrowUp") {
+          setHighlightedIndexDepartment((prevIndex) =>
+            Math.max(prevIndex - 1, 0)
+          );
+        } else if (event.key === "Enter") {
+          if (
+            highlightedIndexDepartment >= 0 &&
+            highlightedIndexDepartment < filteredOptionsDepartment.length
+          ) {
+            handleOptionClickDepartment(
+              filteredOptionsDepartment[highlightedIndexDepartment]
+            );
+          }
+        }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [
+    showOptionsDepartment,
+    highlightedIndexDepartment,
+    filteredOptionsDepartment,
+  ]);
+
   const handleInputFocusDepartment = () => {
     setShowOptionsDepartment(true);
   };
+
   const handleOptionClickDepartment = (option) => {
     setDepartment(option.name);
     setShowOptionsDepartment(false);
@@ -195,7 +247,7 @@ const CreateActivityModal = ({ show, onClose }) => {
                 style={{ minWidth: "200px", maxWidth: "75%" }}
               />
             </div>
-            <div className="relative mb-1">
+            <div className="relative mb-1" ref={wrapperRef}>
               หน่วยงานที่บันทึกรายการ :
               <input
                 value={department}
@@ -207,12 +259,16 @@ const CreateActivityModal = ({ show, onClose }) => {
                 style={{ minWidth: "200px", maxWidth: "75%" }}
               />
               {showOptionsDepartment && (
-                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-                  {filteredOptionsDepartment.map((option) => (
+                <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg">
+                  {filteredOptionsDepartment.map((option, index) => (
                     <div
                       key={option.id}
                       onClick={() => handleOptionClickDepartment(option)}
-                      className="cursor-pointer px-4 py-2 hover:bg-gray-200"
+                      className={`cursor-pointer px-4 py-2 ${
+                        highlightedIndexDepartment === index
+                          ? "bg-gray-200"
+                          : "hover:bg-gray-100"
+                      }`}
                     >
                       {option.name}
                     </div>

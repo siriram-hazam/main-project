@@ -1,19 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { GoRepo } from "react-icons/go";
 import { FiMenu } from "react-icons/fi";
 
+import LoginModal from "./LoginModal.jsx";
 import InfoActivityModal from "./InfoActivityModal.jsx";
 import EditActivityModal from "./EditActivityModal.jsx";
 import CreateActivityModal from "./CreateActivityModal.jsx";
 
+import axios from "axios";
+axios.defaults.withCredentials = true;
+
 export default function Page() {
   const [menuOpen, setMenuOpen] = useState(true);
+  const [profile, setProfile] = useState({});
+  const [loading, setLoading] = useState(true); // New loading state
 
+  const fetchUserProfile = async () => {
+    try {
+      const res = await axios.get("http://localhost:3001/api/user/userProfile");
+      setProfile(res.data.users);
+      console.log(res.data.users);
+
+      if (res.data.status === 200) {
+        setShowLoginModal(false);
+        console.log("Profile Found");
+      } else {
+        console.log("Profile Not Found");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false); // Set loading to false after data is fetched
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const [showLoginModal, setShowLoginModal] = useState(true);
+  const toggleLoginModal = () => {
+    setShowLoginModal(!showLoginModal);
+  };
   const [showInfoActivityModal, setShowInfoActivityModal] = useState(false);
   const toggleInfoActivityModal = () => {
     setShowInfoActivityModal(!showInfoActivityModal);
   };
-  const [showCreateactivityModal, setShowCreateactivityModal] = useState(true);
+  const [showCreateactivityModal, setShowCreateactivityModal] = useState(false);
   const toggleCreateactivityModal = () => {
     setShowCreateactivityModal(!showCreateactivityModal);
   };
@@ -21,6 +54,10 @@ export default function Page() {
   const toggleEditactivityModal = () => {
     setShowEditactivityModal(!showEditactivityModal);
   };
+
+  if (loading) {
+    return <div>Loading...</div>; // Show a loading message while fetching data
+  }
 
   return (
     <div className="flex min-h-screen min-w-max flex-nowrap">
@@ -42,19 +79,19 @@ export default function Page() {
             className="ml-8 pl-4 my-0.5 w-58 border-l-2 border-gray-100 text-gray-500 hover:border-gray-800 hover:text-gray-800 block"
             href="#"
           >
+            Dashboard
+          </a>
+          <a
+            className="ml-8 pl-4 my-0.5 w-58 border-l-2 border-gray-100 text-gray-500 hover:border-gray-800 hover:text-gray-800 block"
+            href="#"
+          >
             Activities
           </a>
           <a
             className="ml-8 pl-4 my-0.5 w-58 border-l-2 border-gray-100 text-gray-500 hover:border-gray-800 hover:text-gray-800 block"
             href="#"
           >
-            asd
-          </a>
-          <a
-            className="ml-8 pl-4 my-0.5 w-58 border-l-2 border-gray-100 text-gray-500 hover:border-gray-800 hover:text-gray-800 block"
-            href="#"
-          >
-            asd
+            Privacy Notice
           </a>
           <p className="ml-5 mt-3 font-medium text-gray-500">Team Member :</p>
           <div className="bg-neutral-300 mx-8 px-2 py-2 mt-2 w-fit max-w-52 rounded-md flex shadow-md place-items-center ">
@@ -77,8 +114,10 @@ export default function Page() {
             alt=""
           />
           <div className="px-3">
-            <p className="text-sm text-gray-700">Siriram Hazam</p>
-            <p className="text-xs text-gray-500">Admin</p>
+            <p className="text-sm text-gray-700">{profile.fullname}</p>
+            <p className="text-xs text-gray-500">
+              {profile.role === "admin" ? "Admin" : "User"}
+            </p>
           </div>
         </div>
       </div>
@@ -87,13 +126,16 @@ export default function Page() {
         <div className="flex justify-between min-h-12 bg-neutral-200 border-gray-500 drop-shadow place-items-center max-w-full space-x-4 pr-4">
           <FiMenu
             color="gray"
-            className="w-8 h-8 ml-4 cursor-pointer hover:bg-gray-50 rounded-md drop-shadow-xl "
+            className="w-8 h-8 ml-4 cursor-pointer hover:bg-gray-50 rounded-md drop-shadow-xl"
             onClick={() => setMenuOpen(!menuOpen)}
           />
-          <h1 className="text-nowrap bg-neutral-300 text-gray-500 rounded-2xl content-center px-4 py-1 drop-shadow ">
-            Hello World Company Ltd
+          <h1 className="text-nowrap bg-neutral-300 text-gray-500 rounded-2xl content-center px-4 py-1 drop-shadow">
+            {profile.company_relation?.companyName || "Company Name"}
           </h1>
         </div>
+
+        {/* Login Modal */}
+        <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
 
         {/* Modal Info Activities */}
         <InfoActivityModal

@@ -24,6 +24,7 @@ model user_account {
   edit_time        DateTime
   create_time      DateTime      @default(now())
   company_relation company       @relation(fields: [company_id], references: [id])
+  photo_path       String?       @default("")
   information      information[]
 }
 

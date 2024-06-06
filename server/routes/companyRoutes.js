@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { createCompany, updateCompany, deleteCompany, fetchCompany } from "../controller/companyController.js";
+import {
+  createCompany,
+  updateCompany,
+  deleteCompany,
+  fetchCompany,
+} from "../controller/companyController.js";
 
 const router = Router();
 

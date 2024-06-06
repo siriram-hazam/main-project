@@ -30,7 +30,7 @@ const CreateActivityModal = ({ show, onClose }) => {
           )
         : jsonOptionsDepartment
     );
-  }, [department, jsonOptionsDepartment]);
+  }, [department]);
 
   useEffect(() => {
     if (showOptionsDepartment) {

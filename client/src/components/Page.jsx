@@ -101,6 +101,19 @@ export default function Page() {
               alt=""
             />
             <div className="px-3">
+              <p className="text-md text-gray-700">{profile.fullname}</p>
+              <p className="text-xs text-gray-500">
+                {profile.role === "admin" ? "Admin" : "User"}
+              </p>
+            </div>
+          </div>
+          <div className="bg-neutral-300 mx-8 px-2 py-2 mt-2 w-fit max-w-52 rounded-md flex shadow-md place-items-center ">
+            <img
+              className="w-10 h-10 rounded-full"
+              src={require("../img/Siriram1.jpg")}
+              alt=""
+            />
+            <div className="px-3">
               <p className="text-md text-gray-700">Siriram Hazam</p>
               <p className="text-xs text-gray-500">Full Stack Developer</p>
             </div>

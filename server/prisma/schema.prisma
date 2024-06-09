@@ -29,22 +29,50 @@ model user_account {
 }
 
 model company {
-  id           Int            @id @default(autoincrement())
-  companyName  String
-  address      String
-  phone_number String
-  email        String         @unique
-  dpo          String?
-  user_account user_account[]
-  department   department[]
+  id                        Int                         @id @default(autoincrement())
+  companyName               String
+  address                   String
+  phone_number              String
+  email                     String                      @unique
+  dpo                       String?
+  user_account              user_account[]
+  department                department[]
   // company_information company_information[]
-  information  information[]
+  information               information[]
+  activity                  activity[]
+  piece_of_info             piece_of_info[]
+  info_owner                info_owner[]
+  info_from                 info_from[]
+  info_format               info_format[]
+  info_type                 info_type[]
+  info_objective            info_objective[]
+  info_lawbase              info_lawbase[]
+  info_stored_period        info_stored_period[]
+  info_placed               info_placed[]
+  info_allowed_ps           info_allowed_ps[]
+  info_allowed_ps_condition info_allowed_ps_condition[]
+  info_access               info_access[]
+  info_access_condition     info_access_condition[]
+  info_ps_usedbyrole_inside info_ps_usedbyrole_inside[]
+  info_ps_sendto_outside    info_ps_sendto_outside[]
+  info_ps_destroying        info_ps_destroying[]
+  info_ps_destroyer         info_ps_destroyer[]
+  info_role                 info_role[]
+  info_document             info_document[]
+}
+
+model activity {
+  id               Int           @id @default(autoincrement())
+  activity         String
+  information      information[]
+  company_id       Int           @default(0)
+  company_relation company       @relation(fields: [company_id], references: [id])
 }
 
 model department {
   id               Int           @id @default(autoincrement())
   departmentName   String
-  company_id       Int
+  company_id       Int           @default(0) //ให้เป็น 0 ก่อน แล้วถ้ามีเพิ่มมาใหม่ก็ใส่ company ID ที่เพิ่มมาใหม่
   company_relation company       @relation(fields: [company_id], references: [id])
   category         category[]
   information      information[]
@@ -52,7 +80,9 @@ model department {
 
 model information {
   id                    Int                    @id @default(autoincrement())
-  activity              String
+  // activity              String
+  activity_id           Int
+  activity_relation     activity               @relation(fields: [activity_id], references: [id])
   status                String //เพิ่มมาใหม่สถานะเช่น รอตรวจสอบ ผ่าน จากผู้จัดการ
   // company_id           Int
   create_time           DateTime               @default(now())
@@ -77,6 +107,8 @@ model information {
   information_info_ps_sendto_outside    information_info_ps_sendto_outside[]
   information_info_ps_destroying        information_info_ps_destroying[]
   information_info_ps_destroyer         information_info_ps_destroyer[]
+  information_info_role                 information_info_role[]
+  information_info_document             information_info_document[]
 }
 
 // model company_information {
@@ -127,6 +159,9 @@ model piece_of_info {
   poi_info_objective poi_info_objective[]
   poi_info_lawbase   poi_info_lawbase[]
 
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
+
   // poi_info_stored_period        poi_info_stored_period[]
   // poi_info_placed               poi_info_placed[]
   // poi_info_allowed_ps           poi_info_allowed_ps[]
@@ -144,6 +179,9 @@ model info_owner {
   id             Int              @id @default(autoincrement())
   owner_         String
   poi_info_owner poi_info_owner[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model poi_info_owner {
@@ -162,6 +200,9 @@ model info_from {
   id            Int             @id @default(autoincrement())
   from_         String
   poi_info_from poi_info_from[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model poi_info_from {
@@ -176,10 +217,53 @@ model poi_info_from {
 //--------------------------------------------------------------
 
 //--------------------------------------------------------------
+model info_role {
+  id                    Int                     @id @default(autoincrement())
+  role                  String
+  company_id            Int                     @default(0)
+  company_relation      company                 @relation(fields: [company_id], references: [id])
+  information_info_role information_info_role[]
+}
+
+model information_info_role {
+  information_id       Int
+  info_role_id         Int
+  information_relation information @relation(fields: [information_id], references: [id])
+  info_role_relation   info_role   @relation(fields: [info_role_id], references: [id])
+
+  @@id([information_id, info_role_id])
+}
+
+//--------------------------------------------------------------
+
+//--------------------------------------------------------------
+model info_document {
+  id                        Int                         @id @default(autoincrement())
+  document                  String
+  company_id                Int                         @default(0)
+  company_relation          company                     @relation(fields: [company_id], references: [id])
+  information_info_document information_info_document[]
+}
+
+model information_info_document {
+  information_id         Int
+  info_document_id       Int
+  information_relation   information   @relation(fields: [information_id], references: [id])
+  info_document_relation info_document @relation(fields: [info_document_id], references: [id])
+
+  @@id([information_id, info_document_id])
+}
+
+//--------------------------------------------------------------
+
+//--------------------------------------------------------------
 model info_format {
   id              Int               @id @default(autoincrement())
   format_         String
   poi_info_format poi_info_format[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model poi_info_format {
@@ -198,6 +282,9 @@ model info_type {
   id            Int             @id @default(autoincrement())
   type_         String
   poi_info_type poi_info_type[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model poi_info_type {
@@ -216,6 +303,9 @@ model info_objective {
   id                 Int                  @id @default(autoincrement())
   objective_         String
   poi_info_objective poi_info_objective[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model poi_info_objective {
@@ -234,6 +324,9 @@ model info_lawbase {
   id               Int                @id @default(autoincrement())
   lawBase_         String
   poi_info_lawbase poi_info_lawbase[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model poi_info_lawbase {
@@ -253,6 +346,9 @@ model info_stored_period {
   period_                        String
   // poi_info_stored_period poi_info_stored_period[]
   information_info_stored_period information_info_stored_period[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model information_info_stored_period {
@@ -281,6 +377,9 @@ model info_placed {
   placed_                 String
   // poi_info_placed poi_info_placed[]
   information_info_placed information_info_placed[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model information_info_placed {
@@ -309,6 +408,9 @@ model info_allowed_ps {
   allowed_ps_                 String
   // poi_info_allowed_ps poi_info_allowed_ps[]
   information_info_allowed_ps information_info_allowed_ps[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model information_info_allowed_ps {
@@ -337,6 +439,9 @@ model info_allowed_ps_condition {
   allowed_ps_condition_                 String
   // poi_info_allowed_ps_condition poi_info_allowed_ps_condition[]
   information_info_allowed_ps_condition information_info_allowed_ps_condition[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model information_info_allowed_ps_condition {
@@ -365,6 +470,9 @@ model info_access {
   access_                 String
   // poi_info_access poi_info_access[]
   information_info_access information_info_access[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model information_info_access {
@@ -393,6 +501,9 @@ model info_access_condition {
   access_condition_                 String
   // poi_info_access_condition poi_info_access_condition[]
   information_info_access_condition information_info_access_condition[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model information_info_access_condition {
@@ -421,6 +532,9 @@ model info_ps_usedbyrole_inside {
   use_by_role_                          String
   // poi_info_ps_usedbyrole_inside poi_info_ps_usedbyrole_inside[]
   information_info_ps_usedbyrole_inside information_info_ps_usedbyrole_inside[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model information_info_ps_usedbyrole_inside {
@@ -449,6 +563,9 @@ model info_ps_sendto_outside {
   sendto_                            String
   // poi_info_ps_sendto_outside poi_info_ps_sendto_outside[]
   information_info_ps_sendto_outside information_info_ps_sendto_outside[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model information_info_ps_sendto_outside {
@@ -477,6 +594,9 @@ model info_ps_destroying {
   destroying_                    String
   // poi_info_ps_destroying poi_info_ps_destroying[]
   information_info_ps_destroying information_info_ps_destroying[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model information_info_ps_destroying {
@@ -505,6 +625,9 @@ model info_ps_destroyer {
   destroyer_                    String
   // poi_info_ps_destroyer poi_info_ps_destroyer[]
   information_info_ps_destroyer information_info_ps_destroyer[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
 }
 
 model information_info_ps_destroyer {

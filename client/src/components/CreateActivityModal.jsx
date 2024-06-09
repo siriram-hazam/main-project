@@ -6,6 +6,8 @@ const CreateActivityModal = ({ show, onClose }) => {
   const [category, setCategory] = useState("");
 
   const [department, setDepartment] = useState("");
+  const [info_role, setInfoRole] = useState("");
+  const [info_document, setInfoDocument] = useState("");
   const [showOptionsDepartment, setShowOptionsDepartment] = useState(false);
   const [filteredOptionsDepartment, setFilteredOptionsDepartment] = useState(
     []
@@ -139,6 +141,8 @@ const CreateActivityModal = ({ show, onClose }) => {
           poi_info_lawbase: [""],
         },
       ]);
+      setInfoRole("");
+      setInfoDocument("");
       setFieldRefs({
         info_stored_period: [""],
         info_placed: [""],
@@ -162,6 +166,8 @@ const CreateActivityModal = ({ show, onClose }) => {
       company_id: 1,
       category,
       department_id: department,
+      info_role: info_role,
+      info_document: info_document,
       poi_relations: poiRelations,
       info_stored_period: fieldRefs.info_stored_period,
       info_placed: fieldRefs.info_placed,
@@ -351,7 +357,7 @@ const CreateActivityModal = ({ show, onClose }) => {
                           />
                         ))}
                         <button
-                          className="mt-2 px-3 py-2 bg-blue-500 text-black rounded hover:text-neutral-400"
+                          className="mt-2 px-3 py-2 bg-neutral-400 text-white rounded hover:text-neutral-800"
                           onClick={() => handleAddPoiInfoLawbase(index)}
                         >
                           เพิ่มฐานทางกฏหมาย
@@ -362,11 +368,35 @@ const CreateActivityModal = ({ show, onClose }) => {
                 </div>
               </div>
               <button
-                className="mt-2 px-3 py-2 bg-blue-500 text-black rounded hover:text-neutral-400"
+                className="mt-2 px-3 py-2 bg-neutral-400 text-white rounded hover:text-neutral-800"
                 onClick={handleAddPoiRelation}
               >
                 เพิ่มข้อมูลที่ประมวลผล
               </button>
+            </div>
+
+            <div className="mb-1">
+              ตำแหน่ง/สถานะ :
+              <input
+                value={info_role}
+                onChange={(e) => setInfoRole(e.target.value)}
+                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                type="text"
+                placeholder="กรอกข้อมูล"
+                style={{ minWidth: "200px", maxWidth: "75%" }}
+              />
+            </div>
+
+            <div className="mb-1">
+              เอกสาร/แหล่งบันทึกข้อมูล :
+              <input
+                value={info_document}
+                onChange={(e) => setInfoDocument(e.target.value)}
+                className="placeholder-gray-500 ml-3 border rounded-md px-3 pl-2 py-0.5 box-border"
+                type="text"
+                placeholder="กรอกข้อมูล"
+                style={{ minWidth: "200px", maxWidth: "75%" }}
+              />
             </div>
 
             {Object.keys(fieldRefs).map((field, index) => (
@@ -388,7 +418,7 @@ const CreateActivityModal = ({ show, onClose }) => {
                   ))}
                 </div>
                 <button
-                  className="ml-3 px-2 py-1 bg-blue-500 text-black rounded hover:text-neutral-400"
+                  className="ml-3 px-2 py-1 bg-neutral-400 text-white rounded hover:text-neutral-800"
                   onClick={() => handleAddField(field)}
                 >
                   เพิ่ม
@@ -399,7 +429,7 @@ const CreateActivityModal = ({ show, onClose }) => {
             <div className="flex justify-between mt-3">
               <p></p>
               <button
-                className="px-2 py-1 text-black rounded hover:text-neutral-400"
+                className="px-2 py-1 bg-neutral-400 text-white rounded hover:text-neutral-800"
                 onClick={handleSubmit}
               >
                 Submit

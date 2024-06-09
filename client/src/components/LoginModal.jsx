@@ -21,7 +21,7 @@ const LoginModal = ({ show, onClose }) => {
           if (res.data.status === 200) {
             console.log("Login Success");
             onClose();
-            window.location.href = "http://localhost:3000/";
+            window.location = "/";
           } else {
             console.log("Login Failed");
           }
@@ -42,7 +42,7 @@ const LoginModal = ({ show, onClose }) => {
   const handleLogin = (e) => {
     e.preventDefault();
     // Add your login logic here
-    console.log("Logging in with", { username, password });
+    // console.log("Logging in with", { username, password });
     fetchLogin();
   };
 

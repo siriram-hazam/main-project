@@ -4,7 +4,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 export const createUser = async (req, res) => {
-  const { username, password, fullname, email, role, company_id } = req.body;
+  const { username, password, fullname, email, role, company_id, photo_path } =
+    req.body;
 
   // const companyData = await prisma.company.findFirst({
   //     where: {
@@ -45,13 +46,14 @@ export const createUser = async (req, res) => {
 
     const newUser = await prisma.user_account.create({
       data: {
-        username: username,
+        username: username.toLowerCase(),
         password: passhash,
         fullname: fullname,
         email: email,
         role: role,
         company_id: company_id,
         edit_time: new Date().toISOString(),
+        photo_path: photo_path,
       },
     });
     return res.json({
@@ -166,10 +168,12 @@ export const fetchUserLogin = async (req, res) => {
 
         // return res.json({ status: 200, data: user, token: token });
       }
+
+      return res.json({ status: 400, message: "Password Incorrect!" });
     }
   } catch (error) {
     res.json({ status: 400, message: "User Not Found!" });
-    console.error(error);
+    // console.error(error);
   }
 };
 

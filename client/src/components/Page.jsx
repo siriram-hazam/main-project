@@ -28,7 +28,8 @@ export default function Page() {
         console.log("Profile Not Found");
       }
     } catch (error) {
-      console.error(error);
+      // console.error(error);
+      console.log("Please Login!");
     } finally {
       setLoading(false); // Set loading to false after data is fetched
     }
@@ -60,10 +61,10 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-screen min-w-max flex-nowrap">
+    <div className="flex flex-initial min-h-screen max-h-screen min-w-max">
       <div
         id="menu"
-        className={`bg-neutral-200 w-64 flex flex-col drop-shadow-xl ${
+        className={` bg-neutral-200 w-64 flex flex-col drop-shadow-xl ${
           menuOpen
             ? "block animate__animated animate__fadeInLeft animate__faster"
             : "hidden"
@@ -94,12 +95,17 @@ export default function Page() {
             Privacy Notice
           </a>
           <p className="ml-5 mt-3 font-medium text-gray-500">Team Member :</p>
-          <div className="bg-neutral-300 mx-8 px-2 py-2 mt-2 w-fit max-w-52 rounded-md flex shadow-md place-items-center ">
-            <img
+          <div className="bg-neutral-300 mx-8 px-4 py-2 mt-2 w-fit max-w-52 rounded-md flex shadow-md place-items-center ">
+            {/* <img
               className="w-10 h-10 rounded-full"
-              src={require("../img/Siriram1.jpg")}
+              // src={require("../img/Siriram1.jpg")}
+              src={
+                profile.photo_path == ""
+                  ? require("../img/no_profile.png")
+                  : require(profile.photo_path)
+              }
               alt=""
-            />
+            /> */}
             <div className="px-3">
               <p className="text-md text-gray-700">{profile.fullname}</p>
               <p className="text-xs text-gray-500">
@@ -107,12 +113,16 @@ export default function Page() {
               </p>
             </div>
           </div>
-          <div className="bg-neutral-300 mx-8 px-2 py-2 mt-2 w-fit max-w-52 rounded-md flex shadow-md place-items-center ">
-            <img
+          <div className="bg-neutral-300 mx-8 px-4 py-2 mt-2 w-fit max-w-52 rounded-md flex shadow-md place-items-center ">
+            {/* <img
               className="w-10 h-10 rounded-full"
-              src={require("../img/Siriram1.jpg")}
+              src={
+                profile.photo_path === ""
+                  ? require("../img/no_profile.png")
+                  : require(profile.photo_path)
+              }
               alt=""
-            />
+            /> */}
             <div className="px-3">
               <p className="text-md text-gray-700">Siriram Hazam</p>
               <p className="text-xs text-gray-500">Full Stack Developer</p>
@@ -121,11 +131,15 @@ export default function Page() {
         </nav>
 
         <div className="bg-neutral-300 px-3 py-2 flex place-items-center shadow-md">
-          <img
+          {/* <img
             className="w-11 h-11 rounded-full"
-            src={require("../img/Siriram1.jpg")}
+            src={
+              profile.photo_path == ""
+                ? require("../img/no_profile.png")
+                : require(profile.photo_path)
+            }
             alt=""
-          />
+          /> */}
           <div className="px-3">
             <p className="text-sm text-gray-700">{profile.fullname}</p>
             <p className="text-xs text-gray-500">
@@ -135,7 +149,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="flex-1 flex-nowrap text-nowrap">
+      <div className="flex-1 flex-nowrap text-nowrap ">
         <div className="flex justify-between min-h-12 bg-neutral-200 border-gray-500 drop-shadow place-items-center max-w-full space-x-4 pr-4">
           <FiMenu
             color="gray"
@@ -168,7 +182,7 @@ export default function Page() {
           onClose={toggleEditactivityModal}
         />
 
-        <div className="container p-4 mx-auto mb-5 min-w-max">
+        <div className="container p-4 mx-auto mb-5 min-w-max ">
           <div className="flex mb-5">
             <div className="ml-auto space-x-2 flex-nowrap text-sm">
               <button

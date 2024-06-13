@@ -109,6 +109,10 @@ model information {
   information_info_ps_destroyer         information_info_ps_destroyer[]
   information_info_role                 information_info_role[]
   information_info_document             information_info_document[]
+
+  information_m_organization information_m_organization[]
+  information_m_technical    information_m_technical[]
+  information_m_physical     information_m_physical[]
 }
 
 // model company_information {
@@ -119,6 +123,51 @@ model information {
 
 //   @@id([information_id, company_id])
 // }
+
+model m_organization {
+  id                         Int                          @id @default(autoincrement())
+  organization               String
+  information_m_organization information_m_organization[]
+}
+
+model information_m_organization {
+  information_id          Int
+  m_organization_id       Int
+  information_relation    information    @relation(fields: [information_id], references: [id])
+  m_organization_relation m_organization @relation(fields: [m_organization_id], references: [id])
+
+  @@id([information_id, m_organization_id])
+}
+
+model m_technical {
+  id                      Int                       @id @default(autoincrement())
+  technical               String
+  information_m_technical information_m_technical[]
+}
+
+model information_m_technical {
+  information_id       Int
+  m_technical_id       Int
+  information_relation information @relation(fields: [information_id], references: [id])
+  m_technical_relation m_technical @relation(fields: [m_technical_id], references: [id])
+
+  @@id([information_id, m_technical_id])
+}
+
+model m_physical {
+  id                     Int                      @id @default(autoincrement())
+  physical               String
+  information_m_physical information_m_physical[]
+}
+
+model information_m_physical {
+  information_id       Int
+  m_physical_id        Int
+  information_relation information @relation(fields: [information_id], references: [id])
+  m_physical_relation  m_physical  @relation(fields: [m_physical_id], references: [id])
+
+  @@id([information_id, m_physical_id])
+}
 
 model category {
   id                   Int                    @id @default(autoincrement())

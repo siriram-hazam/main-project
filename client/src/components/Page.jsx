@@ -61,7 +61,7 @@ export default function Page() {
   }
 
   return (
-    <div className="flex flex-initial min-h-screen max-h-screen min-w-max">
+    <div className="flex min-h-screen max-h-screen max-w-full">
       <div
         id="menu"
         className={` bg-neutral-200 w-64 flex flex-col drop-shadow-xl ${

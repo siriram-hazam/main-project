@@ -3,7 +3,6 @@ import {
   createUser,
   updateUser,
   deleteUser,
-  fetchUser,
   fecthUserAcc,
   fetchUserLogin,
   userProfile,
@@ -15,7 +14,6 @@ const router = Router();
 router.post("/", createUser);
 router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);
-router.get("/", fetchUser);
 router.post("/login", fetchUserLogin);
 router.get("/acc", fecthUserAcc);
 router.get("/userProfile", auth, userProfile);

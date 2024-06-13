@@ -27,6 +27,9 @@ export const createInformation = async (req, res) => {
     info_ps_sendto_outside, //fontend show text but map to id then send to backend
     info_ps_destroying, //fontend show text but map to id then send to backend
     info_ps_destroyer, //fontend show text but map to id then send to backend
+    m_organization, //fontend show text but map to id then send to backend
+    m_technical, //fontend show text but map to id then send to backend
+    m_physical, //fontend show text but map to id then send to backend
   } = req.body;
 
   //   {
@@ -75,11 +78,29 @@ export const createInformation = async (req, res) => {
   try {
     const newInformation = await prisma.information.create({
       data: {
-        activity: activity,
+        // activity: activity,
+        // activity_relation: {
+        //   create: {
+        //     activity: activity,
+        //   },
+        // },
+        // activity_id: activity,
+        activity_relation: {
+          connect: { id: activity },
+        },
         status: status,
-        createBy: createBy,
-        company_id: company_id,
-        department_id: department_id,
+        // createBy: createBy,
+        user_account_relation: {
+          connect: { id: createBy },
+        },
+        // company_id: company_id,
+        company_relation: {
+          connect: { id: company_id },
+        },
+        // department_id: department_id,
+        department_relation: {
+          connect: { id: department_id },
+        },
         // company_information: {
         //     create: [
         //         {
@@ -99,6 +120,20 @@ export const createInformation = async (req, res) => {
             },
           ],
         },
+        information_info_role: {
+          create: [
+            {
+              info_role_id: info_role,
+            },
+          ],
+        },
+        information_info_document: {
+          create: [
+            {
+              info_document_id: info_document,
+            },
+          ],
+        },
         poi_information: {
           create: poi_relations.map((item) => ({
             poi_relation: {
@@ -113,20 +148,6 @@ export const createInformation = async (req, res) => {
                       //         owner_: poi_info_owner,
                       //     }
                       // }
-                    },
-                  ],
-                },
-                information_info_role: {
-                  create: [
-                    {
-                      info_role_id: info_role,
-                    },
-                  ],
-                },
-                information_info_document: {
-                  create: [
-                    {
-                      info_document_id: info_document,
                     },
                   ],
                 },
@@ -300,6 +321,21 @@ export const createInformation = async (req, res) => {
             info_ps_destroyer_id: item,
           })),
         },
+        information_m_organization: {
+          create: m_organization.map((item) => ({
+            m_organization_id: item,
+          })),
+        },
+        information_m_technical: {
+          create: m_technical.map((item) => ({
+            m_technical_id: item,
+          })),
+        },
+        information_m_physical: {
+          create: m_physical.map((item) => ({
+            m_physical_id: item,
+          })),
+        },
       },
     });
 
@@ -312,8 +348,15 @@ export const createInformation = async (req, res) => {
 export const getInformation = async (req, res) => {
   try {
     const information = await prisma.information.findMany({
+      where: {
+        company_id: req.user.company_id,
+      },
       select: {
-        activity: true,
+        activity_relation: {
+          select: {
+            activity: true,
+          },
+        },
         status: true,
         create_time: true,
         user_account_relation: {
@@ -338,6 +381,24 @@ export const getInformation = async (req, res) => {
             },
           },
         },
+        information_info_role: {
+          select: {
+            info_role_relation: {
+              select: {
+                role: true,
+              },
+            },
+          },
+        },
+        information_info_document: {
+          select: {
+            info_document_relation: {
+              select: {
+                document: true,
+              },
+            },
+          },
+        },
         poi_information: {
           select: {
             poi_relation: {
@@ -348,24 +409,6 @@ export const getInformation = async (req, res) => {
                     info_owner_relation: {
                       select: {
                         owner_: true,
-                      },
-                    },
-                  },
-                },
-                information_info_role: {
-                  select: {
-                    info_role_relation: {
-                      select: {
-                        role: true,
-                      },
-                    },
-                  },
-                },
-                information_info_document: {
-                  select: {
-                    info_document_relation: {
-                      select: {
-                        document: true,
                       },
                     },
                   },
@@ -509,11 +552,42 @@ export const getInformation = async (req, res) => {
             },
           },
         },
+        information_m_organization: {
+          select: {
+            m_organization_relation: {
+              select: {
+                organization: true,
+              },
+            },
+          },
+        },
+        information_m_technical: {
+          select: {
+            m_technical_relation: {
+              select: {
+                technical: true,
+              },
+            },
+          },
+        },
+        information_m_physical: {
+          select: {
+            m_physical_relation: {
+              select: {
+                physical: true,
+              },
+            },
+          },
+        },
       },
     });
+
     return res.json({ status: 200, message: information });
   } catch (error) {
-    console.error(error);
+    console.error("Error retrieving information:", error); // Log any error
+    return res
+      .status(500)
+      .json({ status: 500, message: "Internal Server Error" });
   }
 };
 

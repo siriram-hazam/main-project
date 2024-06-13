@@ -67,7 +67,7 @@ export const createUser = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-  const userId = req.params.id;
+  const userId = req.user.id;
   const { password, fullname, role, company_id } = req.body;
 
   // console.log(password)
@@ -116,16 +116,6 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-export const fetchUser = async (req, res) => {
-  try {
-    const user = await prisma.user_account.findMany({});
-
-    return res.json({ status: 200, data: user });
-  } catch (error) {
-    console.error(error.message);
-  }
-};
-
 export const fetchUserLogin = async (req, res) => {
   const { username, password } = req.body;
 
@@ -138,6 +128,8 @@ export const fetchUserLogin = async (req, res) => {
         id: true,
         username: true,
         password: true,
+        role: true,
+        company_id: true,
       },
     });
 
@@ -146,12 +138,17 @@ export const fetchUserLogin = async (req, res) => {
 
       if (passcheck) {
         const token = jwt.sign(
-          { id: user.id, username: user.username },
+          {
+            id: user.id,
+            username: user.username,
+            role: user.role,
+            company_id: user.company_id,
+          },
           process.env.JWT_SECRET,
           { expiresIn: "1h" }
         );
 
-        console.log(token);
+        // console.log(token);
 
         return res
           .cookie("token", token, {
@@ -159,7 +156,8 @@ export const fetchUserLogin = async (req, res) => {
             httpOnly: true,
             sameSite: "None",
           })
-          .json({ status: 200, data: user, token: token });
+          .json({ status: 200 });
+        // .json({ status: 200, data: user, token: token });
 
         // console.log("Get Session: ", req.sessionID);
         // req.session.user = user;

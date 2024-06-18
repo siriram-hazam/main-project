@@ -122,7 +122,7 @@ export const fetchUserLogin = async (req, res) => {
   try {
     const user = await prisma.user_account.findUnique({
       where: {
-        username: username,
+        username: username.toLowerCase(),
       },
       select: {
         id: true,

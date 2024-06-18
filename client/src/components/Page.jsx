@@ -13,7 +13,7 @@ axios.defaults.withCredentials = true;
 export default function Page() {
   const [menuOpen, setMenuOpen] = useState(true);
   const [profile, setProfile] = useState({});
-  const [loading, setLoading] = useState(true); // New loading state
+  const [loading, setLoading] = useState(false); // New loading state
 
   const fetchUserProfile = async () => {
     try {
@@ -31,7 +31,7 @@ export default function Page() {
       // console.error(error);
       console.log("Please Login!");
     } finally {
-      setLoading(false); // Set loading to false after data is fetched
+      setLoading(true); // Set loading to false after data is fetched
     }
   };
 
@@ -56,12 +56,12 @@ export default function Page() {
     setShowEditactivityModal(!showEditactivityModal);
   };
 
-  if (loading) {
+  if (!loading) {
     return <div>Loading...</div>; // Show a loading message while fetching data
   }
 
   return (
-    <div className="flex min-h-screen max-h-screen max-w-full">
+    <div className="flex min-h-screen max-h-screen max-w-screen">
       <div
         id="menu"
         className={` bg-neutral-200 w-64 flex flex-col drop-shadow-xl ${
@@ -70,7 +70,7 @@ export default function Page() {
             : "hidden"
         }`}
       >
-        <div className="p-4 border-gray-700 flex">
+        <div className="p-2 pr-0 border-gray-700 flex">
           <GoRepo className="w-16 h-16 mr-2" />
           <span className="text-3xl font-semibold">Record Of Processing</span>
         </div>
@@ -149,7 +149,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="flex-1 flex-nowrap text-nowrap ">
+      <div className="flex-1 flex-nowrap text-nowrap">
         <div className="flex justify-between min-h-12 bg-neutral-200 border-gray-500 drop-shadow place-items-center max-w-full space-x-4 pr-4">
           <FiMenu
             color="gray"

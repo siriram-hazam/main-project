@@ -17,6 +17,8 @@ const LoginModal = ({ show, onClose }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [textError, setTextError] = useState(false);
+  const [helperText, setHelperText] = useState("");
 
   if (loading) {
     return <div>Loading...</div>; // Show a loading message while fetching data
@@ -35,7 +37,13 @@ const LoginModal = ({ show, onClose }) => {
           if (res.data.status === 200) {
             console.log("Login Success");
             onClose();
-            window.location = "/";
+            window.location = "/dashboard";
+            setTextError(false);
+            setHelperText("");
+          } else if (res.data.status === 400) {
+            setTextError(true);
+            setHelperText("Please provide Username and Password Correctly.");
+            console.log("Invalid Username or Password!!");
           } else {
             console.log("Login Failed");
           }
@@ -198,7 +206,7 @@ const LoginModal = ({ show, onClose }) => {
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
                           // defaultValue=""
-                          // error
+                          error={textError}
                           // helperText="Incorrect entry."
                         />
                       </div>
@@ -211,8 +219,8 @@ const LoginModal = ({ show, onClose }) => {
                           autoComplete="current-password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          // error
-                          // helperText="Incorrect entry."
+                          error={textError}
+                          helperText={helperText}
                         />
                       </div>
                     </Box>

@@ -150,13 +150,15 @@ export const fetchUserLogin = async (req, res) => {
 
         // console.log(token);
 
+        delete user.password;
+
         return res
           .cookie("token", token, {
             secure: true,
             httpOnly: true,
-            sameSite: "None",
+            sameSite: "strict",
           })
-          .json({ status: 200 });
+          .json({ status: 200, user });
         // .json({ status: 200, data: user, token: token });
 
         // console.log("Get Session: ", req.sessionID);

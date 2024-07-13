@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
+
 import { GoRepo } from "react-icons/go";
 import { FiMenu } from "react-icons/fi";
-import ActivitiesPage from "./page-component/activitiesPage.jsx";
 import LoginModal from "./LoginModal.jsx";
+import ActivitiesPage from "./page-component/activitiesPage.jsx";
 import axios from "axios";
 axios.defaults.withCredentials = true;
 
@@ -127,7 +131,11 @@ export default function Page() {
   };
 
   if (!loading) {
-    return <div>Loading...</div>; // Show a loading message while fetching data
+    return (
+      <Box sx={{ display: "flex" }}>
+        <CircularProgress />
+      </Box>
+    ); // Show a loading message while fetching data
   }
 
   return (

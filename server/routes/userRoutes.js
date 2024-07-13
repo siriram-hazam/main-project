@@ -17,5 +17,8 @@ router.delete("/:id", deleteUser);
 router.post("/login", fetchUserLogin);
 router.get("/acc", fecthUserAcc);
 router.get("/userProfile", auth, userProfile);
+router.get("/status", auth, (req, res) => {
+  res.json({ status: "authenticated" });
+});
 
 export default router;

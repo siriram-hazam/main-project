@@ -3,6 +3,10 @@ import prisma from "../db/db.config.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+function getRandomSixDigitNumber() {
+  return Math.floor(100000 + Math.random() * 900000);
+}
+
 export const createUser = async (req, res) => {
   const { username, password, fullname, email, role, company_id, photo_path } =
     req.body;
@@ -41,11 +45,14 @@ export const createUser = async (req, res) => {
     });
   }
 
+  const randomId = getRandomSixDigitNumber();
+
   try {
     const passhash = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user_account.create({
       data: {
+        id: randomId,
         username: username.toLowerCase(),
         password: passhash,
         fullname: fullname,
@@ -151,22 +158,22 @@ export const fetchUserLogin = async (req, res) => {
         // console.log(token);
 
         delete user.password;
+        delete user.role;
 
         return res
           .cookie("token", token, {
             secure: true,
             httpOnly: true,
             sameSite: "strict",
+            maxAge: new Date(Date.now() + 1 * 60 * 60 * 1000), //cookie delete after 1 hour
+          })
+          .cookie("user", user, {
+            secure: true,
+            httpOnly: true,
+            sameSite: "strict",
+            maxAge: new Date(Date.now() + 1 * 60 * 60 * 1000), //cookie delete after 1 hour
           })
           .json({ status: 200, user });
-        // .json({ status: 200, data: user, token: token });
-
-        // console.log("Get Session: ", req.sessionID);
-        // req.session.user = user;
-        // req.session.userId = user.id;
-        // res.send({ message: "Login Success!" });
-
-        // return res.json({ status: 200, data: user, token: token });
       }
 
       return res.json({ status: 400, message: "Password Incorrect!" });
@@ -202,6 +209,17 @@ export const fecthUserAcc = async (req, res) => {
       },
     });
     return res.json({ status: 200, data: user });
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+export const fetchUser = async (req, res) => {
+  try {
+    // const user = req.cookies.user;
+    // const token = req.cookies.token;
+    // console.log(req.user);
+    res.json(req.user);
   } catch (error) {
     console.error(error.message);
   }

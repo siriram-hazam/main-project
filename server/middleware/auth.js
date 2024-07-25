@@ -4,11 +4,17 @@ export const auth = async (req, res, next) => {
   try {
     const token = req.cookies.token;
 
-    if (token == null) return res.sendStatus(401);
+    if (token == null)
+      return (
+        res.clearCookie("token"), res.clearCookie("user"), res.sendStatus(403)
+      );
 
     await jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) return res.clearCookie("token"), res.sendStatus(403);
-      console.log(user);
+      if (err)
+        return (
+          res.clearCookie("token"), res.clearCookie("user"), res.sendStatus(403)
+        );
+      // console.log(user);
       req.user = user;
       next();
     });

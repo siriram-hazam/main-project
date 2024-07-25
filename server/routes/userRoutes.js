@@ -6,6 +6,7 @@ import {
   fecthUserAcc,
   fetchUserLogin,
   userProfile,
+  fetchUser,
 } from "../controller/userController.js";
 import { auth } from "../middleware/auth.js";
 
@@ -20,5 +21,6 @@ router.get("/userProfile", auth, userProfile);
 router.get("/status", auth, (req, res) => {
   res.json({ status: "authenticated" });
 });
+router.get("/checkUser", auth, fetchUser);
 
 export default router;

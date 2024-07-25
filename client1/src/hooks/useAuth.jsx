@@ -12,10 +12,12 @@ const authLogin = async (username, password) => {
         if (res.data.status === 200) {
           console.log("authLogin Pass!");
           checkLoginStatus();
-          console.log(res.data.user);
-          localStorage.setItem("user", JSON.stringify(res.data.user));
+          // console.log(res.data.user);
+          // localStorage.setItem("user", JSON.stringify(res.data.user));
+          // sessionStorage.setItem("user", JSON.stringify(res.data.user));
         } else {
           console.log("authLogin Not Pass!");
+          // console.error(res);
         }
       },
       (error) => {
@@ -27,20 +29,39 @@ const authLogin = async (username, password) => {
 
 const checkLoginStatus = async () => {
   try {
-    checkAuthStatus().then((res) => {
-      if (res.data.status === "authenticated") {
-        console.log("User is authenticated");
-        // window.location = "/dashboard";
-      } else {
-        console.log("User is not authenticated");
+    checkAuthStatus().then(
+      (res) => {
+        if (res.data.status === "authenticated") {
+          console.log("User is authenticated");
+          // checkUser().then(
+          //   (res) => {
+          //     // console.log(res);
+          //     // window.location = "/dashboard";
+          //   },
+          //   (error) => {
+          //     console.log("Error useAuth checkAuthStatus checkUser : ", error);
+          //   }
+          // );
+
+          // -- Check Response
+          // checkUser().then((res) => {
+          //   console.log(res);
+          // });
+          window.location = "/dashboard";
+        } else {
+          console.log("User is not authenticated");
+        }
+      },
+      (error) => {
+        console.log("Error useAuth checkAuthStatus : ", error);
       }
-    });
+    );
   } catch (error) {
     console.error("Error useAuth checkLoginStatus : ", error);
   }
 };
 
-const checkAuthStatus = async (req, res, next) => {
+const checkAuthStatus = async () => {
   try {
     const res = await axios.get("http://localhost:3001/api/user/status");
     return res;
@@ -49,4 +70,23 @@ const checkAuthStatus = async (req, res, next) => {
   }
 };
 
-export default { authLogin, checkAuthStatus };
+const checkUser = async () => {
+  try {
+    const res = await axios.get("http://localhost:3001/api/user/checkUser");
+    return res;
+  } catch (error) {
+    console.error("Error useAuth checkUser : ", error);
+  }
+  return null;
+};
+
+const userProfile = async () => {
+  try {
+    const res = await axios.get("http://localhost:3001/api/user/userProfile");
+    return res;
+  } catch (error) {
+    console.error("Error useAuth userProfile : ", error);
+  }
+};
+
+export default { authLogin, checkAuthStatus, checkUser, userProfile };

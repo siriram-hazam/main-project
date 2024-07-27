@@ -8,7 +8,7 @@ function getRandomSixDigitNumber() {
 }
 
 export const createUser = async (req, res) => {
-  const { username, password, fullname, email, role, company_id, photo_path } =
+  const { username, password, fullname, email, role, company_id } =
     req.body;
 
   // const companyData = await prisma.company.findFirst({
@@ -60,7 +60,7 @@ export const createUser = async (req, res) => {
         role: role,
         company_id: company_id,
         edit_time: new Date().toISOString(),
-        photo_path: photo_path,
+        // photo_path: photo_path,
       },
     });
     return res.json({

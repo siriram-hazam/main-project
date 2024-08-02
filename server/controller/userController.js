@@ -3,13 +3,8 @@ import prisma from "../db/db.config.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-function getRandomSixDigitNumber() {
-  return Math.floor(100000 + Math.random() * 900000);
-}
-
 export const createUser = async (req, res) => {
-  const { username, password, fullname, email, role, company_id } =
-    req.body;
+  const { username, password, fullname, email, role, company_id } = req.body;
 
   // const companyData = await prisma.company.findFirst({
   //     where: {
@@ -45,14 +40,11 @@ export const createUser = async (req, res) => {
     });
   }
 
-  const randomId = getRandomSixDigitNumber();
-
   try {
     const passhash = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user_account.create({
       data: {
-        id: randomId,
         username: username.toLowerCase(),
         password: passhash,
         fullname: fullname,

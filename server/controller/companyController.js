@@ -1,9 +1,5 @@
 import prisma from "../db/db.config.js";
 
-function getRandomSixDigitNumber() {
-  return Math.floor(100000 + Math.random() * 9000000);
-}
-
 export const createCompany = async (req, res) => {
   const { companyName, address, phone_number, email, dpo } = req.body;
 
@@ -12,8 +8,6 @@ export const createCompany = async (req, res) => {
       email: email,
     },
   });
-
-  const randomNumber = getRandomSixDigitNumber();
 
   // findEmail ? res.json({ status: 400, message: "CompanyCreate: Email Already Taken!!" }) : null;
   if (findEmail) {
@@ -26,7 +20,6 @@ export const createCompany = async (req, res) => {
   try {
     const newCompany = await prisma.company.create({
       data: {
-        id: randomNumber,
         companyName: companyName,
         address: address,
         phone_number: phone_number,

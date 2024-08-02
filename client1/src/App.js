@@ -1,26 +1,32 @@
-import React, { useEffect, useState } from "react";
-//Route
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useRoutes,
+} from "react-router-dom";
 
 //Components
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute.jsx";
+
+//Router
+import Themeroutes from "./routes/Router.js";
 
 //Hooks
 import authUtils from "./hooks/useAuth.jsx";
 
 //Pages
 import Login from "./pages/Login/Login.jsx";
-import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 
 function App() {
-  const [auth, setAuth] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [auth, setAuth] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const res = await authUtils.checkAuthStatus();
-        // console.log(res);
         if (res.data.status === "authenticated") {
           setAuth(true);
         }
@@ -32,7 +38,8 @@ function App() {
       }
     };
     checkAuth();
-  });
+  }, []);
+
   if (loading) {
     return <div>Loading....</div>;
   }
@@ -44,17 +51,15 @@ function App() {
           path="/"
           element={auth ? <Navigate to="/dashboard" /> : <Login />}
         />
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
+        <Route path="*" element={<RouterWrapper />} />
       </Routes>
     </BrowserRouter>
   );
+}
+
+function RouterWrapper() {
+  const routing = useRoutes(Themeroutes);
+  return routing;
 }
 
 export default App;

@@ -89,4 +89,13 @@ const userProfile = async () => {
   }
 };
 
-export default { authLogin, checkAuthStatus, checkUser, userProfile };
+const logout = async () => {
+  try {
+    await axios.get("http://localhost:3001/api/user/logout");
+    window.location = "/";
+  } catch (error) {
+    console.error("Error useAuth logout : ", error);
+  }
+};
+
+export default { authLogin, checkAuthStatus, checkUser, userProfile, logout };

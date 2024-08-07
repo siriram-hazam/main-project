@@ -21,11 +21,9 @@ import {
   ListItemIcon,
 } from "@mui/material";
 
-import userimg from "../../../assets/images/users/4.jpg";
+import authUtils from "../../../hooks/useAuth";
 
-function deleteCookie(name) {
-  document.cookie = name + "=; max-age=0;";
-}
+import userimg from "../../../assets/images/users/4.jpg";
 
 const Header = (props) => {
   // const [anchorEl, setAnchorEl] = React.useState(null);
@@ -47,6 +45,11 @@ const Header = (props) => {
 
   const handleClose4 = () => {
     setAnchorEl4(null);
+  };
+
+  const handleLogout = () => {
+    authUtils.logout();
+    handleClose4();
   };
 
   // 5
@@ -264,7 +267,7 @@ const Header = (props) => {
             </ListItemIcon>
             Settings
           </MenuItem> */}
-          <MenuItem onClick={handleClose4}>
+          <MenuItem onClick={handleLogout}>
             <ListItemIcon>
               <LogoutOutlinedIcon fontSize="small" />
             </ListItemIcon>

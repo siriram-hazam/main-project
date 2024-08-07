@@ -22,5 +22,9 @@ router.get("/status", auth, (req, res) => {
   res.json({ status: "authenticated" });
 });
 router.get("/checkUser", auth, fetchUser);
+router.get("/logout", (req, res) => {
+  res.clearCookie("token");
+  res.json({ status: 200, message: "Logout Success" });
+});
 
 export default router;

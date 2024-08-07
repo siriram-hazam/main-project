@@ -7,8 +7,8 @@ import {
   useRoutes,
 } from "react-router-dom";
 
-//Components
-import PrivateRoute from "./components/PrivateRoute/PrivateRoute.jsx";
+import { ThemeProvider } from "@mui/material/styles";
+import { baseTheme } from "./assets/global/Theme-variable.js";
 
 //Router
 import Themeroutes from "./routes/Router.js";
@@ -22,6 +22,8 @@ import Login from "./pages/Login/Login.jsx";
 function App() {
   const [auth, setAuth] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+
+  const theme = baseTheme;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -51,7 +53,15 @@ function App() {
           path="/"
           element={auth ? <Navigate to="/dashboard" /> : <Login />}
         />
-        <Route path="*" element={<RouterWrapper />} />
+
+        <Route
+          path="*"
+          element={
+            <ThemeProvider theme={theme}>
+              <RouterWrapper />
+            </ThemeProvider>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

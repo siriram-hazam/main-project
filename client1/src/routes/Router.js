@@ -1,25 +1,39 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { Navigate } from "react-router-dom";
 
-//Components
+// Components
 import PrivateRoute from "../components/PrivateRoute/PrivateRoute.jsx";
 
-//Layouts
+// Layouts
 import FullLayout from "../layouts/FullLayout/FullLayout.js";
-//End Layouts
 
+// Dashboard
+import Dashboard1 from "../views/dashboard/Dashboard1.js";
+
+//Activities Table
+import ActivitiesTable from "../views/tables/Activities/ActivitiesTable.js";
+//Privacy Notice Table
+import PrivacyNoticeTable from "../views/tables/PrivacyNotice/PrivacyNoticeTable.js";
+
+// Define routes
 const Themeroutes = [
   {
-    path: "/dashboard",
+    path: "/",
     element: (
       <PrivateRoute>
-        {/* <Dashboard /> */}
-        {/* <>Hello Dashboard</> */}
         <FullLayout />
       </PrivateRoute>
     ),
     children: [
+      { path: "/", element: <Navigate to="dashboards" /> },
+      { path: "dashboards", exact: true, element: <Dashboard1 /> },
       {
-        path: "",
+        path: "activities",
+        element: <ActivitiesTable />,
+      },
+      {
+        path: "privacy-notice",
+        element: <PrivacyNoticeTable />,
       },
     ],
   },

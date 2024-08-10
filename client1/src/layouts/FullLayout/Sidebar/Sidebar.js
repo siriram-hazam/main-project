@@ -11,7 +11,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import { SidebarWidth } from "../../../assets/global/Theme-variable";
-import LogoIcon from "../Logo/LogoIcon";
+// import LogoIcon from "../Logo/LogoIcon";
 import Menuitems from "./data";
 
 const Sidebar = (props) => {
@@ -32,7 +32,7 @@ const Sidebar = (props) => {
     <Box sx={{ p: 3, height: "calc(100vh - 40px)" }}>
       <Link to="/">
         <Box sx={{ display: "flex", alignItems: "Center" }}>
-          <LogoIcon />
+          {/* <LogoIcon /> */}
         </Box>
       </Link>
 

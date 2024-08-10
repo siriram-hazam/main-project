@@ -36,7 +36,7 @@ const checkLoginStatus = async () => {
           // checkUser().then(
           //   (res) => {
           //     // console.log(res);
-          //     // window.location = "/dashboard";
+          //     // window.location = "/dashboards";
           //   },
           //   (error) => {
           //     console.log("Error useAuth checkAuthStatus checkUser : ", error);
@@ -47,7 +47,7 @@ const checkLoginStatus = async () => {
           // checkUser().then((res) => {
           //   console.log(res);
           // });
-          window.location = "/dashboard";
+          window.location = "/dashboards";
         } else {
           console.log("User is not authenticated");
         }

@@ -154,6 +154,22 @@ const Header = (props) => {
 
         <Box flexGrow={1} />
 
+        {props.user.data.users.fullname}
+
+        <Box
+          sx={{
+            width: "1px",
+            backgroundColor: "rgba(0,0,0,0.1)",
+            height: "25px",
+            ml: 1,
+            mr: 1,
+          }}
+        ></Box>
+
+        {/* {console.log(props.user)} */}
+
+        {props.user.data.users.company_relation.companyName}
+
         {/* ------------------------------------------- */}
         {/* Notifications Dropdown */}
         {/* ------------------------------------------- */}
@@ -239,21 +255,32 @@ const Header = (props) => {
             },
           }}
         >
-          <MenuItem onClick={handleClose4}>
-            <Avatar
-              sx={{
-                width: "35px",
-                height: "35px",
-              }}
-            />
+          <MenuItem>
             <Box
               sx={{
                 ml: 2,
               }}
             >
-              My account
+              {props.user.data.users.email}
             </Box>
           </MenuItem>
+          {/* <Divider /> */}
+          <MenuItem onClick={handleClose4}>
+            {/* <Avatar
+              sx={{
+                width: "35px",
+                height: "35px",
+              }}
+            /> */}
+            <Box
+              sx={{
+                ml: 2,
+              }}
+            >
+              Edit Profile
+            </Box>
+          </MenuItem>
+
           <Divider />
           {/* <MenuItem onClick={handleClose4}>
             <ListItemIcon>

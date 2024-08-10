@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   experimentalStyled,
   useMediaQuery,
@@ -10,6 +10,8 @@ import Header from "./Header/Header";
 import Sidebar from "./Sidebar/Sidebar";
 import Footer from "./Footer/Footer";
 import { TopbarHeight } from "../../assets/global/Theme-variable";
+
+import authUtils from "../../hooks/useAuth";
 
 const MainWrapper = experimentalStyled("div")(({ theme }) => ({
   display: "flex",
@@ -36,6 +38,50 @@ const FullLayout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"));
+
+  const [user, setUser] = useState(null);
+  const [checkUser, setCheckUser] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const user = await authUtils.checkUser();
+        setCheckUser(user);
+        // console.log(user);
+      } catch (error) {
+        console.error("Error Dashboard checkUser : ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUser();
+
+    const loadUser = async () => {
+      try {
+        const user = await authUtils.userProfile();
+        setUser(user);
+        // console.log(user);
+      } catch (error) {
+        console.error("Error Dashboard loadUser : ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user || !checkUser) {
+    return <div>Failed to load user data</div>;
+  }
+
   return (
     <MainWrapper>
       <Header
@@ -45,6 +91,7 @@ const FullLayout = () => {
         }}
         toggleSidebar={() => setSidebarOpen(!isSidebarOpen)}
         toggleMobileSidebar={() => setMobileSidebarOpen(true)}
+        user={user}
       />
 
       <Sidebar

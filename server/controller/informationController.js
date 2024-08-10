@@ -363,6 +363,7 @@ export const getInformation = async (req, res) => {
           select: {
             id: true,
             username: true,
+            fullname: true,
           },
         },
         company_relation: {

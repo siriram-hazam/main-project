@@ -133,8 +133,8 @@ model m_organization {
 model information_m_organization {
   information_id          Int
   m_organization_id       Int
-  information_relation    information    @relation(fields: [information_id], references: [id])
-  m_organization_relation m_organization @relation(fields: [m_organization_id], references: [id])
+  information_relation    information    @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  m_organization_relation m_organization @relation(fields: [m_organization_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, m_organization_id])
 }
@@ -148,8 +148,8 @@ model m_technical {
 model information_m_technical {
   information_id       Int
   m_technical_id       Int
-  information_relation information @relation(fields: [information_id], references: [id])
-  m_technical_relation m_technical @relation(fields: [m_technical_id], references: [id])
+  information_relation information @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  m_technical_relation m_technical @relation(fields: [m_technical_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, m_technical_id])
 }
@@ -163,8 +163,8 @@ model m_physical {
 model information_m_physical {
   information_id       Int
   m_physical_id        Int
-  information_relation information @relation(fields: [information_id], references: [id])
-  m_physical_relation  m_physical  @relation(fields: [m_physical_id], references: [id])
+  information_relation information @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  m_physical_relation  m_physical  @relation(fields: [m_physical_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, m_physical_id])
 }
@@ -180,8 +180,8 @@ model category {
 model category_information {
   information_id       Int
   category_id          Int
-  information_relation information @relation(fields: [information_id], references: [id])
-  category_relation    category    @relation(fields: [category_id], references: [id])
+  information_relation information @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  category_relation    category    @relation(fields: [category_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, category_id])
 }
@@ -189,8 +189,8 @@ model category_information {
 model poi_information {
   information_id       Int
   poi_id               Int
-  information_relation information   @relation(fields: [information_id], references: [id])
-  poi_relation         piece_of_info @relation(fields: [poi_id], references: [id])
+  information_relation information   @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  poi_relation         piece_of_info @relation(fields: [poi_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, poi_id])
 }
@@ -277,8 +277,8 @@ model info_role {
 model information_info_role {
   information_id       Int
   info_role_id         Int
-  information_relation information @relation(fields: [information_id], references: [id])
-  info_role_relation   info_role   @relation(fields: [info_role_id], references: [id])
+  information_relation information @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_role_relation   info_role   @relation(fields: [info_role_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_role_id])
 }
@@ -297,8 +297,8 @@ model info_document {
 model information_info_document {
   information_id         Int
   info_document_id       Int
-  information_relation   information   @relation(fields: [information_id], references: [id])
-  info_document_relation info_document @relation(fields: [info_document_id], references: [id])
+  information_relation   information   @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_document_relation info_document @relation(fields: [info_document_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_document_id])
 }
@@ -403,8 +403,8 @@ model info_stored_period {
 model information_info_stored_period {
   information_id              Int
   info_stored_period_id       Int
-  information_relation        information        @relation(fields: [information_id], references: [id])
-  info_stored_period_relation info_stored_period @relation(fields: [info_stored_period_id], references: [id])
+  information_relation        information        @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_stored_period_relation info_stored_period @relation(fields: [info_stored_period_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_stored_period_id])
 }
@@ -434,8 +434,8 @@ model info_placed {
 model information_info_placed {
   information_id       Int
   info_placed_id       Int
-  information_relation information @relation(fields: [information_id], references: [id])
-  info_placed_relation info_placed @relation(fields: [info_placed_id], references: [id])
+  information_relation information @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_placed_relation info_placed @relation(fields: [info_placed_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_placed_id])
 }
@@ -465,8 +465,8 @@ model info_allowed_ps {
 model information_info_allowed_ps {
   information_id           Int
   info_allowed_ps_id       Int
-  information_relation     information     @relation(fields: [information_id], references: [id])
-  info_allowed_ps_relation info_allowed_ps @relation(fields: [info_allowed_ps_id], references: [id])
+  information_relation     information     @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_allowed_ps_relation info_allowed_ps @relation(fields: [info_allowed_ps_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_allowed_ps_id])
 }
@@ -496,8 +496,8 @@ model info_allowed_ps_condition {
 model information_info_allowed_ps_condition {
   information_id                     Int
   info_allowed_ps_condition_id       Int
-  information_relation               information               @relation(fields: [information_id], references: [id])
-  info_allowed_ps_condition_relation info_allowed_ps_condition @relation(fields: [info_allowed_ps_condition_id], references: [id])
+  information_relation               information               @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_allowed_ps_condition_relation info_allowed_ps_condition @relation(fields: [info_allowed_ps_condition_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_allowed_ps_condition_id])
 }
@@ -527,8 +527,8 @@ model info_access {
 model information_info_access {
   information_id       Int
   info_access_id       Int
-  information_relation information @relation(fields: [information_id], references: [id])
-  info_access_relation info_access @relation(fields: [info_access_id], references: [id])
+  information_relation information @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_access_relation info_access @relation(fields: [info_access_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_access_id])
 }
@@ -558,8 +558,8 @@ model info_access_condition {
 model information_info_access_condition {
   information_id                 Int
   info_access_condition_id       Int
-  information_relation           information           @relation(fields: [information_id], references: [id])
-  info_access_condition_relation info_access_condition @relation(fields: [info_access_condition_id], references: [id])
+  information_relation           information           @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_access_condition_relation info_access_condition @relation(fields: [info_access_condition_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_access_condition_id])
 }
@@ -589,8 +589,8 @@ model info_ps_usedbyrole_inside {
 model information_info_ps_usedbyrole_inside {
   information_id                     Int
   info_ps_usedbyrole_inside_id       Int
-  information_relation               information               @relation(fields: [information_id], references: [id])
-  info_ps_usedbyrole_inside_relation info_ps_usedbyrole_inside @relation(fields: [info_ps_usedbyrole_inside_id], references: [id])
+  information_relation               information               @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_ps_usedbyrole_inside_relation info_ps_usedbyrole_inside @relation(fields: [info_ps_usedbyrole_inside_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_ps_usedbyrole_inside_id])
 }
@@ -620,8 +620,8 @@ model info_ps_sendto_outside {
 model information_info_ps_sendto_outside {
   information_id                  Int
   info_ps_sendto_outside_id       Int
-  information_relation            information            @relation(fields: [information_id], references: [id])
-  info_ps_sendto_outside_relation info_ps_sendto_outside @relation(fields: [info_ps_sendto_outside_id], references: [id])
+  information_relation            information            @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_ps_sendto_outside_relation info_ps_sendto_outside @relation(fields: [info_ps_sendto_outside_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_ps_sendto_outside_id])
 }
@@ -651,8 +651,8 @@ model info_ps_destroying {
 model information_info_ps_destroying {
   information_id              Int
   info_ps_destroying_id       Int
-  information_relation        information        @relation(fields: [information_id], references: [id])
-  info_ps_destroying_relation info_ps_destroying @relation(fields: [info_ps_destroying_id], references: [id])
+  information_relation        information        @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_ps_destroying_relation info_ps_destroying @relation(fields: [info_ps_destroying_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_ps_destroying_id])
 }
@@ -682,8 +682,8 @@ model info_ps_destroyer {
 model information_info_ps_destroyer {
   information_id             Int
   info_ps_destroyer_id       Int
-  information_relation       information       @relation(fields: [information_id], references: [id])
-  info_ps_destroyer_relation info_ps_destroyer @relation(fields: [info_ps_destroyer_id], references: [id])
+  information_relation       information       @relation(fields: [information_id], references: [id], onDelete: Cascade)
+  info_ps_destroyer_relation info_ps_destroyer @relation(fields: [info_ps_destroyer_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, info_ps_destroyer_id])
 }

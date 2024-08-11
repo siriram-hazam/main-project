@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Typography,
   Box,
@@ -8,159 +8,308 @@ import {
   TableHead,
   TableRow,
   Chip,
+  Fab,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+  Switch,
 } from "@mui/material";
 
-// const products = [
-//   {
-//     id: "1",
-//     name: "Sunil Joshi",
-//     post: "Web Designer",
-//     pname: "Elite Admin",
-//     priority: "Low",
-//     pbg: "primary.main",
-//     budget: "3.9",
-//   },
-//   {
-//     id: "2",
-//     name: "Andrew McDownland",
-//     post: "Project Manager",
-//     pname: "Real Homes WP Theme",
-//     priority: "Medium",
-//     pbg: "secondary.main",
-//     budget: "24.5",
-//   },
-//   {
-//     id: "3",
-//     name: "Christopher Jamil",
-//     post: "Project Manager",
-//     pname: "MedicalPro WP Theme",
-//     priority: "High",
-//     pbg: "error.main",
-//     budget: "12.8",
-//   },
-//   {
-//     id: "4",
-//     name: "Nirav Joshi",
-//     post: "Frontend Engineer",
-//     pname: "Hosting Press HTML",
-//     priority: "Critical",
-//     pbg: "success.main",
-//     budget: "2.4",
-//   },
-// ];
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import axios from "axios";
+
+const handleDelete = async (id) => {
+  try {
+    await axios.delete("http://localhost:3001/api/information/" + id);
+    window.location.reload();
+    console.log("Delete success");
+  } catch (error) {
+    console.error("Error handleDelete : ", error);
+  }
+};
+
+const handleApprove = async (id) => {
+  try {
+    await axios.put("http://localhost:3001/api/information/" + id);
+    window.location.reload();
+    console.log("Approve success");
+  } catch (error) {
+    console.error("Error handleApprove : ", error);
+  }
+};
 
 const ExTable = (props) => {
-  console.log("props", props);
+  const [open, setOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+  const [alertOpen, setAlertOpen] = useState(false);
+
+  // console.log(props.info);
+  // console.log(props.user);
+
+  const handleClickOpen = (id) => {
+    setSelectedId(id);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedId(null);
+  };
+
+  const handleConfirmDelete = () => {
+    handleDelete(selectedId);
+    handleClose();
+  };
+
+  const handleSwitchChange = (id) => (event) => {
+    if (event.target.checked) {
+      setSelectedId(id);
+      setAlertOpen(true);
+    }
+  };
+
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+    setSelectedId(null);
+  };
+
+  const handleConfirmSwitch = () => {
+    handleApprove(selectedId);
+    handleAlertClose();
+  };
+
   return (
-    <Table
-      aria-label="simple table"
-      sx={{
-        mt: 3,
-        whiteSpace: "nowrap",
-      }}
-    >
-      <TableHead>
-        <TableRow>
-          <TableCell>
-            <Typography color="textSecondary" variant="h6">
-              Id
-            </Typography>
-          </TableCell>
-          <TableCell>
-            <Typography color="textSecondary" variant="h6">
-              Activity Name
-            </Typography>
-          </TableCell>
-          <TableCell>
-            <Typography color="textSecondary" variant="h6">
-              Name
-            </Typography>
-          </TableCell>
-          <TableCell>
-            <Typography color="textSecondary" variant="h6">
-              Status
-            </Typography>
-          </TableCell>
-          <TableCell align="right">
-            <Typography color="textSecondary" variant="h6">
-              Create Time
-            </Typography>
-          </TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {props.info.data.message.map((item) => (
-          <TableRow key={item}>
+    <>
+      <Table
+        aria-label="simple table"
+        sx={{
+          mt: 3,
+          whiteSpace: "nowrap",
+        }}
+      >
+        <TableHead>
+          <TableRow>
             <TableCell>
-              <Typography
-                sx={{
-                  fontSize: "15px",
-                  fontWeight: "500",
-                }}
-              >
-                {item.id}
+              <Typography color="textSecondary" variant="h6">
+                Id
               </Typography>
-            </TableCell>
-            <TableCell>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <Box>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: "500",
-                    }}
-                  >
-                    {item.activity_relation.activity}
-                  </Typography>
-                  <Typography
-                    color="textSecondary"
-                    sx={{
-                      fontSize: "13px",
-                    }}
-                  >
-                    {/* {item.post} */}
-                  </Typography>
-                </Box>
-              </Box>
             </TableCell>
             <TableCell>
               <Typography color="textSecondary" variant="h6">
-                {item.user_account_relation.fullname}
+                Name & Category
               </Typography>
             </TableCell>
             <TableCell>
-              <Chip
-                sx={{
-                  pl: "4px",
-                  pr: "4px",
-                  // backgroundColor: product.pbg,
-                  color: "#fff",
-                }}
-                size="small"
-                label={item.status}
-              ></Chip>
-            </TableCell>
-            <TableCell align="right">
-              <Typography variant="h6">
-                {new Date(item.create_time).toLocaleString("th-TH", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })}
+              <Typography color="textSecondary" variant="h6">
+                Created By
               </Typography>
             </TableCell>
+            <TableCell>
+              <Typography color="textSecondary" variant="h6">
+                Status
+              </Typography>
+            </TableCell>
+            <TableCell align="left">
+              <Typography color="textSecondary" variant="h6">
+                Create Time
+              </Typography>
+            </TableCell>
+            <TableCell align="left">
+              <Typography color="textSecondary" variant="h6"></Typography>
+            </TableCell>
+            {props.user.data.users.role === "manager" ||
+            props.user.data.users.role === "admin" ? (
+              <TableCell align="left">
+                <Typography color="textSecondary" variant="h6">
+                  Approve
+                </Typography>
+              </TableCell>
+            ) : null}
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHead>
+        <TableBody>
+          {props.info.data.message.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell>
+                <Typography
+                  sx={{
+                    fontSize: "15px",
+                    fontWeight: "500",
+                  }}
+                >
+                  {item.id}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "500",
+                      }}
+                    >
+                      {item.activity_relation.activity}
+                    </Typography>
+                    <Typography
+                      color="textSecondary"
+                      sx={{
+                        fontSize: "13px",
+                      }}
+                    >
+                      {item.category_information.map(
+                        (item) => item.category_relation.category
+                      )}
+                    </Typography>
+                    <Typography
+                      color="textSecondary"
+                      sx={{
+                        fontSize: "13px",
+                      }}
+                    >
+                      {item.category_information.map(
+                        (item) =>
+                          item.category_relation.department_relation
+                            .departmentName
+                      )}
+                    </Typography>
+                  </Box>
+                </Box>
+              </TableCell>
+              <TableCell>
+                <Typography color="textSecondary" variant="h6">
+                  {item.user_account_relation.fullname}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Chip
+                  sx={{
+                    pl: "4px",
+                    pr: "4px",
+                    backgroundColor:
+                      item.status === "success"
+                        ? "green"
+                        : item.status === "pending"
+                        ? "orange"
+                        : "grey",
+                    color: "#fff",
+                  }}
+                  size="small"
+                  label={item.status}
+                ></Chip>
+              </TableCell>
+              <TableCell align="left">
+                <Typography variant="h6">
+                  {new Date(item.create_time).toLocaleString("th-TH", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
+                </Typography>
+              </TableCell>
+              <TableCell align="left">
+                <Typography variant="h6">
+                  <Fab
+                    color="primary"
+                    variant="extended"
+                    // disabled={item.status === "success" ? true : false}
+                    onClick={() => handleClickOpen(item.id)}
+                    sx={{
+                      mr: 1,
+                      mb: {
+                        xs: 1,
+                        sm: 0,
+                        lg: 0,
+                      },
+                      backgroundColor: "red",
+                      p: 1,
+                    }}
+                  >
+                    <DeleteForeverOutlinedIcon />
+                    <Typography
+                      sx={{
+                        textTransform: "capitalize",
+                        fontSize: "13px",
+                      }}
+                    >
+                      {/* Delete */}
+                    </Typography>
+                  </Fab>
+                </Typography>
+              </TableCell>
+              {props.user.data.users.role === "manager" ||
+              props.user.data.users.role === "admin" ? (
+                <TableCell align="left">
+                  <Typography variant="h6">
+                    <Switch
+                      checked={item.status === "success" ? true : false}
+                      disabled={item.status === "success" ? true : false}
+                      color="success"
+                      onChange={(event) => handleSwitchChange(item.id)(event)}
+                    />
+                  </Typography>
+                </TableCell>
+              ) : null}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this item?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="primary" autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={alertOpen}
+        onClose={handleAlertClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Enable Switch"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Do you want to enable this switch?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAlertClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmSwitch} color="primary" autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

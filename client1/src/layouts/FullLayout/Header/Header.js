@@ -7,6 +7,8 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 // import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 // import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 
 import {
   AppBar,
@@ -264,6 +266,19 @@ const Header = (props) => {
               {props.user.data.users.email}
             </Box>
           </MenuItem>
+          <Divider />
+          {props.user.data.users.role === "admin" ? (
+            <MenuItem>
+              <Box
+                sx={{
+                  ml: 2,
+                }}
+              >
+                <PersonAddAltOutlinedIcon className="mb-1 mr-2" />
+                Add More User (Admin)
+              </Box>
+            </MenuItem>
+          ) : null}
           {/* <Divider /> */}
           <MenuItem onClick={handleClose4}>
             {/* <Avatar
@@ -277,6 +292,7 @@ const Header = (props) => {
                 ml: 2,
               }}
             >
+              <EditOutlinedIcon className="mb-1 mr-2" />
               Edit Profile
             </Box>
           </MenuItem>

@@ -352,6 +352,7 @@ export const getInformation = async (req, res) => {
         company_id: req.user.company_id,
       },
       select: {
+        id: true,
         activity_relation: {
           select: {
             activity: true,
@@ -603,6 +604,27 @@ export const deleteInformation = async (req, res) => {
     });
 
     return res.json({ status: 200, message: "Deleted Information!!" });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const updateInformationApproval = async (req, res) => {
+  const id = req.params.id;
+  // const { status } = req.body;
+  const status = "success";
+
+  try {
+    await prisma.information.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        status: status,
+      },
+    });
+
+    return res.json({ status: 200, message: "Information Approval Updated!" });
   } catch (error) {
     console.error(error);
   }

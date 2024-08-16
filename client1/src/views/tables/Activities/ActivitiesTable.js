@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 
-import { Card, CardContent, Box, Typography } from "@mui/material";
+import { Card, CardContent, Box, Typography, Fab } from "@mui/material";
 
 import ExTable from "../../tables/Activities/ExTable";
 
 import AllInboxOutlinedIcon from "@mui/icons-material/AllInboxOutlined";
+import AddToPhotosOutlinedIcon from "@mui/icons-material/AddToPhotosOutlined";
 
 import authUtils from "../../../hooks/useAuth";
 
@@ -80,13 +81,46 @@ const BasicTable = () => {
     <Box>
       <Card variant="outlined">
         <CardContent>
-          <Typography variant="h3">
-            <AllInboxOutlinedIcon
-              sx={{ color: "grey" }}
-              className="mb-1 mr-2"
-            />
-            Activities Table
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="h3">
+              <AllInboxOutlinedIcon
+                sx={{ color: "grey" }}
+                className="mb-1 mr-2"
+              />
+              Activities Table
+            </Typography>
+            <Typography variant="h3">
+              <Fab
+                color="primary"
+                href={"/activities/add"}
+                variant="extended"
+                sx={{
+                  mr: 1,
+                  mb: {
+                    xs: 1,
+                    sm: 0,
+                    lg: 0,
+                  },
+                }}
+              >
+                <AddToPhotosOutlinedIcon />
+                <Typography
+                  sx={{
+                    ml: 1,
+                    textTransform: "capitalize",
+                  }}
+                >
+                  Add Activity
+                </Typography>
+              </Fab>
+            </Typography>
+          </Box>
           <Box
             sx={{
               overflow: {

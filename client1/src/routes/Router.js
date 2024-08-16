@@ -10,6 +10,9 @@ import FullLayout from "../layouts/FullLayout/FullLayout.js";
 // Dashboard
 import Dashboard1 from "../views/dashboard/Dashboard1.js";
 
+//Activities Add
+import ActivitiesAdd from "../views/activities/Activities.js";
+
 //Activities Table
 import ActivitiesTable from "../views/tables/Activities/ActivitiesTable.js";
 //Privacy Notice Table
@@ -30,6 +33,10 @@ const Themeroutes = [
       {
         path: "activities",
         element: <ActivitiesTable />,
+      },
+      {
+        path: "activities/add",
+        element: <ActivitiesAdd />,
       },
       {
         path: "privacy-notice",

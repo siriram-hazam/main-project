@@ -65,20 +65,21 @@ const ActivitiesAdd = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     //ข้อมูลไปยัง API
-    fetch("YOUR_API_ENDPOINT", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    console.log(formData);
+    // fetch("YOUR_API_ENDPOINT", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(formData),
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     console.log("Success:", data);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error:", error);
+    //   });
   };
 
   const addPoiRelation = () => {
@@ -116,6 +117,10 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              freeSolo
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               options={["pending", "success"]}
@@ -126,6 +131,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               options={[1, 2, 3, 4, 5]}
@@ -139,6 +147,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               options={[1, 2, 3, 4, 5]}
@@ -152,6 +163,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               options={["ข้อมูลในใบรับสมัครพนักงาน", "ข้อมูลอื่นๆ"]}
@@ -164,6 +178,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               options={[1, 2, 3, 4, 5]}
@@ -177,6 +194,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               options={[1, 2, 3, 4, 5]}
@@ -190,6 +210,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               options={[1, 2, 3, 4, 5]}
@@ -203,6 +226,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             {formData.poi_relations.map((relation, index) => (
               <Box key={index} sx={{ mb: 2 }}>
@@ -223,14 +249,21 @@ const ActivitiesAdd = () => {
                     )
                   }
                   fullWidth
+                  sx={{ mb: 2 }}
+                  isOptionEqualToValue={(option, value) =>
+                    option === value || value === ""
+                  }
                 />
-                <TextField
-                  label="POI Info Owner"
+                <Autocomplete
+                  options={["เจ้าของที่หนึ่ง", "เจ้าของที่สอง"]}
+                  renderInput={(params) => (
+                    <TextField {...params} label="POI Info Owner" />
+                  )}
                   value={relation.poi_info_owner}
-                  onChange={(event) =>
+                  onChange={(event, value) =>
                     handleNestedAutocompleteChange(
                       event,
-                      event.target.value,
+                      value,
                       "poi_relations",
                       index,
                       "poi_info_owner"
@@ -238,14 +271,20 @@ const ActivitiesAdd = () => {
                   }
                   fullWidth
                   sx={{ mb: 2 }}
+                  isOptionEqualToValue={(option, value) =>
+                    option === value || value === ""
+                  }
                 />
-                <TextField
-                  label="POI Info From"
+                <Autocomplete
+                  options={["แหล่งที่หนึ่ง", "แหล่งที่สอง"]}
+                  renderInput={(params) => (
+                    <TextField {...params} label="POI Info From" />
+                  )}
                   value={relation.poi_info_from}
-                  onChange={(event) =>
+                  onChange={(event, value) =>
                     handleNestedAutocompleteChange(
                       event,
-                      event.target.value,
+                      value,
                       "poi_relations",
                       index,
                       "poi_info_from"
@@ -253,14 +292,20 @@ const ActivitiesAdd = () => {
                   }
                   fullWidth
                   sx={{ mb: 2 }}
+                  isOptionEqualToValue={(option, value) =>
+                    option === value || value === ""
+                  }
                 />
-                <TextField
-                  label="POI Info Format"
+                <Autocomplete
+                  options={["รูปแบบที่หนึ่ง", "รูปแบบที่สอง"]}
+                  renderInput={(params) => (
+                    <TextField {...params} label="POI Info Format" />
+                  )}
                   value={relation.poi_info_format}
-                  onChange={(event) =>
+                  onChange={(event, value) =>
                     handleNestedAutocompleteChange(
                       event,
-                      event.target.value,
+                      value,
                       "poi_relations",
                       index,
                       "poi_info_format"
@@ -268,14 +313,20 @@ const ActivitiesAdd = () => {
                   }
                   fullWidth
                   sx={{ mb: 2 }}
+                  isOptionEqualToValue={(option, value) =>
+                    option === value || value === ""
+                  }
                 />
-                <TextField
-                  label="POI Info Type"
+                <Autocomplete
+                  options={["ประเภทที่หนึ่ง", "ประเภทที่สอง"]}
+                  renderInput={(params) => (
+                    <TextField {...params} label="POI Info Type" />
+                  )}
                   value={relation.poi_info_type}
-                  onChange={(event) =>
+                  onChange={(event, value) =>
                     handleNestedAutocompleteChange(
                       event,
-                      event.target.value,
+                      value,
                       "poi_relations",
                       index,
                       "poi_info_type"
@@ -283,14 +334,20 @@ const ActivitiesAdd = () => {
                   }
                   fullWidth
                   sx={{ mb: 2 }}
+                  isOptionEqualToValue={(option, value) =>
+                    option === value || value === ""
+                  }
                 />
-                <TextField
-                  label="POI Info Objective"
+                <Autocomplete
+                  options={["วัตถุประสงค์ที่หนึ่ง", "วัตถุประสงค์ที่สอง"]}
+                  renderInput={(params) => (
+                    <TextField {...params} label="POI Info Objective" />
+                  )}
                   value={relation.poi_info_objective}
-                  onChange={(event) =>
+                  onChange={(event, value) =>
                     handleNestedAutocompleteChange(
                       event,
-                      event.target.value,
+                      value,
                       "poi_relations",
                       index,
                       "poi_info_objective"
@@ -298,6 +355,9 @@ const ActivitiesAdd = () => {
                   }
                   fullWidth
                   sx={{ mb: 2 }}
+                  isOptionEqualToValue={(option, value) =>
+                    option === value || value === ""
+                  }
                 />
                 <Autocomplete
                   multiple
@@ -317,6 +377,9 @@ const ActivitiesAdd = () => {
                   }
                   fullWidth
                   sx={{ mb: 2 }}
+                  isOptionEqualToValue={(option, value) =>
+                    option === value || value === ""
+                  }
                 />
               </Box>
             ))}
@@ -341,6 +404,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -355,6 +421,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -369,6 +438,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -387,6 +459,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -401,6 +476,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -415,6 +493,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -433,6 +514,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -447,6 +531,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -461,6 +548,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -475,6 +565,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -489,6 +582,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -503,6 +599,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Autocomplete
               multiple
@@ -517,6 +616,9 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
+              isOptionEqualToValue={(option, value) =>
+                option === value || value === ""
+              }
             />
             <Button type="submit" variant="contained" color="primary">
               Submit

@@ -26,7 +26,7 @@ const BasicTable = () => {
         setCheckUser(user);
         // console.log(user);
       } catch (error) {
-        console.error("Error Dashboard checkUser : ", error);
+        console.error("Error ActivitiesTable checkUser : ", error);
       } finally {
         setLoading(false);
       }
@@ -40,7 +40,7 @@ const BasicTable = () => {
         setUser(user);
         // console.log(user);
       } catch (error) {
-        console.error("Error Dashboard loadUser : ", error);
+        console.error("Error ActivitiesTable loadUser : ", error);
       } finally {
         setLoading(false);
       }

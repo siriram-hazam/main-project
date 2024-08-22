@@ -6,11 +6,13 @@ import {
   fetchCompany,
 } from "../controller/companyController.js";
 
+import { auth } from "../middleware/auth.js";
+
 const router = Router();
 
-router.post("/", createCompany);
-router.put("/:id", updateCompany);
-router.delete("/:id", deleteCompany);
-router.get("/", fetchCompany);
+router.post("/", auth, createCompany);
+router.put("/:id", auth, updateCompany);
+router.delete("/:id", auth, deleteCompany);
+router.get("/", auth, fetchCompany);
 
 export default router;

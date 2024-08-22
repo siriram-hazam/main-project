@@ -61,8 +61,6 @@ const ActivitiesAdd = () => {
         company_id: user.data.users.company_id,
         category: "",
         department_id: "",
-        info_role: "",
-        info_document: "",
         poi_relations: [
           {
             info: "",
@@ -299,38 +297,6 @@ const ActivitiesAdd = () => {
               value={formData.department_id}
               onChange={(event, value) =>
                 handleAutocompleteChange(event, value, "department_id")
-              }
-              fullWidth
-              sx={{ mb: 2 }}
-              isOptionEqualToValue={(option, value) =>
-                option === value || value === ""
-              }
-            />
-            <Autocomplete
-              options={[1, 2, 3, 4, 5]}
-              getOptionLabel={(option) => option.toString()}
-              renderInput={(params) => (
-                <TextField {...params} label="Info Role" />
-              )}
-              value={formData.info_role}
-              onChange={(event, value) =>
-                handleAutocompleteChange(event, value, "info_role")
-              }
-              fullWidth
-              sx={{ mb: 2 }}
-              isOptionEqualToValue={(option, value) =>
-                option === value || value === ""
-              }
-            />
-            <Autocomplete
-              options={[1, 2, 3, 4, 5]}
-              getOptionLabel={(option) => option.toString()}
-              renderInput={(params) => (
-                <TextField {...params} label="Info Document" />
-              )}
-              value={formData.info_document}
-              onChange={(event, value) =>
-                handleAutocompleteChange(event, value, "info_document")
               }
               fullWidth
               sx={{ mb: 2 }}

@@ -57,8 +57,6 @@ model company {
   info_ps_sendto_outside    info_ps_sendto_outside[]
   info_ps_destroying        info_ps_destroying[]
   info_ps_destroyer         info_ps_destroyer[]
-  info_role                 info_role[]
-  info_document             info_document[]
 }
 
 model activity {
@@ -107,8 +105,6 @@ model information {
   information_info_ps_sendto_outside    information_info_ps_sendto_outside[]
   information_info_ps_destroying        information_info_ps_destroying[]
   information_info_ps_destroyer         information_info_ps_destroyer[]
-  information_info_role                 information_info_role[]
-  information_info_document             information_info_document[]
 
   information_m_organization information_m_organization[]
   information_m_technical    information_m_technical[]
@@ -261,46 +257,6 @@ model poi_info_from {
   poi_relation       piece_of_info @relation(fields: [poi_id], references: [id])
 
   @@id([info_from_id, poi_id])
-}
-
-//--------------------------------------------------------------
-
-//--------------------------------------------------------------
-model info_role {
-  id                    Int                     @id @default(autoincrement())
-  role                  String
-  company_id            Int                     @default(0)
-  company_relation      company                 @relation(fields: [company_id], references: [id])
-  information_info_role information_info_role[]
-}
-
-model information_info_role {
-  information_id       Int
-  info_role_id         Int
-  information_relation information @relation(fields: [information_id], references: [id], onDelete: Cascade)
-  info_role_relation   info_role   @relation(fields: [info_role_id], references: [id], onDelete: Cascade)
-
-  @@id([information_id, info_role_id])
-}
-
-//--------------------------------------------------------------
-
-//--------------------------------------------------------------
-model info_document {
-  id                        Int                         @id @default(autoincrement())
-  document                  String
-  company_id                Int                         @default(0)
-  company_relation          company                     @relation(fields: [company_id], references: [id])
-  information_info_document information_info_document[]
-}
-
-model information_info_document {
-  information_id         Int
-  info_document_id       Int
-  information_relation   information   @relation(fields: [information_id], references: [id], onDelete: Cascade)
-  info_document_relation info_document @relation(fields: [info_document_id], references: [id], onDelete: Cascade)
-
-  @@id([information_id, info_document_id])
 }
 
 //--------------------------------------------------------------

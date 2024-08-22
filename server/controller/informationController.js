@@ -8,8 +8,6 @@ export const createInformation = async (req, res) => {
     company_id, //frontend auto add from session
     category,
     department_id, //fontend show text but map to id then send to backend
-    info_role,
-    info_document,
     poi_relations, //fontend show text but map to id then send to backend
     // poi_info_owner, //ย้ายไปใน poi_relations
     // poi_info_from,

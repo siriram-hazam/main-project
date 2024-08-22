@@ -3,10 +3,6 @@ axios.defaults.withCredentials = true;
 
 const optionDepartment = async () => {};
 
-const optionInfoRole = async () => {};
-
-const optionInfoDocument = async () => {};
-
 const optionInfo = async () => {};
 
 const optionPoiInfoOwner = async () => {};
@@ -49,8 +45,6 @@ const optionM_Physical = async () => {};
 
 export default {
   optionDepartment,
-  optionInfoRole,
-  optionInfoDocument,
   optionInfo,
   optionPoiInfoOwner,
   optionPoiInfoFrom,

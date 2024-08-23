@@ -118,20 +118,20 @@ export const createInformation = async (req, res) => {
             },
           ],
         },
-        information_info_role: {
-          create: [
-            {
-              info_role_id: info_role,
-            },
-          ],
-        },
-        information_info_document: {
-          create: [
-            {
-              info_document_id: info_document,
-            },
-          ],
-        },
+        // information_info_role: {
+        //   create: [
+        //     {
+        //       info_role_id: info_role,
+        //     },
+        //   ],
+        // },
+        // information_info_document: {
+        //   create: [
+        //     {
+        //       info_document_id: info_document,
+        //     },
+        //   ],
+        // },
         poi_information: {
           create: poi_relations.map((item) => ({
             poi_relation: {
@@ -381,24 +381,24 @@ export const getInformation = async (req, res) => {
             },
           },
         },
-        information_info_role: {
-          select: {
-            info_role_relation: {
-              select: {
-                role: true,
-              },
-            },
-          },
-        },
-        information_info_document: {
-          select: {
-            info_document_relation: {
-              select: {
-                document: true,
-              },
-            },
-          },
-        },
+        // information_info_role: {
+        //   select: {
+        //     info_role_relation: {
+        //       select: {
+        //         role: true,
+        //       },
+        //     },
+        //   },
+        // },
+        // information_info_document: {
+        //   select: {
+        //     info_document_relation: {
+        //       select: {
+        //         document: true,
+        //       },
+        //     },
+        //   },
+        // },
         poi_information: {
           select: {
             poi_relation: {

@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 
 import authUtils from "../../hooks/useAuth";
+import optionUtils from "../../hooks/useOption";
 
 const ActivitiesAdd = () => {
   const [user, setUser] = useState(null);
@@ -19,6 +20,8 @@ const ActivitiesAdd = () => {
   const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState(null);
+
+  const [optionData, setOptionData] = useState(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -48,6 +51,18 @@ const ActivitiesAdd = () => {
     };
 
     loadUser();
+
+    const loadOptions = async () => {
+      try {
+        const options = await optionUtils.optionAllDropdown();
+        setOptionData(options);
+        // console.log("Options", options);
+      } catch (error) {
+        console.error("Error Activities loadOptions : ", error);
+      }
+    };
+
+    loadOptions();
   }, []);
 
   // console.log(user.data.users.id);
@@ -124,11 +139,15 @@ const ActivitiesAdd = () => {
   //   m_physical: [],
   // });
 
-  const handleAutocompleteChange = (event, value, name) => {
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  const handleAutocompleteChange = (event, value, field) => {
+    // setFormData({
+    //   ...formData,
+    //   [field]: value,
+    // });
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value && value.id ? value.id : value, // Store the id in formData
+    }));
   };
 
   const handleNestedAutocompleteChange = (event, value, name, index, field) => {
@@ -184,13 +203,26 @@ const ActivitiesAdd = () => {
     return <div>Failed to load user data</div>;
   }
 
-  if (!formData) {
+  if (!formData || !optionData) {
     return <div>Initializing form...</div>;
   }
 
   console.log("user", user);
 
   console.log("formData", formData);
+
+  console.log("Options", optionData.data);
+
+  // console.log("Activity", optionData.data.activity);
+  // console.log("Department", optionData.data.department);
+  console.log("Piece of Info", optionData.data.piece_of_info);
+
+  // const activityOptions = optionData.data.activity.map((option) => ({
+  //   id: option.id,
+  //   activity: option.activity,
+  // }));
+
+  // console.log("Activity", activityOptions);
 
   return (
     <Box>
@@ -201,71 +233,31 @@ const ActivitiesAdd = () => {
           <form onSubmit={handleSubmit}>
             <Autocomplete
               freeSolo
-              options={[1, 2, 3, 4, 5]}
-              getOptionLabel={(option) => option.toString()}
+              options={optionData.data.activity}
+              getOptionLabel={(option) =>
+                option.activity ? option.activity : ""
+              }
               renderInput={(params) => (
                 <TextField {...params} label="กิจกรรมงานที่บันทึกรายการ" />
               )}
-              value={formData.activity}
+              // value={formData.activity}
+              value={
+                optionData.data.activity.find(
+                  (option) => option.id === formData.activity
+                ) || null
+              }
               onChange={(event, value) =>
                 handleAutocompleteChange(event, value, "activity")
               }
               fullWidth
               sx={{ mb: 2 }}
+              // isOptionEqualToValue={(option, value) =>
+              //   option.activity === value || value === ""
+              // }
               isOptionEqualToValue={(option, value) =>
-                option === value || value === ""
+                option.id === value.id || value === ""
               }
             />
-            {/* <Autocomplete
-              options={["pending", "success"]}
-              renderInput={(params) => <TextField {...params} label="Status" />}
-              value={formData.status}
-              onChange={(event, value) =>
-                handleAutocompleteChange(event, value, "status")
-              }
-              fullWidth
-              sx={{ mb: 2 }}
-              isOptionEqualToValue={(option, value) =>
-                option === value || value === ""
-              }
-            /> */}
-            {/* Status ^^^^ */}
-
-            {/* <Autocomplete
-              options={[1, 2, 3, 4, 5]}
-              getOptionLabel={(option) => option.toString()}
-              renderInput={(params) => (
-                <TextField {...params} label="Create By" />
-              )}
-              value={formData.createBy}
-              onChange={(event, value) =>
-                handleAutocompleteChange(event, value, "createBy")
-              }
-              fullWidth
-              sx={{ mb: 2 }}
-              isOptionEqualToValue={(option, value) =>
-                option === value || value === ""
-              }
-            /> */}
-            {/* Create By ^^^^ */}
-
-            {/* <Autocomplete
-              options={[1, 2, 3, 4, 5]}
-              getOptionLabel={(option) => option.toString()}
-              renderInput={(params) => (
-                <TextField {...params} label="Company ID" />
-              )}
-              value={formData.company_id}
-              onChange={(event, value) =>
-                handleAutocompleteChange(event, value, "company_id")
-              }
-              fullWidth
-              sx={{ mb: 2 }}
-              isOptionEqualToValue={(option, value) =>
-                option === value || value === ""
-              }
-            /> */}
-            {/* Company ID ^^^^ */}
 
             <Autocomplete
               freeSolo
@@ -289,21 +281,26 @@ const ActivitiesAdd = () => {
             />
 
             <Autocomplete
-              options={[1, 2, 3, 4, 5]}
-              getOptionLabel={(option) => option.toString()}
+              options={optionData.data.department}
+              getOptionLabel={(option) =>
+                option.departmentName ? option.departmentName : ""
+              }
               renderInput={(params) => (
                 <TextField {...params} label="หน่วยงานที่บันทึกรายการ" />
               )}
-              value={formData.department_id}
+              value={optionData.data.department.find(
+                (option) => option.id === formData.departmentName || null
+              )}
               onChange={(event, value) =>
                 handleAutocompleteChange(event, value, "department_id")
               }
               fullWidth
               sx={{ mb: 2 }}
               isOptionEqualToValue={(option, value) =>
-                option === value || value === ""
+                option.id === value.id || value === ""
               }
             />
+
             {formData.poi_relations.map((relation, index) => (
               <Box key={index} sx={{ mb: 2 }}>
                 <Typography variant="h6" sx={{ mb: 1.2 }}>
@@ -312,7 +309,7 @@ const ActivitiesAdd = () => {
 
                 <Box sx={{ ml: 3 }}>
                   <Autocomplete
-                    options={["ข้อมูลที่หนึ่ง", "ข้อมูลที่สอง"]}
+                    options={[]}
                     renderInput={(params) => (
                       <TextField {...params} label="ข้อมูล เช่น ชื่อ-นามสกุล" />
                     )}

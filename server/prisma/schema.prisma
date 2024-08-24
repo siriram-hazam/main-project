@@ -195,7 +195,7 @@ model poi_information {
 
 model piece_of_info {
   id                 Int                  @id @default(autoincrement())
-  info               String
+  info               String?
   poi_information    poi_information[]
   poi_info_owner     poi_info_owner[]
   poi_info_from      poi_info_from[]

@@ -40,7 +40,7 @@ model company {
   // company_information company_information[]
   information               information[]
   activity                  activity[]
-  piece_of_info             piece_of_info[]
+  info                      info[]
   info_owner                info_owner[]
   info_from                 info_from[]
   info_format               info_format[]
@@ -195,7 +195,7 @@ model poi_information {
 
 model piece_of_info {
   id                 Int                  @id @default(autoincrement())
-  info               String?
+  poi_info           poi_info[]
   poi_information    poi_information[]
   poi_info_owner     poi_info_owner[]
   poi_info_from      poi_info_from[]
@@ -203,9 +203,6 @@ model piece_of_info {
   poi_info_type      poi_info_type[]
   poi_info_objective poi_info_objective[]
   poi_info_lawbase   poi_info_lawbase[]
-
-  company_id       Int     @default(0)
-  company_relation company @relation(fields: [company_id], references: [id])
 
   // poi_info_stored_period        poi_info_stored_period[]
   // poi_info_placed               poi_info_placed[]
@@ -218,6 +215,26 @@ model piece_of_info {
   // poi_info_ps_destroying        poi_info_ps_destroying[]
   // poi_info_ps_destroyer         poi_info_ps_destroyer[]
 }
+
+//--------------------------------------------------------------
+model info {
+  id       Int        @id @default(autoincrement())
+  info_    String
+  poi_info poi_info[]
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
+}
+
+model poi_info {
+  info_id       Int
+  poi_id        Int
+  info_relation info          @relation(fields: [info_id], references: [id])
+  poi_relation  piece_of_info @relation(fields: [poi_id], references: [id])
+
+  @@id([info_id, poi_id])
+}
+//--------------------------------------------------------------
 
 //--------------------------------------------------------------
 model info_owner {

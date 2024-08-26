@@ -78,7 +78,7 @@ const ActivitiesAdd = () => {
         department_id: "",
         poi_relations: [
           {
-            info: "",
+            poi_info: "",
             poi_info_owner: "",
             poi_info_from: "",
             poi_info_format: "",
@@ -226,7 +226,7 @@ const ActivitiesAdd = () => {
 
   // console.log("Activity", optionData.data.activity);
   // console.log("Department", optionData.data.department);
-  // console.log("Piece of Info", optionData.data.piece_of_info);
+  // console.log("POI Info", optionData.data.info);
   // console.log("POI Info Owner", optionData.data.poi_info_owner);
   // console.log("POI Info From", optionData.data.poi_info_from);
   // console.log("POI Info Format", optionData.data.poi_info_format);
@@ -357,16 +357,16 @@ const ActivitiesAdd = () => {
 
                 <Box sx={{ ml: 3 }}>
                   <Autocomplete
-                    options={optionData.data.piece_of_info}
+                    options={optionData.data.poi_info}
                     getOptionLabel={(option) =>
-                      option.info ? option.info : ""
+                      option.info_ ? option.info_ : ""
                     }
                     renderInput={(params) => (
                       <TextField {...params} label="ข้อมูล เช่น ชื่อ-นามสกุล" />
                     )}
                     value={
                       relation.info
-                        ? optionData.data.piece_of_info.find(
+                        ? optionData.data.poi_info.find(
                             (opt) => opt.id === relation.info
                           )
                         : null
@@ -387,7 +387,7 @@ const ActivitiesAdd = () => {
                     }
                     renderOption={(props, option) => (
                       <li {...props} key={option.id}>
-                        {option.info}
+                        {option.info_}
                       </li>
                     )}
                   />

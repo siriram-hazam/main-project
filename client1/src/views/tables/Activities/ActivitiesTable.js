@@ -54,7 +54,7 @@ const BasicTable = () => {
       try {
         const res = await infoUtils.infoActivities();
         setInfo(res);
-        // console.log(res);
+        console.log("Activities Info : ", res);
       } catch (error) {
         console.error("Error BasicTable getInfo : ", error);
       } finally {

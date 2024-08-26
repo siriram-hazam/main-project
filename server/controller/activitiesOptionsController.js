@@ -6,7 +6,7 @@ export const getActivitiesOption = async (req, res) => {
   let activitiesOptions;
   let departmentsOptions;
 
-  let piece_of_info_Options;
+  let poi_info_Options;
   let poi_info_owner_Options;
   let poi_info_from_Options;
   let poi_info_format_Options;
@@ -55,7 +55,7 @@ export const getActivitiesOption = async (req, res) => {
     }
 
     try {
-      piece_of_info_Options = await prisma.piece_of_info.findMany({
+      poi_info_Options = await prisma.info.findMany({
         where: {
           company_id: {
             in: [companyID, 0],
@@ -63,10 +63,7 @@ export const getActivitiesOption = async (req, res) => {
         },
       });
     } catch (error) {
-      console.error(
-        "Error getActivitiesOption piece_of_info_Options : ",
-        error
-      );
+      console.error("Error getActivitiesOption poi_info_Options : ", error);
     }
 
     try {
@@ -335,7 +332,7 @@ export const getActivitiesOption = async (req, res) => {
       status: 200,
       activity: activitiesOptions,
       department: departmentsOptions,
-      piece_of_info: piece_of_info_Options,
+      poi_info: poi_info_Options,
       poi_info_owner: poi_info_owner_Options,
       poi_info_from: poi_info_from_Options,
       poi_info_format: poi_info_format_Options,

@@ -71,7 +71,7 @@ export const createInformation = async (req, res) => {
   //     "info_ps_destroyer" : [1]
   // }
 
-  // console.log(req.body)
+  console.log(req.body);
 
   try {
     const newInformation = await prisma.information.create({
@@ -136,7 +136,14 @@ export const createInformation = async (req, res) => {
           create: poi_relations.map((item) => ({
             poi_relation: {
               create: {
-                info: item.info,
+                // info: item.info,
+                poi_info: {
+                  create: [
+                    {
+                      info_id: item.poi_info,
+                    },
+                  ],
+                },
                 poi_info_owner: {
                   create: [
                     {
@@ -297,7 +304,16 @@ export const getInformation = async (req, res) => {
           select: {
             poi_relation: {
               select: {
-                info: true,
+                // info: true,
+                poi_info: {
+                  select: {
+                    info_relation: {
+                      select: {
+                        info_: true,
+                      },
+                    },
+                  },
+                },
                 poi_info_owner: {
                   select: {
                     info_owner_relation: {

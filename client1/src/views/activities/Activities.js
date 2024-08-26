@@ -12,6 +12,7 @@ import {
 
 import authUtils from "../../hooks/useAuth";
 import optionUtils from "../../hooks/useOption";
+import axios from "axios";
 
 const ActivitiesAdd = () => {
   const [user, setUser] = useState(null);
@@ -22,6 +23,40 @@ const ActivitiesAdd = () => {
   const [formData, setFormData] = useState(null);
 
   const [optionData, setOptionData] = useState(null);
+
+  // Define the required fields for the main formData object
+  const requiredFields = [
+    "activity",
+    "status",
+    "createBy",
+    "company_id",
+    "category",
+    "department_id",
+    "info_stored_period",
+    "info_placed",
+    "info_allowed_ps",
+    "info_allowed_ps_condition",
+    "info_access",
+    "info_access_condition",
+    "info_ps_usedbyrole_inside",
+    "info_ps_sendto_outside",
+    "info_ps_destroying",
+    "info_ps_destroyer",
+    "m_organization",
+    "m_technical",
+    "m_physical",
+  ];
+
+  // Define the required fields for each poi_relation
+  const requiredPoiFields = [
+    "poi_info",
+    "poi_info_owner",
+    "poi_info_from",
+    "poi_info_format",
+    "poi_info_type",
+    "poi_info_objective",
+    "poi_info_lawbase",
+  ];
 
   useEffect(() => {
     const checkUser = async () => {
@@ -170,10 +205,10 @@ const ActivitiesAdd = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     //ข้อมูลไปยัง API
-    console.log(formData);
+    // console.log(formData);
     // fetch("YOUR_API_ENDPOINT", {
     //   method: "POST",
     //   headers: {
@@ -188,11 +223,43 @@ const ActivitiesAdd = () => {
     //   .catch((error) => {
     //     console.error("Error:", error);
     //   });
+
+    // Check if all required fields in the main formData object are filled
+    for (let field of requiredFields) {
+      if (
+        !formData[field] ||
+        (Array.isArray(formData[field]) && formData[field].length === 0)
+      ) {
+        return alert(`Please fill in the ${field}`);
+      }
+    }
+
+    // Check if all required fields in each poi_relation are filled
+    for (let poi of formData.poi_relations) {
+      for (let field of requiredPoiFields) {
+        if (
+          !poi[field] ||
+          (Array.isArray(poi[field]) && poi[field].length === 0)
+        ) {
+          return alert(`Please fill in the ${field} in poi_relations`);
+        }
+      }
+    }
+
+    await axios
+      .post("http://localhost:3001/api/information", formData)
+      .then((res) => {
+        console.log("Success", res);
+        window.location.href = "/activities";
+      })
+      .catch((error) => {
+        console.error("Error", error);
+      });
   };
 
   const addPoiRelation = () => {
     const newPoiRelation = {
-      info: "",
+      poi_info: "",
       poi_info_owner: "",
       poi_info_from: "",
       poi_info_format: "",
@@ -365,9 +432,9 @@ const ActivitiesAdd = () => {
                       <TextField {...params} label="ข้อมูล เช่น ชื่อ-นามสกุล" />
                     )}
                     value={
-                      relation.info
+                      relation.poi_info
                         ? optionData.data.poi_info.find(
-                            (opt) => opt.id === relation.info
+                            (opt) => opt.id === relation.poi_info
                           )
                         : null
                     }
@@ -377,7 +444,7 @@ const ActivitiesAdd = () => {
                         value ? value.id : "",
                         "poi_relations",
                         index,
-                        "info"
+                        "poi_info"
                       )
                     }
                     fullWidth

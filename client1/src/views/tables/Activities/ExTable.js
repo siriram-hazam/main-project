@@ -45,9 +45,8 @@ const ExTable = (props) => {
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [alertOpen, setAlertOpen] = useState(false);
-
-  // console.log(props.info);
-  // console.log(props.user);
+  const [rowData, setRowData] = useState(null);
+  const [rowDialogOpen, setRowDialogOpen] = useState(false);
 
   const handleClickOpen = (id) => {
     setSelectedId(id);
@@ -79,6 +78,16 @@ const ExTable = (props) => {
   const handleConfirmSwitch = () => {
     handleApprove(selectedId);
     handleAlertClose();
+  };
+
+  const handleRowClick = (item) => {
+    setRowData(item);
+    setRowDialogOpen(true);
+  };
+
+  const handleRowDialogClose = () => {
+    setRowDialogOpen(false);
+    setRowData(null);
   };
 
   return (
@@ -132,7 +141,16 @@ const ExTable = (props) => {
         </TableHead>
         <TableBody>
           {props.info.data.message.map((item) => (
-            <TableRow key={item.id}>
+            <TableRow
+              key={item.id}
+              onClick={() => handleRowClick(item)}
+              sx={{
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "#f5f5f5",
+                },
+              }}
+            >
               <TableCell>
                 <Typography
                   sx={{
@@ -306,6 +324,69 @@ const ExTable = (props) => {
           </Button>
           <Button onClick={handleConfirmSwitch} color="primary" autoFocus>
             Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={rowDialogOpen}
+        onClose={handleRowDialogClose}
+        aria-labelledby="row-dialog-title"
+        aria-describedby="row-dialog-description"
+      >
+        <DialogTitle id="row-dialog-title">{"Row Details"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="row-dialog-description">
+            {rowData && (
+              <>
+                <p>
+                  <strong>Id:</strong> {rowData.id}
+                </p>
+                <p>
+                  <strong>Activity:</strong>{" "}
+                  {rowData.activity_relation.activity}
+                </p>
+                <p>
+                  <strong>Category:</strong>{" "}
+                  {rowData.category_information
+                    .map((item) => item.category_relation.category)
+                    .join(", ")}
+                </p>
+                <p>
+                  <strong>Department:</strong>{" "}
+                  {rowData.category_information
+                    .map(
+                      (item) =>
+                        item.category_relation.department_relation
+                          .departmentName
+                    )
+                    .join(", ")}
+                </p>
+                <p>
+                  <strong>Created By:</strong>{" "}
+                  {rowData.user_account_relation.fullname}
+                </p>
+                <p>
+                  <strong>Status:</strong> {rowData.status}
+                </p>
+                <p>
+                  <strong>Create Time:</strong>{" "}
+                  {new Date(rowData.create_time).toLocaleString("th-TH", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
+                </p>
+              </>
+            )}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleRowDialogClose} color="primary">
+            Close
           </Button>
         </DialogActions>
       </Dialog>

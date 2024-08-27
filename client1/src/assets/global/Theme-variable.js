@@ -1,6 +1,5 @@
 // import { createTheme } from "@material-ui/core/styles";
 import { createTheme } from "@mui/material/styles";
-import typography from "./Typography";
 import shadows from "./Shadows";
 
 // ##############################
@@ -139,7 +138,21 @@ const baseTheme = createTheme({
   status: {
     danger: "#e53e3e",
   },
-  typography,
+  typography: {
+    fontFamily: "Poppins, Bai Jamjuree, sans-serif",
+    fontSize: 10, // Default font size in pixels
+    // Optionally, customize other typography properties
+    h1: {
+      fontSize: "2rem",
+    },
+    h2: {
+      fontSize: "1.75rem",
+    },
+    body1: {
+      fontSize: "1rem",
+    },
+    // Add more typography customizations as needed
+  },
   shadows,
 });
 

@@ -67,7 +67,13 @@ const Sidebar = (props) => {
                       ...(pathDirect === item.href && { color: "white" }),
                     }}
                   >
-                    <item.icon width="20" height="20" />
+                    <item.icon
+                      width="20"
+                      height="20"
+                      sx={{
+                        fontSize: "1.75rem",
+                      }}
+                    />
                   </ListItemIcon>
                   <ListItemText>{item.title}</ListItemText>
                 </ListItem>

@@ -79,7 +79,11 @@ const Header = (props) => {
             },
           }}
         >
-          <MenuOutlinedIcon width="20" height="20" />
+          <MenuOutlinedIcon
+            width="20"
+            height="20"
+            sx={{ fontSize: "1.5rem" }}
+          />
         </IconButton>
         {/* <IconButton
           aria-label="menu"
@@ -274,7 +278,9 @@ const Header = (props) => {
                   ml: 2,
                 }}
               >
-                <PersonAddAltOutlinedIcon className="mb-1 mr-2" />
+                <PersonAddAltOutlinedIcon
+                  sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }}
+                />
                 Add More User (Admin)
               </Box>
             </MenuItem>
@@ -292,7 +298,7 @@ const Header = (props) => {
                 ml: 2,
               }}
             >
-              <EditOutlinedIcon className="mb-1 mr-2" />
+              <EditOutlinedIcon sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }} />
               Edit Profile
             </Box>
           </MenuItem>
@@ -312,7 +318,9 @@ const Header = (props) => {
           </MenuItem> */}
           <MenuItem onClick={handleLogout}>
             <ListItemIcon>
-              <LogoutOutlinedIcon fontSize="small" />
+              <LogoutOutlinedIcon
+                sx={{ ml: 2, mb: 1, mr: 1.5, fontSize: "1.2rem" }}
+              />
             </ListItemIcon>
             Logout
           </MenuItem>

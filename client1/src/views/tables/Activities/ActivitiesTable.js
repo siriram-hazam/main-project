@@ -88,10 +88,23 @@ const BasicTable = () => {
               alignItems: "center",
             }}
           >
-            <Typography variant="h3">
+            <Typography
+              variant="h3"
+              sx={{
+                fontSize: "1.5rem",
+              }}
+            >
               <AllInboxOutlinedIcon
-                sx={{ color: "grey" }}
-                className="mb-1 mr-2"
+                sx={{
+                  color: "grey",
+                  mr: 1,
+                  mb: {
+                    xs: 1,
+                    sm: 0,
+                    lg: 0,
+                  },
+                  fontSize: "2rem",
+                }}
               />
               Activities Table
             </Typography>
@@ -109,7 +122,11 @@ const BasicTable = () => {
                   },
                 }}
               >
-                <AddToPhotosOutlinedIcon />
+                <AddToPhotosOutlinedIcon
+                  sx={{
+                    fontSize: "1.3rem",
+                  }}
+                />
                 <Typography
                   sx={{
                     ml: 1,

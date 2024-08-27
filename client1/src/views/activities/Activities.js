@@ -207,24 +207,7 @@ const ActivitiesAdd = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    //ข้อมูลไปยัง API
-    // console.log(formData);
-    // fetch("YOUR_API_ENDPOINT", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(formData),
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     console.log("Success:", data);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error:", error);
-    //   });
 
-    // Check if all required fields in the main formData object are filled
     for (let field of requiredFields) {
       if (
         !formData[field] ||
@@ -285,11 +268,11 @@ const ActivitiesAdd = () => {
     return <div>Initializing form...</div>;
   }
 
-  console.log("user", user);
+  // console.log("user", user);
 
-  console.log("formData", formData);
+  // console.log("formData", formData);
 
-  console.log("Options", optionData.data);
+  // console.log("Options", optionData.data);
 
   // console.log("Activity", optionData.data.activity);
   // console.log("Department", optionData.data.department);

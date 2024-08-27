@@ -157,13 +157,13 @@ export const fetchUserLogin = async (req, res) => {
             secure: true,
             httpOnly: true,
             sameSite: "strict",
-            maxAge: new Date(Date.now() + 1 * 60 * 60 * 1000), //cookie delete after 1 hour
+            maxAge: new Date(Date.now() + 3 * 60 * 60 * 1000), //cookie delete after 3 hour
           })
           .cookie("user", user, {
             secure: true,
             httpOnly: true,
             sameSite: "strict",
-            maxAge: new Date(Date.now() + 1 * 60 * 60 * 1000), //cookie delete after 1 hour
+            maxAge: new Date(Date.now() + 3 * 60 * 60 * 1000), //cookie delete after 3 hour
           })
           .json({ status: 200, user });
       }

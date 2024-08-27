@@ -18,6 +18,17 @@ import {
   Switch,
 } from "@mui/material";
 
+// sx={{
+//   // color: "grey",
+//   mr: 1,
+//   mb: {
+//     xs: 1,
+//     sm: 0,
+//     lg: 0,
+//   },
+//   fontSize: "1.5rem",
+// }}
+import FileOpenOutlinedIcon from "@mui/icons-material/FileOpenOutlined";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import axios from "axios";
 
@@ -254,7 +265,16 @@ const ExTable = (props) => {
                       p: 1,
                     }}
                   >
-                    <DeleteForeverOutlinedIcon />
+                    <DeleteForeverOutlinedIcon
+                      sx={{
+                        mb: {
+                          xs: 1,
+                          sm: 0,
+                          lg: 0,
+                        },
+                        fontSize: "1.5rem",
+                      }}
+                    />
                     <Typography
                       sx={{
                         textTransform: "capitalize",
@@ -334,7 +354,20 @@ const ExTable = (props) => {
         aria-labelledby="row-dialog-title"
         aria-describedby="row-dialog-description"
       >
-        <DialogTitle id="row-dialog-title">{"Row Details"}</DialogTitle>
+        <DialogTitle id="row-dialog-title" sx={{ fontSize: "1.2rem" }}>
+          <FileOpenOutlinedIcon
+            sx={{
+              mr: 1,
+              mb: {
+                xs: 1,
+                sm: 0,
+                lg: 0,
+              },
+              fontSize: "1.5rem",
+            }}
+          />
+          {"Activity Details"}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="row-dialog-description">
             {rowData && (

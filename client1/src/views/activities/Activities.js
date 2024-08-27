@@ -10,6 +10,10 @@ import {
   Button,
 } from "@mui/material";
 
+import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
+import NoteAddOutlinedIcon from "@mui/icons-material/NoteAddOutlined";
+import PlusOneOutlinedIcon from "@mui/icons-material/PlusOneOutlined";
+
 import authUtils from "../../hooks/useAuth";
 import optionUtils from "../../hooks/useOption";
 import axios from "axios";
@@ -320,7 +324,21 @@ const ActivitiesAdd = () => {
     <Box>
       <Card variant="outlined">
         <CardContent>
-          <Typography variant="h3">Add Activities</Typography>
+          <Typography variant="h3">
+            <AddCircleOutlineOutlinedIcon
+              sx={{
+                color: "grey",
+                mr: 1,
+                mb: {
+                  xs: 1,
+                  sm: 0,
+                  lg: 0,
+                },
+                fontSize: "2rem",
+              }}
+            />
+            Add Activities
+          </Typography>
           <Divider sx={{ mt: 2, mb: 2 }} />
           <form onSubmit={handleSubmit}>
             <Autocomplete
@@ -666,9 +684,21 @@ const ActivitiesAdd = () => {
               variant="contained"
               color="primary"
               onClick={addPoiRelation}
-              sx={{ mb: 2 }}
+              sx={{ mb: 2, fontSize: "1rem" }}
             >
-              Add POI Relation
+              <PlusOneOutlinedIcon
+                sx={{
+                  // color: "grey",
+                  mr: 1,
+                  mb: {
+                    xs: 1,
+                    sm: 0,
+                    lg: 0,
+                  },
+                  fontSize: "1.5rem",
+                }}
+              />
+              เพิ่มข้อมูลส่วนบุคคลที่เก็บ
             </Button>
             <Autocomplete
               multiple
@@ -1127,7 +1157,26 @@ const ActivitiesAdd = () => {
                 </li>
               )}
             />
-            <Button type="submit" variant="contained" color="primary">
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{
+                fontSize: "1.1rem",
+              }}
+            >
+              <NoteAddOutlinedIcon
+                sx={{
+                  // color: "grey",
+                  mr: 1,
+                  mb: {
+                    xs: 1,
+                    sm: 0,
+                    lg: 0,
+                  },
+                  fontSize: "1.5rem",
+                }}
+              />{" "}
               Submit
             </Button>
           </form>

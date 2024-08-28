@@ -14,9 +14,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Divider,
   Button,
   Switch,
 } from "@mui/material";
+
+import TextField from "@mui/material/TextField";
 
 // sx={{
 //   // color: "grey",
@@ -356,7 +359,11 @@ const ExTable = (props) => {
         maxWidth={false}
         fullWidth={true}
       >
-        <DialogTitle id="row-dialog-title" sx={{ fontSize: "2rem" }}>
+        <DialogTitle
+          id="row-dialog-title"
+          style={{ paddingLeft: "2rem" }}
+          sx={{ fontSize: "2rem" }}
+        >
           <FileOpenOutlinedIcon
             sx={{
               mr: 1,
@@ -371,46 +378,53 @@ const ExTable = (props) => {
           {"Activity Details"}
         </DialogTitle>
         <DialogContent>
+          <Divider sx={{ mt: 2, mb: 2 }} />
+        </DialogContent>
+        <DialogContent>
           <DialogContentText
             id="row-dialog-description"
             sx={{ fontSize: "1rem" }}
+            style={{ paddingLeft: "2rem", paddingRight: "2rem" }}
           >
             {console.log(rowData)}
             {rowData && (
               <>
-                <p>
-                  <strong>Id:</strong> {rowData.id}
-                </p>
-                <p>
-                  <strong>Activity:</strong>{" "}
-                  {rowData.activity_relation.activity}
-                </p>
-                <p>
-                  <strong>Category:</strong>{" "}
-                  {rowData.category_information
-                    .map((item) => item.category_relation.category)
-                    .join(", ")}
-                </p>
-                <p>
-                  <strong>Department:</strong>{" "}
-                  {rowData.category_information
-                    .map(
-                      (item) =>
-                        item.category_relation.department_relation
-                          .departmentName
-                    )
-                    .join(", ")}
-                </p>
-                <p>
-                  <strong>Created By:</strong>{" "}
-                  {rowData.user_account_relation.fullname}
-                </p>
-                <p>
-                  <strong>Status:</strong> {rowData.status}
-                </p>
-                <p>
-                  <strong>Create Time:</strong>{" "}
-                  {new Date(rowData.create_time).toLocaleString("th-TH", {
+                <TextField
+                  label="Id"
+                  value={rowData.id}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  multiline
+                />
+                <TextField
+                  label="Activity"
+                  value={rowData.activity_relation.activity}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  multiline
+                />
+                <TextField
+                  label="Status"
+                  value={rowData.status}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  multiline
+                />
+                <TextField
+                  label="Create Time"
+                  value={new Date(rowData.create_time).toLocaleString("th-TH", {
                     day: "2-digit",
                     month: "2-digit",
                     year: "numeric",
@@ -418,7 +432,365 @@ const ExTable = (props) => {
                     minute: "2-digit",
                     second: "2-digit",
                   })}
-                </p>
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  multiline
+                />
+                <TextField
+                  label="Created By"
+                  value={rowData.user_account_relation.fullname}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  multiline
+                />
+                <TextField
+                  label="Company"
+                  value={rowData.company_relation.companyName}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  multiline
+                />
+                <TextField
+                  label="Category"
+                  value={rowData.category_information
+                    .map((item) => item.category_relation.category)
+                    .join(", ")}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  multiline
+                />
+                <TextField
+                  label="Department"
+                  value={rowData.category_information
+                    .map(
+                      (item) =>
+                        item.category_relation.department_relation
+                          .departmentName
+                    )
+                    .join(", ")}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  multiline
+                />
+                {rowData.poi_information.map((poi, index) => (
+                  <div key={index}>
+                    <Typography variant="h6" sx={{ marginTop: "1rem" }}>
+                      POI Information Set {index + 1}
+                    </Typography>
+                    <div style={{ paddingLeft: "2rem" }}>
+                      <TextField
+                        label={`POI Owner ${index + 1}`}
+                        value={poi.poi_relation.poi_info_owner
+                          .map((owner) => owner.info_owner_relation.owner_)
+                          .join(", ")}
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        multiline
+                      />
+                      <TextField
+                        label={`POI From ${index + 1}`}
+                        value={poi.poi_relation.poi_info_from
+                          .map((from) => from.info_from_relation.from_)
+                          .join(", ")}
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        multiline
+                      />
+                      <TextField
+                        label={`POI Format ${index + 1}`}
+                        value={poi.poi_relation.poi_info_format
+                          .map((format) => format.info_format_relation.format_)
+                          .join(", ")}
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        multiline
+                      />
+                      <TextField
+                        label={`POI Type ${index + 1}`}
+                        value={poi.poi_relation.poi_info_type
+                          .map((type) => type.info_type_relation.type_)
+                          .join(", ")}
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        multiline
+                      />
+                      <TextField
+                        label={`POI Objective ${index + 1}`}
+                        value={poi.poi_relation.poi_info_objective
+                          .map(
+                            (objective) =>
+                              objective.info_objective_relation.objective_
+                          )
+                          .join(", ")}
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        multiline
+                      />
+                      <TextField
+                        label={`POI Lawbase ${index + 1}`}
+                        value={poi.poi_relation.poi_info_lawbase
+                          .map(
+                            (lawbase) => lawbase.info_lawbase_relation.lawBase_
+                          )
+                          .join(", ")}
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        multiline
+                      />
+                    </div>
+                  </div>
+                ))}
+                {rowData.information_info_stored_period.map((period, index) => (
+                  <TextField
+                    key={index}
+                    label={`Stored Period ${index + 1}`}
+                    value={period.info_stored_period_relation.period_}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    multiline
+                  />
+                ))}
+                {rowData.information_info_placed.map((placed, index) => (
+                  <TextField
+                    key={index}
+                    label={`Info Placed ${index + 1}`}
+                    value={placed.info_placed_relation.placed_}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    multiline
+                  />
+                ))}
+                {rowData.information_info_allowed_ps.map(
+                  (allowed_ps, index) => (
+                    <TextField
+                      key={index}
+                      label={`Allowed PS ${index + 1}`}
+                      value={allowed_ps.info_allowed_ps_relation.allowed_ps_}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {rowData.information_info_allowed_ps_condition.map(
+                  (condition, index) => (
+                    <TextField
+                      key={index}
+                      label={`Allowed PS Condition ${index + 1}`}
+                      value={
+                        condition.info_allowed_ps_condition_relation
+                          .allowed_ps_condition_
+                      }
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {rowData.information_info_access.map((access, index) => (
+                  <TextField
+                    key={index}
+                    label={`Info Access ${index + 1}`}
+                    value={access.info_access_relation.access_}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    multiline
+                  />
+                ))}
+                {rowData.information_info_access_condition.map(
+                  (access_condition, index) => (
+                    <TextField
+                      key={index}
+                      label={`Access Condition ${index + 1}`}
+                      value={
+                        access_condition.info_access_condition_relation
+                          .access_condition_
+                      }
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {rowData.information_info_ps_usedbyrole_inside.map(
+                  (usedbyrole, index) => (
+                    <TextField
+                      key={index}
+                      label={`Used by Role Inside ${index + 1}`}
+                      value={
+                        usedbyrole.info_ps_usedbyrole_inside_relation
+                          .use_by_role_
+                      }
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {rowData.information_info_ps_sendto_outside.map(
+                  (sendto, index) => (
+                    <TextField
+                      key={index}
+                      label={`Send to Outside ${index + 1}`}
+                      value={sendto.info_ps_sendto_outside_relation.sendto_}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {rowData.information_info_ps_destroying.map(
+                  (destroying, index) => (
+                    <TextField
+                      key={index}
+                      label={`Destroying ${index + 1}`}
+                      value={destroying.info_ps_destroying_relation.destroying_}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {rowData.information_info_ps_destroyer.map(
+                  (destroyer, index) => (
+                    <TextField
+                      key={index}
+                      label={`Destroyer ${index + 1}`}
+                      value={destroyer.info_ps_destroyer_relation.destroyer_}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {rowData.information_m_organization.map(
+                  (organization, index) => (
+                    <TextField
+                      key={index}
+                      label={`Organization ${index + 1}`}
+                      value={organization.m_organization_relation.organization}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {rowData.information_m_technical.map((technical, index) => (
+                  <TextField
+                    key={index}
+                    label={`Technical ${index + 1}`}
+                    value={technical.m_technical_relation.technical}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    multiline
+                  />
+                ))}
+                {rowData.information_m_physical.map((physical, index) => (
+                  <TextField
+                    key={index}
+                    label={`Physical ${index + 1}`}
+                    value={physical.m_physical_relation.physical}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    multiline
+                  />
+                ))}
               </>
             )}
           </DialogContentText>

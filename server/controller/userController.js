@@ -144,7 +144,7 @@ export const fetchUserLogin = async (req, res) => {
             company_id: user.company_id,
           },
           process.env.JWT_SECRET,
-          { expiresIn: "1h" }
+          { expiresIn: "3h" }
         );
 
         // console.log(token);

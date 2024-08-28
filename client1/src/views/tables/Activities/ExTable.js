@@ -353,8 +353,10 @@ const ExTable = (props) => {
         onClose={handleRowDialogClose}
         aria-labelledby="row-dialog-title"
         aria-describedby="row-dialog-description"
+        maxWidth={false}
+        fullWidth={true}
       >
-        <DialogTitle id="row-dialog-title" sx={{ fontSize: "1.2rem" }}>
+        <DialogTitle id="row-dialog-title" sx={{ fontSize: "2rem" }}>
           <FileOpenOutlinedIcon
             sx={{
               mr: 1,
@@ -363,13 +365,17 @@ const ExTable = (props) => {
                 sm: 0,
                 lg: 0,
               },
-              fontSize: "1.5rem",
+              fontSize: "2.7rem",
             }}
           />
           {"Activity Details"}
         </DialogTitle>
         <DialogContent>
-          <DialogContentText id="row-dialog-description">
+          <DialogContentText
+            id="row-dialog-description"
+            sx={{ fontSize: "1rem" }}
+          >
+            {console.log(rowData)}
             {rowData && (
               <>
                 <p>
@@ -418,7 +424,11 @@ const ExTable = (props) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleRowDialogClose} color="primary">
+          <Button
+            onClick={handleRowDialogClose}
+            color="primary"
+            sx={{ fontSize: "1rem" }}
+          >
             Close
           </Button>
         </DialogActions>

@@ -10,6 +10,9 @@ import FullLayout from "../layouts/FullLayout/FullLayout.js";
 // Dashboard
 import Dashboard1 from "../views/dashboard/Dashboard1.js";
 
+//Edit Profile
+import EditProfile from "../views/editProfile/editProfile.js";
+
 //Activities Add
 import ActivitiesAdd from "../views/activities/Activities.js";
 
@@ -41,6 +44,10 @@ const Themeroutes = [
       {
         path: "privacy-notice",
         element: <PrivacyNoticeTable />,
+      },
+      {
+        path: "edit-profile",
+        element: <EditProfile />,
       },
     ],
   },

@@ -1,5 +1,5 @@
 import React from "react";
-//import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 // import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
@@ -251,7 +251,7 @@ const Header = (props) => {
           transformOrigin={{ horizontal: "right", vertical: "top" }}
           sx={{
             "& .MuiMenu-paper": {
-              width: "250px",
+              width: "min-content",
               right: 0,
               top: "70px !important",
             },
@@ -266,50 +266,73 @@ const Header = (props) => {
               {props.user.data.users.email}
             </Box>
           </MenuItem>
+
+          {props.user.data.users.role === "admin"
+            ? [
+                <Divider key="admin-divider" />,
+                <MenuItem onClick={handleClose4} key="admin-user-list">
+                  <Box
+                    sx={{
+                      ml: 2,
+                    }}
+                  >
+                    <PersonAddAltOutlinedIcon
+                      sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }}
+                    />
+                    User List (Admin)
+                  </Box>
+                </MenuItem>,
+              ]
+            : null}
+
+          {props.user.data.users.role === "superadmin"
+            ? [
+                <Divider key="superadmin-divider" />,
+                <MenuItem onClick={handleClose4} key="superadmin-company-list">
+                  <Box
+                    sx={{
+                      ml: 2,
+                    }}
+                  >
+                    <PersonAddAltOutlinedIcon
+                      sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }}
+                    />
+                    Company List (Super Admin)
+                  </Box>
+                </MenuItem>,
+                <MenuItem
+                  onClick={handleClose4}
+                  key="superadmin-head-company-list"
+                >
+                  <Box
+                    sx={{
+                      ml: 2,
+                    }}
+                  >
+                    <PersonAddAltOutlinedIcon
+                      sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }}
+                    />
+                    Head Company List (Super Admin)
+                  </Box>
+                </MenuItem>,
+              ]
+            : null}
+
           <Divider />
-          {props.user.data.users.role === "admin" ? (
-            <MenuItem>
+          <Link to="/edit-profile">
+            <MenuItem onClick={handleClose4}>
               <Box
                 sx={{
                   ml: 2,
                 }}
               >
-                <PersonAddAltOutlinedIcon className="mb-1 mr-2" />
-                Add More User (Admin)
+                <EditOutlinedIcon sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }} />
+                Edit Profile
               </Box>
             </MenuItem>
-          ) : null}
-          {/* <Divider /> */}
-          <MenuItem onClick={handleClose4}>
-            {/* <Avatar
-              sx={{
-                width: "35px",
-                height: "35px",
-              }}
-            /> */}
-            <Box
-              sx={{
-                ml: 2,
-              }}
-            >
-              <EditOutlinedIcon className="mb-1 mr-2" />
-              Edit Profile
-            </Box>
-          </MenuItem>
+          </Link>
 
           <Divider />
-          {/* <MenuItem onClick={handleClose4}>
-            <ListItemIcon>
-              <PersonAddOutlinedIcon fontSize="small" />
-            </ListItemIcon>
-            Add another account
-          </MenuItem> */}
-          {/* <MenuItem onClick={handleClose4}>
-            <ListItemIcon>
-              <SettingsOutlinedIcon fontSize="small" />
-            </ListItemIcon>
-            Settings
-          </MenuItem> */}
           <MenuItem onClick={handleLogout}>
             <ListItemIcon>
               <LogoutOutlinedIcon fontSize="small" />

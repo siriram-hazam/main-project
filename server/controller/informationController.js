@@ -8,8 +8,6 @@ export const createInformation = async (req, res) => {
     company_id, //frontend auto add from session
     category,
     department_id, //fontend show text but map to id then send to backend
-    info_role,
-    info_document,
     poi_relations, //fontend show text but map to id then send to backend
     // poi_info_owner, //ย้ายไปใน poi_relations
     // poi_info_from,
@@ -73,7 +71,7 @@ export const createInformation = async (req, res) => {
   //     "info_ps_destroyer" : [1]
   // }
 
-  // console.log(req.body)
+  console.log(req.body);
 
   try {
     const newInformation = await prisma.information.create({
@@ -120,34 +118,36 @@ export const createInformation = async (req, res) => {
             },
           ],
         },
-        information_info_role: {
-          create: [
-            {
-              info_role_id: info_role,
-            },
-          ],
-        },
-        information_info_document: {
-          create: [
-            {
-              info_document_id: info_document,
-            },
-          ],
-        },
+        // information_info_role: {
+        //   create: [
+        //     {
+        //       info_role_id: info_role,
+        //     },
+        //   ],
+        // },
+        // information_info_document: {
+        //   create: [
+        //     {
+        //       info_document_id: info_document,
+        //     },
+        //   ],
+        // },
         poi_information: {
           create: poi_relations.map((item) => ({
             poi_relation: {
               create: {
-                info: item.info,
+                // info: item.info,
+                poi_info: {
+                  create: [
+                    {
+                      info_id: item.poi_info,
+                    },
+                  ],
+                },
                 poi_info_owner: {
                   create: [
                     {
                       info_owner_id: item.poi_info_owner,
-                      // info_owner_relation: {
-                      //     create: {
-                      //         owner_: poi_info_owner,
-                      //     }
-                      // }
                     },
                   ],
                 },
@@ -180,97 +180,14 @@ export const createInformation = async (req, res) => {
                   ],
                 },
                 poi_info_lawbase: {
-                  // create: [
-                  //     {
-                  //         info_lawbase_id: item.poi_info_lawbase
-                  //     }
-                  // ]
-                  create: item.poi_info_lawbase.map((item) => ({
-                    info_lawbase_id: item,
+                  create: item.poi_info_lawbase.map((lawbase) => ({
+                    info_lawbase_id: lawbase,
                   })),
                 },
-                // poi_info_stored_period: {
-                //     create: [
-                //         {
-                //             info_stored_period: poi_info_stored_period
-                //         }
-                //     ]
-                // },
-                // poi_info_placed: {
-                //     create: [
-                //         {
-                //             info_placed_id: poi_info_placed
-                //         }
-                //     ]
-                // },
-                // poi_info_allowed_ps: {
-                //     create: [
-                //         {
-                //             info_allowed_ps_id: poi_info_allowed_ps
-                //         }
-                //     ]
-                // },
-                // poi_info_allowed_ps_condition: {
-                //     create: [
-                //         {
-                //             info_allowed_ps_condition_id: poi_info_allowed_ps_condition
-                //         }
-                //     ]
-                // },
-                // poi_info_access: {
-                //     create: [
-                //         {
-                //             info_access_id: poi_info_access
-                //         }
-                //     ]
-                // },
-                // poi_info_access_condition: {
-                //     create: [
-                //         {
-                //             info_access_condition_id: poi_info_access_condition
-                //         }
-                //     ]
-                // },
-                // poi_info_ps_usedbyrole_inside: {
-                //     create: [
-                //         {
-                //             info_ps_usedbyrole_inside_id: poi_info_ps_usedbyrole_inside
-                //         }
-                //     ]
-                // },
-                // poi_info_ps_sendto_outside: {
-                //     create: [
-                //         {
-                //             info_ps_sendto_outside_id: poi_info_ps_sendto_outside
-                //         }
-                //     ]
-                // },
-                // poi_info_ps_destroying: {
-                //     create: [
-                //         {
-                //             info_ps_destroying_id: poi_info_ps_destroying
-                //         }
-                //     ]
-                // },
-                // poi_info_ps_destroyer: {
-                //     create: [
-                //         {
-                //             info_ps_destroyer_id: poi_info_ps_destroyer
-                //         }
-                //     ]
-                // }
               },
             },
           })),
         },
-        // Set the option to avoid creating duplicates
-        // onConnect: {
-        //     where: {
-        //         info_lawbase_id: {
-        //             in: poi_info_lawbase
-        //         }
-        //     }
-        // },
         information_info_stored_period: {
           create: info_stored_period.map((item) => ({
             info_stored_period_id: item,
@@ -383,29 +300,20 @@ export const getInformation = async (req, res) => {
             },
           },
         },
-        information_info_role: {
-          select: {
-            info_role_relation: {
-              select: {
-                role: true,
-              },
-            },
-          },
-        },
-        information_info_document: {
-          select: {
-            info_document_relation: {
-              select: {
-                document: true,
-              },
-            },
-          },
-        },
         poi_information: {
           select: {
             poi_relation: {
               select: {
-                info: true,
+                // info: true,
+                poi_info: {
+                  select: {
+                    info_relation: {
+                      select: {
+                        info_: true,
+                      },
+                    },
+                  },
+                },
                 poi_info_owner: {
                   select: {
                     info_owner_relation: {

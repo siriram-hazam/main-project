@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 //Hooks
-import authUtils from "../../hooks/useAuth.jsx";
+import authUtils from "../../hooks/useAuth";
 
 function Login() {
   const [username, setUsename] = useState("");

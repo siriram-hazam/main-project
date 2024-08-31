@@ -28,7 +28,7 @@ const Menuitems = [
   },
   // {
   //   title: "Autocomplete",
-  //   icon: AddToPhotosOutlinedIcon,
+  //   icon: PersonAddAltOutlinedIcon,
   //   href: "/form-elements/autocomplete",
   // },
   // {

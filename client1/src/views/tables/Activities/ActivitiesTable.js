@@ -26,7 +26,7 @@ const BasicTable = () => {
         setCheckUser(user);
         // console.log(user);
       } catch (error) {
-        console.error("Error Dashboard checkUser : ", error);
+        console.error("Error ActivitiesTable checkUser : ", error);
       } finally {
         setLoading(false);
       }
@@ -40,7 +40,7 @@ const BasicTable = () => {
         setUser(user);
         // console.log(user);
       } catch (error) {
-        console.error("Error Dashboard loadUser : ", error);
+        console.error("Error ActivitiesTable loadUser : ", error);
       } finally {
         setLoading(false);
       }
@@ -54,7 +54,7 @@ const BasicTable = () => {
       try {
         const res = await infoUtils.infoActivities();
         setInfo(res);
-        // console.log(res);
+        console.log("Activities Info : ", res);
       } catch (error) {
         console.error("Error BasicTable getInfo : ", error);
       } finally {
@@ -88,10 +88,23 @@ const BasicTable = () => {
               alignItems: "center",
             }}
           >
-            <Typography variant="h3">
+            <Typography
+              variant="h3"
+              sx={{
+                fontSize: "1.5rem",
+              }}
+            >
               <AllInboxOutlinedIcon
-                sx={{ color: "grey" }}
-                className="mb-1 mr-2"
+                sx={{
+                  color: "grey",
+                  mr: 1,
+                  mb: {
+                    xs: 1,
+                    sm: 0,
+                    lg: 0,
+                  },
+                  fontSize: "2rem",
+                }}
               />
               Activities Table
             </Typography>
@@ -109,7 +122,11 @@ const BasicTable = () => {
                   },
                 }}
               >
-                <AddToPhotosOutlinedIcon />
+                <AddToPhotosOutlinedIcon
+                  sx={{
+                    fontSize: "1.3rem",
+                  }}
+                />
                 <Typography
                   sx={{
                     ml: 1,

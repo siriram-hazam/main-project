@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 
 //Hooks
-import authUtils from "../../hooks/useAuth.jsx";
+import authUtils from "../../hooks/useAuth";
 
 const PrivateRoute = ({ children }) => {
   const [auth, setAuth] = useState(null);

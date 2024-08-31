@@ -84,7 +84,7 @@ const ActivitiesAdd = () => {
 
   const addPoiRelation = () => {
     const newPoiRelation = {
-      info: "",
+      poi_info: "",
       poi_info_owner: "",
       poi_info_from: "",
       poi_info_format: "",
@@ -97,6 +97,66 @@ const ActivitiesAdd = () => {
       poi_relations: [...prevState.poi_relations, newPoiRelation],
     }));
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user || !checkUser) {
+    return <div>Initializing to load user data...</div>;
+  }
+
+  if (!formData || !optionData) {
+    return <div>Initializing form...</div>;
+  }
+
+  // console.log("user", user);
+
+  // console.log("formData", formData);
+
+  // console.log("Options", optionData.data);
+
+  // console.log("Activity", optionData.data.activity);
+  // console.log("Department", optionData.data.department);
+  // console.log("POI Info", optionData.data.info);
+  // console.log("POI Info Owner", optionData.data.poi_info_owner);
+  // console.log("POI Info From", optionData.data.poi_info_from);
+  // console.log("POI Info Format", optionData.data.poi_info_format);
+  // console.log("POI Info Type", optionData.data.poi_info_type);
+  // console.log("POI Info Objective", optionData.data.poi_info_objective);
+  // console.log("POI Info Lawbase", optionData.data.poi_info_lawbase);
+  // console.log("POI Info Stored Period", optionData.data.info_stored_period);
+  // console.log("POI Info Placed", optionData.data.info_placed);
+  // console.log("POI Info Allowed PS", optionData.data.info_allowed_ps);
+  // console.log(
+  //   "POI Info Allowed PS Condition",
+  //   optionData.data.info_allowed_ps_condition
+  // );
+  // console.log("POI Info Access", optionData.data.info_access);
+  // console.log(
+  //   "POI Info Access Condition",
+  //   optionData.data.info_access_condition
+  // );
+  // console.log(
+  //   "POI Info PS Used By Role Inside",
+  //   optionData.data.info_ps_usedbyrole_inside
+  // );
+  // console.log(
+  //   "POI Info PS Send To Outside",
+  //   optionData.data.info_ps_sendto_outside
+  // );
+  // console.log("POI Info PS Destroying", optionData.data.info_ps_destroying);
+  // console.log("POI Info PS Destroyer", optionData.data.info_ps_destroyer);
+  // console.log("POI M Organization", optionData.data.m_organization);
+  // console.log("POI M Technical", optionData.data.m_technical);
+  // console.log("POI M Physical", optionData.data.m_physical);
+
+  // const activityOptions = optionData.data.activity.map((option) => ({
+  //   id: option.id,
+  //   activity: option.activity,
+  // }));
+
+  // console.log("Activity", activityOptions);
 
   return (
     <Box>
@@ -155,22 +215,10 @@ const ActivitiesAdd = () => {
               options={[1, 2, 3, 4, 5]}
               getOptionLabel={(option) => option.toString()}
               renderInput={(params) => (
-                <TextField {...params} label="Company ID" />
-              )}
-              value={formData.company_id}
-              onChange={(event, value) =>
-                handleAutocompleteChange(event, value, "company_id")
-              }
-              fullWidth
-              sx={{ mb: 2 }}
-              isOptionEqualToValue={(option, value) =>
-                option === value || value === ""
-              }
-            />
-            <Autocomplete
-              options={["ข้อมูลในใบรับสมัครพนักงาน", "ข้อมูลอื่นๆ"]}
-              renderInput={(params) => (
-                <TextField {...params} label="Category" />
+                <TextField
+                  {...params}
+                  label="รายละเอียดของข้อมูลที่กรอก เช่น ข้อมูลส่วนบุคคลของพนักงาน"
+                />
               )}
               value={formData.category}
               onChange={(event, value) =>

@@ -1,5 +1,5 @@
 import React from "react";
-//import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 // import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
@@ -255,7 +255,7 @@ const Header = (props) => {
           transformOrigin={{ horizontal: "right", vertical: "top" }}
           sx={{
             "& .MuiMenu-paper": {
-              width: "250px",
+              width: "min-content",
               right: 0,
               top: "70px !important",
             },
@@ -270,38 +270,72 @@ const Header = (props) => {
               {props.user.data.users.email}
             </Box>
           </MenuItem>
-          <Divider />
           {props.user.data.users.role === "admin" ? (
-            <MenuItem>
+            <>
+              <Divider />
+              <MenuItem>
+                <Box
+                  sx={{
+                    ml: 2,
+                  }}
+                >
+                  <PersonAddAltOutlinedIcon
+                    sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }}
+                  />
+                  Add More User (Admin)
+                </Box>
+              </MenuItem>
+            </>
+          ) : null}
+          {props.user.data.users.role === "superadmin" ? (
+            <>
+              <Divider />
+              <MenuItem>
+                <Box
+                  sx={{
+                    ml: 2,
+                  }}
+                >
+                  <PersonAddAltOutlinedIcon
+                    sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }}
+                  />
+                  Company List (Super Admin)
+                </Box>
+              </MenuItem>
+
+              <MenuItem>
+                <Box
+                  sx={{
+                    ml: 2,
+                  }}
+                >
+                  <PersonAddAltOutlinedIcon
+                    sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }}
+                  />
+                  Company User (Super Admin)
+                </Box>
+              </MenuItem>
+            </>
+          ) : null}
+          <Divider />
+          <Link to="/edit-profile">
+            <MenuItem onClick={handleClose4}>
+              {/* <Avatar
+                sx={{
+                  width: "35px",
+                  height: "35px",
+                }}
+              /> */}
               <Box
                 sx={{
                   ml: 2,
                 }}
               >
-                <PersonAddAltOutlinedIcon
-                  sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }}
-                />
-                Add More User (Admin)
+                <EditOutlinedIcon sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }} />
+                Edit Profile
               </Box>
             </MenuItem>
-          ) : null}
-          {/* <Divider /> */}
-          <MenuItem onClick={handleClose4}>
-            {/* <Avatar
-              sx={{
-                width: "35px",
-                height: "35px",
-              }}
-            /> */}
-            <Box
-              sx={{
-                ml: 2,
-              }}
-            >
-              <EditOutlinedIcon sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }} />
-              Edit Profile
-            </Box>
-          </MenuItem>
+          </Link>
 
           <Divider />
           {/* <MenuItem onClick={handleClose4}>

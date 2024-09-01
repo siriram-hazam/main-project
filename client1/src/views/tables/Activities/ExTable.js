@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 import {
   Typography,
   Box,
@@ -33,6 +34,7 @@ import TextField from "@mui/material/TextField";
 // }}
 import FileOpenOutlinedIcon from "@mui/icons-material/FileOpenOutlined";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 import axios from "axios";
 
 const handleDelete = async (id) => {
@@ -96,6 +98,7 @@ const ExTable = (props) => {
 
   const handleRowClick = (item) => {
     setRowData(item);
+    // console.log(item);
     setRowDialogOpen(true);
   };
 
@@ -104,208 +107,286 @@ const ExTable = (props) => {
     setRowData(null);
   };
 
+  const handleDownload = async (item) => {
+    console.log("handleDownload : ", item);
+
+    // try {
+    //   const response = await axios.post(
+    //     "http://localhost:3001/api/information/downloadexcel",
+    //     item,
+    //     {
+    //       responseType: "blob",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //     }
+    //   );
+
+    //   const url = window.URL.createObjectURL(new Blob([response.data]));
+    //   const a = document.createElement("a");
+    //   a.href = url;
+    //   a.download = `Excel_Activity_${item.id}.xlsx`;
+    //   document.body.appendChild(a);
+    //   a.click();
+    //   a.remove();
+    // } catch (error) {
+    //   console.error("Error downloading the file:", error);
+    // }
+
+    
+  };
+
   return (
     <>
-      <Table
-        aria-label="simple table"
-        sx={{
-          mt: 3,
-          whiteSpace: "nowrap",
-        }}
-      >
-        <TableHead>
-          <TableRow>
-            <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                Id
-              </Typography>
-            </TableCell>
-            <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                Name & Category
-              </Typography>
-            </TableCell>
-            <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                Created By
-              </Typography>
-            </TableCell>
-            <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                Status
-              </Typography>
-            </TableCell>
-            <TableCell align="left">
-              <Typography color="textSecondary" variant="h6">
-                Create Time
-              </Typography>
-            </TableCell>
-            <TableCell align="left">
-              <Typography color="textSecondary" variant="h6"></Typography>
-            </TableCell>
-            {props.user.data.users.role === "manager" ||
-            props.user.data.users.role === "admin" ? (
-              <TableCell align="left">
+      <Box sx={{ overflowX: "auto" }}>
+        <Table
+          aria-label="Activity Table"
+          sx={{
+            mt: 3,
+            whiteSpace: "nowrap",
+          }}
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell>
                 <Typography color="textSecondary" variant="h6">
-                  Approve
+                  Id
                 </Typography>
-              </TableCell>
-            ) : null}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {props.info.data.message.map((item) => (
-            <TableRow
-              key={item.id}
-              onClick={() => handleRowClick(item)}
-              sx={{
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: "#f5f5f5",
-                },
-              }}
-            >
-              <TableCell>
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: "500",
-                  }}
-                >
-                  {item.id}
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: "500",
-                      }}
-                    >
-                      {item.activity_relation.activity}
-                    </Typography>
-                    <Typography
-                      color="textSecondary"
-                      sx={{
-                        fontSize: "13px",
-                      }}
-                    >
-                      {item.category_information.map(
-                        (item) => item.category_relation.category
-                      )}
-                    </Typography>
-                    <Typography
-                      color="textSecondary"
-                      sx={{
-                        fontSize: "13px",
-                      }}
-                    >
-                      {item.category_information.map(
-                        (item) =>
-                          item.category_relation.department_relation
-                            .departmentName
-                      )}
-                    </Typography>
-                  </Box>
-                </Box>
               </TableCell>
               <TableCell>
                 <Typography color="textSecondary" variant="h6">
-                  {item.user_account_relation.fullname}
+                  Name & Category
                 </Typography>
               </TableCell>
               <TableCell>
-                <Chip
-                  sx={{
-                    pl: "4px",
-                    pr: "4px",
-                    backgroundColor:
-                      item.status === "success"
-                        ? "green"
-                        : item.status === "pending"
-                        ? "orange"
-                        : "grey",
-                    color: "#fff",
-                  }}
-                  size="small"
-                  label={item.status}
-                ></Chip>
+                <Typography color="textSecondary" variant="h6">
+                  Created By
+                </Typography>
               </TableCell>
-              <TableCell align="left">
-                <Typography variant="h6">
-                  {new Date(item.create_time).toLocaleString("th-TH", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  })}
+              <TableCell>
+                <Typography color="textSecondary" variant="h6">
+                  Status
                 </Typography>
               </TableCell>
               <TableCell align="left">
-                <Typography variant="h6">
-                  <Fab
-                    color="primary"
-                    variant="extended"
-                    // disabled={item.status === "success" ? true : false}
-                    onClick={() => handleClickOpen(item.id)}
+                <Typography color="textSecondary" variant="h6">
+                  Create Time
+                </Typography>
+              </TableCell>
+              <TableCell align="left">
+                <Typography color="textSecondary" variant="h6"></Typography>
+              </TableCell>
+              {props.user.data.users.role === "manager" ||
+              props.user.data.users.role === "admin" ? (
+                <>
+                  <TableCell align="left">
+                    <Typography color="textSecondary" variant="h6">
+                      Excel File
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Typography color="textSecondary" variant="h6">
+                      Approve
+                    </Typography>
+                  </TableCell>
+                </>
+              ) : null}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {props.info.data.message.map((item) => (
+              <TableRow
+                key={item.id}
+                onClick={(event) => {
+                  if (event.target.type !== "checkbox") {
+                    handleRowClick(item);
+                  }
+                }}
+                sx={{
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#f5f5f5",
+                  },
+                }}
+              >
+                <TableCell>
+                  <Typography
                     sx={{
-                      mr: 1,
-                      mb: {
-                        xs: 1,
-                        sm: 0,
-                        lg: 0,
-                      },
-                      backgroundColor: "red",
-                      p: 1,
+                      fontSize: "15px",
+                      fontWeight: "500",
                     }}
                   >
-                    <DeleteForeverOutlinedIcon
+                    {item.id}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: "500",
+                        }}
+                      >
+                        {item.activity_relation.activity}
+                      </Typography>
+                      <Typography
+                        color="textSecondary"
+                        sx={{
+                          fontSize: "13px",
+                        }}
+                      >
+                        {item.category_information.map(
+                          (item) => item.category_relation.category
+                        )}
+                      </Typography>
+                      <Typography
+                        color="textSecondary"
+                        sx={{
+                          fontSize: "13px",
+                        }}
+                      >
+                        {item.category_information.map(
+                          (item) =>
+                            item.category_relation.department_relation
+                              .departmentName
+                        )}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Typography color="textSecondary" variant="h6">
+                    {item.user_account_relation.fullname}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    sx={{
+                      pl: "4px",
+                      pr: "4px",
+                      backgroundColor:
+                        item.status === "success"
+                          ? "green"
+                          : item.status === "pending"
+                          ? "orange"
+                          : "grey",
+                      color: "#fff",
+                    }}
+                    size="small"
+                    label={item.status}
+                  ></Chip>
+                </TableCell>
+                <TableCell align="left">
+                  <Typography variant="h6">
+                    {new Date(item.create_time).toLocaleString("th-TH", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })}
+                  </Typography>
+                </TableCell>
+                <TableCell align="center">
+                  <Typography variant="h6">
+                    <Fab
+                      color="primary"
+                      variant="extended"
+                      // disabled={item.status === "success" ? true : false}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleClickOpen(item.id);
+                      }}
                       sx={{
+                        // mr: 1,
                         mb: {
                           xs: 1,
                           sm: 0,
                           lg: 0,
                         },
-                        fontSize: "1.5rem",
-                      }}
-                    />
-                    <Typography
-                      sx={{
-                        textTransform: "capitalize",
-                        fontSize: "13px",
+                        backgroundColor: "red",
+                        p: 1,
                       }}
                     >
+                      <DeleteForeverOutlinedIcon
+                        sx={{
+                          mb: {
+                            xs: 0,
+                            sm: 0,
+                            lg: 0,
+                          },
+                          fontSize: "1.5rem",
+                        }}
+                      />
                       {/* Delete */}
-                    </Typography>
-                  </Fab>
-                </Typography>
-              </TableCell>
-              {props.user.data.users.role === "manager" ||
-              props.user.data.users.role === "admin" ? (
-                <TableCell align="left">
-                  <Typography variant="h6">
-                    <Switch
-                      checked={item.status === "success" ? true : false}
-                      disabled={item.status === "success" ? true : false}
-                      color="success"
-                      onChange={(event) => handleSwitchChange(item.id)(event)}
-                    />
+                    </Fab>
                   </Typography>
                 </TableCell>
-              ) : null}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                {props.user.data.users.role === "manager" ||
+                props.user.data.users.role === "admin" ? (
+                  <>
+                    <TableCell align="center">
+                      <Typography variant="h6">
+                        <Fab
+                          color="success"
+                          variant="extended"
+                          // disabled={item.status === "success" ? true : false}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleDownload(item);
+                          }}
+                          sx={{
+                            // mr: 1,
+                            mb: {
+                              xs: 0,
+                              sm: 0,
+                              lg: 0,
+                            },
+                            backgroundColor: "green",
+                            p: 1,
+                          }}
+                        >
+                          <TableChartOutlinedIcon
+                            sx={{
+                              mb: {
+                                xs: 0,
+                                sm: 0,
+                                lg: 0,
+                              },
+                              fontSize: "1.5rem",
+                            }}
+                          />
+                          {/* Excel File */}
+                        </Fab>
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Typography variant="h6">
+                        <Switch
+                          checked={item.status === "success" ? true : false}
+                          disabled={item.status === "success" ? true : false}
+                          color="success"
+                          onChange={(event) => {
+                            event.stopPropagation();
+                            handleSwitchChange(item.id)(event);
+                          }}
+                        />
+                      </Typography>
+                    </TableCell>
+                  </>
+                ) : null}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
 
       <Dialog
         open={open}
@@ -386,7 +467,7 @@ const ExTable = (props) => {
             sx={{ fontSize: "1rem" }}
             style={{ paddingLeft: "2rem", paddingRight: "2rem" }}
           >
-            {console.log(rowData)}
+            {/* {console.log(rowData)} */}
             {rowData && (
               <>
                 <TextField

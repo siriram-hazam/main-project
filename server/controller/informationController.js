@@ -1,5 +1,11 @@
 import prisma from "../db/db.config.js";
 
+import fs from "fs";
+import path from "path";
+import ExcelJS from "exceljs";
+
+const __dirname = path.resolve();
+
 export const createInformation = async (req, res) => {
   const {
     activity,
@@ -535,5 +541,65 @@ export const updateInformationApproval = async (req, res) => {
     return res.json({ status: 200, message: "Information Approval Updated!" });
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const excelProcess = async (req, res) => {
+  console.log("Received request for /api/information/download-excel");
+  const item = req.body;
+  console.log(item);
+
+  console.log("Excel Process");
+
+  try {
+    const filePath = path.resolve(__dirname + `/assets/excel_template.xlsx`);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: "Template file not found" });
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
+
+    const newSheet = workbook.getWorksheet(1);
+
+    // Create a new sheet
+    // const newSheet = workbook.addWorksheet("New Sheet");
+
+    // Populate the new sheet with data
+    newSheet.getCell("A5").value = item.activity_relation.activity;
+    newSheet.getCell("A6").value = item.user_account_relation.fullname;
+    newSheet.getCell("A7").value = item.company_relation.companyName;
+    newSheet.getCell("A8").value = item.status;
+    newSheet.getCell("A9").value = new Date(item.create_time).toLocaleString(
+      "th-TH",
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }
+    );
+
+    const outputDir = path.resolve(__dirname + `/assets`);
+    // console.log(outputDir);
+    const outputFilePath = path.join(
+      outputDir,
+      `excel_Activity_${item.id}.xlsx`
+    );
+
+    // Check if the directory exists, if not, create it
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    await workbook.xlsx.writeFile(outputFilePath);
+
+    res.download(outputFilePath, `Excel_Activity_${item.id}.xlsx`);
+  } catch (error) {
+    console.error("Error excelProcess : ", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

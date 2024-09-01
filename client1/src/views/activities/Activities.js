@@ -376,7 +376,7 @@ const ActivitiesAdd = () => {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="รายละเอียดของข้อมูลที่กรอก เช่น ข้อมูลส่วนบุคคลของพนักงาน"
+                  label="ชื่อเอกสาร หรือ ชื่อไฟล์ที่จัดเก็บข้อมูล เช่น สำเนาบัตรประชาชน หรือ ใบสมัครงาน"
                 />
               )}
               value={formData.category}

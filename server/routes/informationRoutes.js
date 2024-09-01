@@ -4,6 +4,7 @@ import {
   getInformation,
   deleteInformation,
   updateInformationApproval,
+  excelProcess,
 } from "../controller/informationController.js";
 import { auth } from "../middleware/auth.js";
 
@@ -13,5 +14,6 @@ router.post("/", auth, createInformation);
 router.get("/", auth, getInformation);
 router.delete("/:id", auth, deleteInformation);
 router.put("/:id", auth, updateInformationApproval);
+router.post("/downloadexcel", auth, excelProcess);
 
 export default router;

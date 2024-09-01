@@ -86,12 +86,19 @@ const BasicTable = () => {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              flexDirection: {
+                xs: "column",
+                sm: "row",
+                md: "row",
+                lg: "row",
+              },
             }}
           >
             <Typography
               variant="h3"
               sx={{
                 fontSize: "1.5rem",
+                textWrap: "no-wrap",
               }}
             >
               <AllInboxOutlinedIcon

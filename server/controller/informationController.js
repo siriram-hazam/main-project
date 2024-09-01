@@ -545,11 +545,9 @@ export const updateInformationApproval = async (req, res) => {
 };
 
 export const excelProcess = async (req, res) => {
-  console.log("Received request for /api/information/download-excel");
+  // console.log("Received request for /api/information/download-excel");
   const item = req.body;
-  console.log(item);
-
-  console.log("Excel Process");
+  // console.log(item);
 
   try {
     const filePath = path.resolve(__dirname + `/assets/excel_template.xlsx`);
@@ -583,21 +581,35 @@ export const excelProcess = async (req, res) => {
       }
     );
 
-    const outputDir = path.resolve(__dirname + `/assets`);
-    // console.log(outputDir);
-    const outputFilePath = path.join(
-      outputDir,
-      `excel_Activity_${item.id}.xlsx`
+    //Get the file data as a buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    // Set the appropriate headers and send the buffer as a response
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=Excel_Activity_${item.id}.xlsx`
     );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.send(buffer);
 
-    // Check if the directory exists, if not, create it
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
+    // const outputDir = path.resolve(__dirname + `/assets`);
+    // // console.log(outputDir);
+    // const outputFilePath = path.join(
+    //   outputDir,
+    //   `excel_Activity_${item.id}.xlsx`
+    // );
 
-    await workbook.xlsx.writeFile(outputFilePath);
+    // // Check if the directory exists, if not, create it
+    // if (!fs.existsSync(outputDir)) {
+    //   fs.mkdirSync(outputDir, { recursive: true });
+    // }
 
-    res.download(outputFilePath, `Excel_Activity_${item.id}.xlsx`);
+    // await workbook.xlsx.writeFile(outputFilePath);
+
+    // res.download(outputFilePath, `Excel_Activity_${item.id}.xlsx`);
   } catch (error) {
     console.error("Error excelProcess : ", error);
     res.status(500).json({ error: "Internal Server Error" });

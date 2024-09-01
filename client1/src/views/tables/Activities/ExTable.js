@@ -110,30 +110,28 @@ const ExTable = (props) => {
   const handleDownload = async (item) => {
     console.log("handleDownload : ", item);
 
-    // try {
-    //   const response = await axios.post(
-    //     "http://localhost:3001/api/information/downloadexcel",
-    //     item,
-    //     {
-    //       responseType: "blob",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     }
-    //   );
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/api/information/downloadexcel",
+        item,
+        {
+          responseType: "blob",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    //   const url = window.URL.createObjectURL(new Blob([response.data]));
-    //   const a = document.createElement("a");
-    //   a.href = url;
-    //   a.download = `Excel_Activity_${item.id}.xlsx`;
-    //   document.body.appendChild(a);
-    //   a.click();
-    //   a.remove();
-    // } catch (error) {
-    //   console.error("Error downloading the file:", error);
-    // }
-
-    
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Excel_Activity_${item.id}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (error) {
+      console.error("Error downloading the file:", error);
+    }
   };
 
   return (
@@ -143,7 +141,6 @@ const ExTable = (props) => {
           aria-label="Activity Table"
           sx={{
             mt: 3,
-            whiteSpace: "nowrap",
           }}
         >
           <TableHead>
@@ -163,7 +160,7 @@ const ExTable = (props) => {
                   Created By
                 </Typography>
               </TableCell>
-              <TableCell>
+              <TableCell align="center">
                 <Typography color="textSecondary" variant="h6">
                   Status
                 </Typography>
@@ -179,12 +176,12 @@ const ExTable = (props) => {
               {props.user.data.users.role === "manager" ||
               props.user.data.users.role === "admin" ? (
                 <>
-                  <TableCell align="left">
+                  <TableCell align="center">
                     <Typography color="textSecondary" variant="h6">
                       Excel File
                     </Typography>
                   </TableCell>
-                  <TableCell align="left">
+                  <TableCell align="center">
                     <Typography color="textSecondary" variant="h6">
                       Approve
                     </Typography>
@@ -265,7 +262,7 @@ const ExTable = (props) => {
                     {item.user_account_relation.fullname}
                   </Typography>
                 </TableCell>
-                <TableCell>
+                <TableCell align="center">
                   <Chip
                     sx={{
                       pl: "4px",
@@ -401,10 +398,23 @@ const ExTable = (props) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button
+            onClick={handleClose}
+            color="primary"
+            sx={{
+              fontSize: "0.8rem",
+            }}
+          >
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} color="primary" autoFocus>
+          <Button
+            onClick={handleConfirmDelete}
+            color="primary"
+            autoFocus
+            sx={{
+              fontSize: "0.8rem",
+            }}
+          >
             Confirm
           </Button>
         </DialogActions>
@@ -423,10 +433,23 @@ const ExTable = (props) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleAlertClose} color="primary">
+          <Button
+            onClick={handleAlertClose}
+            color="primary"
+            sx={{
+              fontSize: "0.8rem",
+            }}
+          >
             Cancel
           </Button>
-          <Button onClick={handleConfirmSwitch} color="primary" autoFocus>
+          <Button
+            onClick={handleConfirmSwitch}
+            color="primary"
+            autoFocus
+            sx={{
+              fontSize: "0.8rem",
+            }}
+          >
             Confirm
           </Button>
         </DialogActions>

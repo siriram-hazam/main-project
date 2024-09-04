@@ -89,6 +89,15 @@ const userProfile = async () => {
   }
 };
 
+const userCompanyList = async () => {
+  try {
+    const res = await axios.get("http://localhost:3001/api/user/userList");
+    return res;
+  } catch (error) {
+    console.error("Error useAuth userCompanyList : ", error);
+  }
+};
+
 const logout = async () => {
   try {
     await axios.get("http://localhost:3001/api/user/logout");
@@ -98,4 +107,11 @@ const logout = async () => {
   }
 };
 
-export default { authLogin, checkAuthStatus, checkUser, userProfile, logout };
+export default {
+  authLogin,
+  checkAuthStatus,
+  checkUser,
+  userProfile,
+  userCompanyList,
+  logout,
+};

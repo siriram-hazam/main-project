@@ -3,10 +3,10 @@ import {
   createUser,
   updateUser,
   deleteUser,
-  fecthUserAcc,
   fetchUserLogin,
   userProfile,
   fetchUser,
+  fetchUserList,
 } from "../controller/userController.js";
 import { auth } from "../middleware/auth.js";
 
@@ -16,8 +16,8 @@ router.post("/", createUser);
 router.put("/:id", auth, updateUser);
 router.delete("/:id", auth, deleteUser);
 router.post("/login", fetchUserLogin);
-router.get("/acc", auth, fecthUserAcc);
 router.get("/userProfile", auth, userProfile);
+router.get("/userList", auth, fetchUserList);
 router.get("/status", auth, (req, res) => {
   res.json({ status: "authenticated" });
 });

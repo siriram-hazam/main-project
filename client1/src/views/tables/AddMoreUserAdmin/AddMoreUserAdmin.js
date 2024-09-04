@@ -1,21 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Card, CardContent, Box, Typography, Fab } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Box,
+  Typography,
+  Fab,
+  Divider,
+} from "@mui/material";
 
-import ExTable from "../../tables/Activities/ExTable";
-
-import AllInboxOutlinedIcon from "@mui/icons-material/AllInboxOutlined";
-import AddToPhotosOutlinedIcon from "@mui/icons-material/AddToPhotosOutlined";
+import ContactPageOutlinedIcon from "@mui/icons-material/ContactPageOutlined";
 
 import authUtils from "../../../hooks/useAuth";
 
-import infoUtils from "../../../hooks/useInfo";
+import ExTable from "./ExTable";
 
-const BasicTable = () => {
+const EditProfileTable = () => {
   const [user, setUser] = useState(null);
   const [checkUser, setCheckUser] = useState(null);
-
-  const [info, setInfo] = useState(null);
+  const [userCompanyList, setUserCompanyList] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -26,7 +29,7 @@ const BasicTable = () => {
         setCheckUser(user);
         // console.log(user);
       } catch (error) {
-        console.error("Error ActivitiesTable checkUser : ", error);
+        console.error("Error Activities checkUser : ", error);
       } finally {
         setLoading(false);
       }
@@ -38,43 +41,38 @@ const BasicTable = () => {
       try {
         const user = await authUtils.userProfile();
         setUser(user);
-        // console.log(user);
+        // console.log(user.data.users.id);
+        console.log("User Data : ", user);
       } catch (error) {
-        console.error("Error ActivitiesTable loadUser : ", error);
+        console.error("Error Activities loadUser : ", error);
       } finally {
         setLoading(false);
       }
     };
 
     loadUser();
-  }, []);
 
-  useEffect(() => {
-    const getInfo = async () => {
+    const userCompanyList = async () => {
       try {
-        const res = await infoUtils.infoActivities();
-        setInfo(res);
-        // console.log("Activities Info : ", res);
+        const users = await authUtils.userCompanyList();
+        setUserCompanyList(users);
+        // console.log("User Company List : ", users);
       } catch (error) {
-        console.error("Error BasicTable getInfo : ", error);
+        console.error("Error Activities userCompanyList : ", error);
       } finally {
         setLoading(false);
       }
     };
 
-    getInfo();
+    userCompanyList();
   }, []);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  if (!user || !checkUser) {
-    return <div>Failed to load user data</div>;
-  }
-
-  if (!info) {
-    return <div>Failed to load info data</div>;
+  if (!user || !checkUser || !userCompanyList) {
+    return <div>Initializing load user data...</div>;
   }
 
   return (
@@ -92,6 +90,7 @@ const BasicTable = () => {
                 md: "row",
                 lg: "row",
               },
+              mb: 2,
             }}
           >
             <Typography
@@ -102,7 +101,7 @@ const BasicTable = () => {
                 alignItems: "center",
               }}
             >
-              <AllInboxOutlinedIcon
+              <ContactPageOutlinedIcon
                 sx={{
                   color: "grey",
                   mr: 1,
@@ -114,47 +113,21 @@ const BasicTable = () => {
                   fontSize: "2rem",
                 }}
               />
-              Activities Table
-            </Typography>
-            <Typography variant="h3">
-              <Fab
-                color="primary"
-                href={"/activities/add"}
-                variant="extended"
-                sx={{
-                  mr: 1,
-                  mb: {
-                    xs: 1,
-                    sm: 0,
-                    lg: 0,
-                  },
-                }}
-              >
-                <AddToPhotosOutlinedIcon
-                  sx={{
-                    fontSize: "1.3rem",
-                  }}
-                />
-                <Typography
-                  sx={{
-                    ml: 1,
-                    textTransform: "capitalize",
-                  }}
-                >
-                  Add Activity
-                </Typography>
-              </Fab>
+              Edit Profile
             </Typography>
           </Box>
+          <Divider />
           <Box
             sx={{
               overflow: {
                 xs: "auto",
                 sm: "unset",
               },
+              mt: 2,
             }}
           >
-            <ExTable info={info} user={user} />
+            <ExTable userList={userCompanyList} />
+            {/* <ExTable info={info} user={user} /> */}
           </Box>
         </CardContent>
       </Card>
@@ -162,4 +135,4 @@ const BasicTable = () => {
   );
 };
 
-export default BasicTable;
+export default EditProfileTable;

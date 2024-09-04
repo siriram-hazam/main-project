@@ -6,18 +6,6 @@ import jwt from "jsonwebtoken";
 export const createUser = async (req, res) => {
   const { username, password, fullname, email, role, company_id } = req.body;
 
-  // const companyData = await prisma.company.findFirst({
-  //     where: {
-  //         companyName: companyName,
-  //     },
-  //     select: {
-  //         id: true,
-  //         companyName: true,
-  //     }
-  // })
-
-  // console.log(companyData.id)
-
   const findEmail = await prisma.user_account.findUnique({
     where: { email: email },
   });
@@ -193,14 +181,18 @@ export const userProfile = async (req, res) => {
   }
 };
 
-export const fecthUserAcc = async (req, res) => {
+export const fetchUserList = async (req, res) => {
   try {
-    const user = await prisma.user_account.findMany({
-      select: {
-        username: true,
+    const userslist = await prisma.user_account.findMany({
+      where: {
+        company_id: req.user.company_id,
+      },
+      include: {
+        company_relation: true,
       },
     });
-    return res.json({ status: 200, data: user });
+
+    return res.json({ status: 200, userslist });
   } catch (error) {
     console.error(error.message);
   }

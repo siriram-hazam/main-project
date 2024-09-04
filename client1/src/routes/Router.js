@@ -11,7 +11,7 @@ import FullLayout from "../layouts/FullLayout/FullLayout.js";
 import Dashboard1 from "../views/dashboard/Dashboard1.js";
 
 // Edit Profile
-import EditProfile from "../views/editProfile/editProfile.js";
+import EditProfile from "../views/editProfile/EditProfile.js";
 
 //Activities Add
 import ActivitiesAdd from "../views/activities/Activities.js";
@@ -20,6 +20,8 @@ import ActivitiesAdd from "../views/activities/Activities.js";
 import ActivitiesTable from "../views/tables/Activities/ActivitiesTable.js";
 //Privacy Notice Table
 import PrivacyNoticeTable from "../views/tables/PrivacyNotice/PrivacyNoticeTable.js";
+//Add More User (Admin) Profile Table
+import AddMoreUserAdmin from "../views/tables/AddMoreUserAdmin/AddMoreUserAdmin.js";
 
 // Define routes
 const Themeroutes = [

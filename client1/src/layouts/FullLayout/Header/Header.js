@@ -258,6 +258,7 @@ const Header = (props) => {
               width: "min-content",
               right: 0,
               top: "70px !important",
+              alignItems: "center",
             },
           }}
         >
@@ -270,6 +271,7 @@ const Header = (props) => {
               {props.user.data.users.email}
             </Box>
           </MenuItem>
+
           {props.user.data.users.role === "admin" ? (
             <>
               <Divider />
@@ -280,13 +282,14 @@ const Header = (props) => {
                   }}
                 >
                   <PersonAddAltOutlinedIcon
-                    sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }}
+                    sx={{ mr: 1.5, fontSize: "1.2rem" }}
                   />
                   Add More User (Admin)
                 </Box>
               </MenuItem>
             </>
           ) : null}
+
           {props.user.data.users.role === "superadmin" ? (
             <>
               <Divider />
@@ -297,7 +300,7 @@ const Header = (props) => {
                   }}
                 >
                   <PersonAddAltOutlinedIcon
-                    sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }}
+                    sx={{ mr: 1.5, fontSize: "1.2rem" }}
                   />
                   Company List (Super Admin)
                 </Box>
@@ -310,54 +313,42 @@ const Header = (props) => {
                   }}
                 >
                   <PersonAddAltOutlinedIcon
-                    sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }}
+                    sx={{ mr: 1.5, fontSize: "1.2rem" }}
                   />
                   Company User (Super Admin)
                 </Box>
               </MenuItem>
             </>
           ) : null}
+
           <Divider />
+
           <Link to="/edit-profile">
             <MenuItem onClick={handleClose4}>
-              {/* <Avatar
-                sx={{
-                  width: "35px",
-                  height: "35px",
-                }}
-              /> */}
               <Box
                 sx={{
                   ml: 2,
                 }}
               >
-                <EditOutlinedIcon sx={{ mb: 1, mr: 1.5, fontSize: "1.2rem" }} />
+                <EditOutlinedIcon sx={{ mr: 1.5, fontSize: "1.2rem" }} />
                 Edit Profile
               </Box>
             </MenuItem>
           </Link>
 
           <Divider />
-          {/* <MenuItem onClick={handleClose4}>
-            <ListItemIcon>
-              <PersonAddOutlinedIcon fontSize="small" />
-            </ListItemIcon>
-            Add another account
-          </MenuItem> */}
-          {/* <MenuItem onClick={handleClose4}>
-            <ListItemIcon>
-              <SettingsOutlinedIcon fontSize="small" />
-            </ListItemIcon>
-            Settings
-          </MenuItem> */}
-          <MenuItem onClick={handleLogout}>
-            <ListItemIcon>
-              <LogoutOutlinedIcon
-                sx={{ ml: 2, mb: 1, mr: 1.5, fontSize: "1.2rem" }}
-              />
-            </ListItemIcon>
-            Logout
-          </MenuItem>
+          <>
+            <MenuItem onClick={handleLogout}>
+              <Box
+                sx={{
+                  ml: 2,
+                }}
+              >
+                <LogoutOutlinedIcon sx={{ mr: 1.5, fontSize: "1.2rem" }} />
+                Logout
+              </Box>
+            </MenuItem>
+          </>
         </Menu>
       </Toolbar>
     </AppBar>

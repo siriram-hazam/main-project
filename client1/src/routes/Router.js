@@ -11,7 +11,7 @@ import FullLayout from "../layouts/FullLayout/FullLayout.js";
 import Dashboard1 from "../views/dashboard/Dashboard1.js";
 
 // Edit Profile
-import EditProfile from "../views/editProfile/EditProfile.js";
+import EditProfile from "../views/editProfile/editProfile.js";
 
 //Activities Add
 import ActivitiesAdd from "../views/activities/Activities.js";
@@ -50,6 +50,10 @@ const Themeroutes = [
       {
         path: "edit-profile",
         element: <EditProfile />,
+      },
+      {
+        path: "user-admin",
+        element: <AddMoreUserAdmin />, //Admin Auth
       },
     ],
   },

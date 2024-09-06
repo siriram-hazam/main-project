@@ -273,21 +273,23 @@ const Header = (props) => {
           </MenuItem>
 
           {props.user.data.users.role === "admin" ? (
-            <>
-              <Divider />
-              <MenuItem>
-                <Box
-                  sx={{
-                    ml: 2,
-                  }}
-                >
-                  <PersonAddAltOutlinedIcon
-                    sx={{ mr: 1.5, fontSize: "1.2rem" }}
-                  />
-                  Add More User (Admin)
-                </Box>
-              </MenuItem>
-            </>
+            <Link to="/user-admin">
+              <>
+                <Divider />
+                <MenuItem>
+                  <Box
+                    sx={{
+                      ml: 2,
+                    }}
+                  >
+                    <PersonAddAltOutlinedIcon
+                      sx={{ mr: 1.5, fontSize: "1.2rem" }}
+                    />
+                    Add More User (Admin)
+                  </Box>
+                </MenuItem>
+              </>
+            </Link>
           ) : null}
 
           {props.user.data.users.role === "superadmin" ? (

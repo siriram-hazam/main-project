@@ -56,8 +56,11 @@ const ExTable = (userList) => {
       sx={{
         // mt: 3,
         whiteSpace: "nowrap",
+        overflowX: "auto",
       }}
     >
+      {console.log(userList)}
+
       <TableHead>
         <TableRow>
           <TableCell>

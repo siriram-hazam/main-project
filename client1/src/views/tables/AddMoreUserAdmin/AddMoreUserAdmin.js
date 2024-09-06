@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
 
-import {
-  Card,
-  CardContent,
-  Box,
-  Typography,
-  Fab,
-  Divider,
-} from "@mui/material";
+import { Card, CardContent, Box, Typography, Divider } from "@mui/material";
 
-import ContactPageOutlinedIcon from "@mui/icons-material/ContactPageOutlined";
+// import ContactPageOutlinedIcon from "@mui/icons-material/ContactPageOutlined";
+import AccessibilityNewOutlinedIcon from "@mui/icons-material/AccessibilityNewOutlined";
 
 import authUtils from "../../../hooks/useAuth";
 
@@ -42,7 +36,7 @@ const EditProfileTable = () => {
         const user = await authUtils.userProfile();
         setUser(user);
         // console.log(user.data.users.id);
-        console.log("User Data : ", user);
+        // console.log("User Data : ", user);
       } catch (error) {
         console.error("Error Activities loadUser : ", error);
       } finally {
@@ -101,7 +95,7 @@ const EditProfileTable = () => {
                 alignItems: "center",
               }}
             >
-              <ContactPageOutlinedIcon
+              <AccessibilityNewOutlinedIcon
                 sx={{
                   color: "grey",
                   mr: 1,
@@ -113,7 +107,7 @@ const EditProfileTable = () => {
                   fontSize: "2rem",
                 }}
               />
-              Edit Profile
+              User List (Admin)
             </Typography>
           </Box>
           <Divider />
@@ -126,7 +120,7 @@ const EditProfileTable = () => {
               mt: 2,
             }}
           >
-            <ExTable userList={userCompanyList} />
+            <ExTable userList={userCompanyList.data} />
             {/* <ExTable info={info} user={user} /> */}
           </Box>
         </CardContent>

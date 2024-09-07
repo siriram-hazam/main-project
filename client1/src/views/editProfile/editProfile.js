@@ -167,8 +167,22 @@ const EditProfile = () => {
                 </Typography>
               </Box>
 
-              <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>Edit Profile</DialogTitle>
+              {/* <Box>
+                <Typography variant="h6" sx={{ fontSize: "1.45rem" }}>
+                  First Name: {user.firstName}
+                </Typography>
+              </Box> */}
+
+              <Dialog
+                open={open}
+                onClose={handleClose}
+                maxWidth={false}
+                fullWidth={true}
+              >
+                <DialogTitle sx={{ fontSize: "2rem" }}>
+                  Edit Profile
+                </DialogTitle>
+                <Divider />
                 <DialogContent>
                   <Box
                     component="form"
@@ -215,11 +229,19 @@ const EditProfile = () => {
                     />
                   </Box>
                 </DialogContent>
-                <DialogActions sx={{ fontSize: "1rem" }}>
-                  <Button onClick={handleClose} color="secondary">
+                <DialogActions>
+                  <Button
+                    onClick={handleClose}
+                    color="secondary"
+                    sx={{ fontSize: "1rem" }}
+                  >
                     Cancel
                   </Button>
-                  <Button onClick={handleSave} color="primary">
+                  <Button
+                    onClick={handleSave}
+                    color="primary"
+                    sx={{ fontSize: "1rem" }}
+                  >
                     Save
                   </Button>
                 </DialogActions>

@@ -8,10 +8,6 @@ import {
   CardContent,
   Typography,
   Divider,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
 
 import ContactPageOutlinedIcon from "@mui/icons-material/ContactPageOutlined";
@@ -19,27 +15,18 @@ import ContactPageOutlinedIcon from "@mui/icons-material/ContactPageOutlined";
 import authUtils from "../../hooks/useAuth";
 
 const EditProfile = () => {
-  const [user1, setUser1] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    phone: "123-456-7890",
-    address: "123 Main St",
-  });
-
+  const [initialUser, setInitialUser] = useState(null);
   const [user, setUser] = useState(null);
   const [checkUser, setCheckUser] = useState(null);
-
   const [loading, setLoading] = useState(true);
-
   const [open, setOpen] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
       try {
         const user = await authUtils.checkUser();
         setCheckUser(user);
-        // console.log(user);
       } catch (error) {
         console.error("Error Activities checkUser : ", error);
       } finally {
@@ -52,9 +39,9 @@ const EditProfile = () => {
     const loadUser = async () => {
       try {
         const user = await authUtils.userProfile();
-        setUser(user);
-        // console.log(user.data.users.id);
-        console.log("User Data : ", user);
+        setUser(user.data.users);
+        setInitialUser(user.data.users); // Store the initial user data
+        console.log("User Data : ", user.data.users);
       } catch (error) {
         console.error("Error Activities loadUser : ", error);
       } finally {
@@ -67,24 +54,21 @@ const EditProfile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUser((prevUser) => ({
-      ...prevUser,
-      [name]: value,
-    }));
+    setUser((prevUser) => {
+      const updatedUser = {
+        ...prevUser,
+        [name]: value,
+      };
+      setIsChanged(JSON.stringify(updatedUser) !== JSON.stringify(initialUser));
+      return updatedUser;
+    });
   };
 
   const handleSave = () => {
     // Save user data logic here
     console.log("User data saved:", user);
-    setOpen(false);
-  };
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
+    setInitialUser(user); // Update the initial user data after saving
+    setIsChanged(false);
   };
 
   if (loading) {
@@ -153,99 +137,81 @@ const EditProfile = () => {
                 gap: 2,
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 1,
-                  cursor: "pointer",
-                }}
-                onClick={handleClickOpen}
-              >
-                <Typography variant="h6">
-                  User: {user.firstName} {user.lastName}
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontSize: "1.25rem",
+                    fontWeight: "regular",
+                    display: "flex",
+                    flexDirection: {
+                      xs: "column",
+                      sm: "row",
+                      md: "row",
+                      lg: "row",
+                    },
+                    columns: "2",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div>User Name : {user.username}</div>
+                  <div>User Id : {user.id}</div>
+                  <div>Role : {user.role}</div>
+                  <div>Company Id : {user.company_id}</div>
                 </Typography>
               </Box>
-
-              {/* <Box>
-                <Typography variant="h6" sx={{ fontSize: "1.45rem" }}>
-                  First Name: {user.firstName}
-                </Typography>
-              </Box> */}
-
-              <Dialog
-                open={open}
-                onClose={handleClose}
-                maxWidth={false}
-                fullWidth={true}
-              >
-                <DialogTitle sx={{ fontSize: "2rem" }}>
-                  Edit Profile
-                </DialogTitle>
-                <Divider />
-                <DialogContent>
-                  <Box
-                    component="form"
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 2,
-                    }}
-                  >
-                    <TextField
-                      label="First Name"
-                      name="firstName"
-                      value={user.firstName}
-                      onChange={handleChange}
-                      variant="outlined"
-                    />
-                    <TextField
-                      label="Last Name"
-                      name="lastName"
-                      value={user.lastName}
-                      onChange={handleChange}
-                      variant="outlined"
-                    />
-                    <TextField
-                      label="Email"
-                      name="email"
-                      value={user.email}
-                      onChange={handleChange}
-                      variant="outlined"
-                    />
-                    <TextField
-                      label="Phone"
-                      name="phone"
-                      value={user.phone}
-                      onChange={handleChange}
-                      variant="outlined"
-                    />
-                    <TextField
-                      label="Address"
-                      name="address"
-                      value={user.address}
-                      onChange={handleChange}
-                      variant="outlined"
-                    />
-                  </Box>
-                </DialogContent>
-                <DialogActions>
-                  <Button
-                    onClick={handleClose}
-                    color="secondary"
-                    sx={{ fontSize: "1rem" }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleSave}
-                    color="primary"
-                    sx={{ fontSize: "1rem" }}
-                  >
-                    Save
-                  </Button>
-                </DialogActions>
-              </Dialog>
+              <Box sx={{ display: "flex", flexDirection: "column", mb: "2" }}>
+                <TextField
+                  label="Full Name"
+                  name="fullname"
+                  value={user.fullname}
+                  onChange={handleChange}
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Email"
+                  name="email"
+                  value={user.email}
+                  onChange={handleChange}
+                  disabled
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Company Name"
+                  name="company_name"
+                  value={user.company_relation.companyName}
+                  onChange={handleChange}
+                  disabled
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Company Address"
+                  name="company_address"
+                  value={user.company_relation.address}
+                  onChange={handleChange}
+                  disabled
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                />
+                <Button
+                  onClick={handleSave}
+                  color="primary"
+                  sx={{ fontSize: "1rem", mt: 2 }}
+                >
+                  Change Password
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  color="primary"
+                  sx={{ fontSize: "1rem", mt: 2 }}
+                  disabled={!isChanged}
+                >
+                  Save
+                </Button>
+              </Box>
             </Box>
           </Box>
         </CardContent>

@@ -20,7 +20,6 @@ import {
   Button,
   Avatar,
   Divider,
-  ListItemIcon,
 } from "@mui/material";
 
 import authUtils from "../../../hooks/useAuth";

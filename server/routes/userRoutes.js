@@ -13,7 +13,7 @@ import { auth } from "../middleware/auth.js";
 const router = Router();
 
 router.post("/", createUser);
-router.put("/:id", auth, updateUser);
+router.put("/", auth, updateUser);
 router.delete("/:id", auth, deleteUser);
 router.post("/login", fetchUserLogin);
 router.get("/userProfile", auth, userProfile);

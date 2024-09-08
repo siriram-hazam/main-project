@@ -66,20 +66,20 @@ export const updateUser = async (req, res) => {
   // }
 
   try {
-    const passhash = await bcrypt.hash(password, 10);
+    // const passhash = await bcrypt.hash(password, 10);
 
-    await prisma.user_account.update({
-      where: {
-        id: Number(userId),
-      },
-      data: {
-        password: passhash,
-        fullname: fullname,
-        role: role,
-        company_id: company_id,
-        edit_time: new Date().toISOString(),
-      },
-    });
+    // await prisma.user_account.update({
+    //   where: {
+    //     id: Number(userId),
+    //   },
+    //   data: {
+    //     password: passhash,
+    //     fullname: fullname,
+    //     role: role,
+    //     company_id: company_id,
+    //     edit_time: new Date().toISOString(),
+    //   },
+    // });
 
     return res.json({ status: 200, message: "User Data Updated!!" });
   } catch (error) {

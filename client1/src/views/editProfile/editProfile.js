@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-
 import {
   Box,
   TextField,
@@ -8,10 +7,13 @@ import {
   CardContent,
   Typography,
   Divider,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
-
 import ContactPageOutlinedIcon from "@mui/icons-material/ContactPageOutlined";
-
 import authUtils from "../../hooks/useAuth";
 
 const EditProfile = () => {
@@ -21,6 +23,13 @@ const EditProfile = () => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [passwords, setPasswords] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  });
+  const [isSaveEnabled, setIsSaveEnabled] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -69,6 +78,49 @@ const EditProfile = () => {
     console.log("User data saved:", user);
     setInitialUser(user); // Update the initial user data after saving
     setIsChanged(false);
+  };
+
+  const handlePasswordChange = () => {
+    // Password change logic
+    console.log("Passwords:", passwords);
+    setPasswordDialogOpen(false);
+    resetPasswordFields();
+  };
+
+  const handlePasswordDialogChange = (e) => {
+    const { name, value } = e.target;
+    setPasswords((prevPasswords) => {
+      const updatedPasswords = {
+        ...prevPasswords,
+        [name]: value,
+      };
+      validatePasswords(updatedPasswords);
+      return updatedPasswords;
+    });
+  };
+
+  const validatePasswords = (passwords) => {
+    const { oldPassword, newPassword, confirmNewPassword } = passwords;
+    const isValid =
+      oldPassword &&
+      newPassword &&
+      confirmNewPassword &&
+      newPassword === confirmNewPassword;
+    setIsSaveEnabled(isValid);
+  };
+
+  const resetPasswordFields = () => {
+    setPasswords({
+      oldPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    });
+    setIsSaveEnabled(false);
+  };
+
+  const openPasswordDialog = () => {
+    resetPasswordFields();
+    setPasswordDialogOpen(true);
   };
 
   if (loading) {
@@ -137,30 +189,28 @@ const EditProfile = () => {
                 gap: 2,
               }}
             >
-              <Box>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontSize: "1.25rem",
-                    fontWeight: "regular",
-                    display: "flex",
-                    flexDirection: {
-                      xs: "column",
-                      sm: "row",
-                      md: "row",
-                      lg: "row",
-                    },
-                    columns: "2",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <div>User Name : {user.username}</div>
-                  <div>User Id : {user.id}</div>
-                  <div>Role : {user.role}</div>
-                  <div>Company Id : {user.company_id}</div>
-                </Typography>
-              </Box>
               <Box sx={{ display: "flex", flexDirection: "column", mb: "2" }}>
+                <DialogContentText sx={{ mb: 2 }}>
+                  Personal Information
+                </DialogContentText>
+                <TextField
+                  label="User Id"
+                  name="user_id"
+                  value={user.id}
+                  onChange={handleChange}
+                  disabled
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="User Name"
+                  name="username"
+                  value={user.username}
+                  onChange={handleChange}
+                  disabled
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                />
                 <TextField
                   label="Full Name"
                   name="fullname"
@@ -173,6 +223,26 @@ const EditProfile = () => {
                   label="Email"
                   name="email"
                   value={user.email}
+                  onChange={handleChange}
+                  disabled
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                />
+                <Button
+                  onClick={openPasswordDialog}
+                  color="primary"
+                  sx={{ fontSize: "1rem", mb: 2 }}
+                >
+                  Change Password
+                </Button>
+
+                <DialogContentText sx={{ mb: 2 }}>
+                  Company Information
+                </DialogContentText>
+                <TextField
+                  label="Company Id"
+                  name="company_id"
+                  value={user.company_id}
                   onChange={handleChange}
                   disabled
                   variant="outlined"
@@ -196,17 +266,11 @@ const EditProfile = () => {
                   variant="outlined"
                   sx={{ mb: 2 }}
                 />
+
                 <Button
                   onClick={handleSave}
                   color="primary"
-                  sx={{ fontSize: "1rem", mt: 2 }}
-                >
-                  Change Password
-                </Button>
-                <Button
-                  onClick={handleSave}
-                  color="primary"
-                  sx={{ fontSize: "1rem", mt: 2 }}
+                  sx={{ fontSize: "1rem" }}
                   disabled={!isChanged}
                 >
                   Save
@@ -216,6 +280,72 @@ const EditProfile = () => {
           </Box>
         </CardContent>
       </Card>
+
+      <Dialog
+        open={passwordDialogOpen}
+        onClose={() => {
+          setPasswordDialogOpen(false);
+          resetPasswordFields();
+        }}
+      >
+        <DialogTitle sx={{ fontSize: "1.25rem" }}>Change Password</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 1.2 }}>
+            Please enter your old password and new password.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="oldPassword"
+            label="Old Password"
+            type="password"
+            fullWidth
+            variant="outlined"
+            value={passwords.oldPassword}
+            onChange={handlePasswordDialogChange}
+          />
+          <TextField
+            margin="dense"
+            name="newPassword"
+            label="New Password"
+            type="password"
+            fullWidth
+            variant="outlined"
+            value={passwords.newPassword}
+            onChange={handlePasswordDialogChange}
+          />
+          <TextField
+            margin="dense"
+            name="confirmNewPassword"
+            label="Confirm New Password"
+            type="password"
+            fullWidth
+            variant="outlined"
+            value={passwords.confirmNewPassword}
+            onChange={handlePasswordDialogChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setPasswordDialogOpen(false);
+              resetPasswordFields();
+            }}
+            color="primary"
+            sx={{ fontSize: "1rem" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handlePasswordChange}
+            color="primary"
+            sx={{ fontSize: "1rem" }}
+            disabled={!isSaveEnabled}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

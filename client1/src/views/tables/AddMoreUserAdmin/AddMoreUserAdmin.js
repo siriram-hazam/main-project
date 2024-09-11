@@ -1,27 +1,34 @@
 import React, { useEffect, useState } from "react";
-
-import { Card, CardContent, Box, Typography, Divider } from "@mui/material";
-
-// import ContactPageOutlinedIcon from "@mui/icons-material/ContactPageOutlined";
+import {
+  Card,
+  CardContent,
+  Box,
+  Typography,
+  Divider,
+  Fab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from "@mui/material";
 import AccessibilityNewOutlinedIcon from "@mui/icons-material/AccessibilityNewOutlined";
-
+import AddToPhotosOutlinedIcon from "@mui/icons-material/AddToPhotosOutlined";
 import authUtils from "../../../hooks/useAuth";
-
 import ExTable from "./ExTable";
 
 const EditProfileTable = () => {
   const [user, setUser] = useState(null);
   const [checkUser, setCheckUser] = useState(null);
   const [userCompanyList, setUserCompanyList] = useState(null);
-
   const [loading, setLoading] = useState(true);
+  const [openDialog, setOpenDialog] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
       try {
         const user = await authUtils.checkUser();
         setCheckUser(user);
-        // console.log(user);
       } catch (error) {
         console.error("Error Activities checkUser : ", error);
       } finally {
@@ -35,8 +42,6 @@ const EditProfileTable = () => {
       try {
         const user = await authUtils.userProfile();
         setUser(user);
-        // console.log(user.data.users.id);
-        // console.log("User Data : ", user);
       } catch (error) {
         console.error("Error Activities loadUser : ", error);
       } finally {
@@ -50,7 +55,6 @@ const EditProfileTable = () => {
       try {
         const users = await authUtils.userCompanyList();
         setUserCompanyList(users);
-        // console.log("User Company List : ", users);
       } catch (error) {
         console.error("Error Activities userCompanyList : ", error);
       } finally {
@@ -60,6 +64,14 @@ const EditProfileTable = () => {
 
     userCompanyList();
   }, []);
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -109,6 +121,35 @@ const EditProfileTable = () => {
               />
               User List (Admin)
             </Typography>
+            <Typography variant="h3">
+              <Fab
+                color="primary"
+                variant="extended"
+                sx={{
+                  mr: 1,
+                  mb: {
+                    xs: 1,
+                    sm: 0,
+                    lg: 0,
+                  },
+                }}
+                onClick={handleOpenDialog}
+              >
+                <AddToPhotosOutlinedIcon
+                  sx={{
+                    fontSize: "1.3rem",
+                  }}
+                />
+                <Typography
+                  sx={{
+                    ml: 1,
+                    textTransform: "capitalize",
+                  }}
+                >
+                  Add User
+                </Typography>
+              </Fab>
+            </Typography>
           </Box>
           <Divider />
           <Box
@@ -121,10 +162,24 @@ const EditProfileTable = () => {
             }}
           >
             <ExTable userList={userCompanyList.data} />
-            {/* <ExTable info={info} user={user} /> */}
           </Box>
         </CardContent>
       </Card>
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Add User</DialogTitle>
+        <DialogContent>
+          {/* Add your form or content here */}
+          <Typography>Form content goes here...</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleCloseDialog} color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

@@ -332,7 +332,7 @@ const Header = (props) => {
                 }}
               >
                 <EditOutlinedIcon sx={{ mr: 1.5, fontSize: "1.2rem" }} />
-                Edit Profile
+                Profile Details
               </Box>
             </MenuItem>
           </Link>

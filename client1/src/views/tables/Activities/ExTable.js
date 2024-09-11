@@ -36,6 +36,7 @@ import FileOpenOutlinedIcon from "@mui/icons-material/FileOpenOutlined";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 const handleDelete = async (id) => {
   try {

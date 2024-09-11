@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Box,
@@ -50,6 +50,20 @@ const products = [
 ];
 
 const ExTable = (userList) => {
+  // ฟังก์ชันสำหรับแปลงรูปแบบวันที่
+  const formatDate = (isoDate) => {
+    const date = new Date(isoDate);
+    return new Intl.DateTimeFormat("th-TH", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      timeZone: "Asia/Bangkok",
+    }).format(date);
+  };
+
   return (
     <Table
       aria-label="simple table"
@@ -59,7 +73,7 @@ const ExTable = (userList) => {
         overflowX: "auto",
       }}
     >
-      {console.log(userList)}
+      {console.log(userList.userList.userslist)}
 
       <TableHead>
         <TableRow>
@@ -70,29 +84,29 @@ const ExTable = (userList) => {
           </TableCell>
           <TableCell>
             <Typography color="textSecondary" variant="h6">
-              Assigned
-            </Typography>
-          </TableCell>
-          <TableCell>
-            <Typography color="textSecondary" variant="h6">
               Name
             </Typography>
           </TableCell>
-          <TableCell>
+          {/* <TableCell>
             <Typography color="textSecondary" variant="h6">
               Priority
             </Typography>
-          </TableCell>
-          <TableCell align="right">
+          </TableCell> */}
+          <TableCell align="left">
             <Typography color="textSecondary" variant="h6">
-              Budget
+              Role
+            </Typography>
+          </TableCell>
+          <TableCell>
+            <Typography color="textSecondary" variant="h6">
+              User ID
             </Typography>
           </TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {products.map((product) => (
-          <TableRow key={product.name}>
+        {userList.userList.userslist.map((item) => (
+          <TableRow key={item.id}>
             <TableCell>
               <Typography
                 sx={{
@@ -100,9 +114,30 @@ const ExTable = (userList) => {
                   fontWeight: "500",
                 }}
               >
-                {product.id}
+                {item.id}
               </Typography>
             </TableCell>
+            <TableCell>
+              <Typography color="textSecondary" variant="h6">
+                {item.fullname}
+              </Typography>
+            </TableCell>
+            {/* <TableCell>
+              <Chip
+                sx={{
+                  pl: "4px",
+                  pr: "4px",
+                  backgroundColor: product.pbg,
+                  color: "#fff",
+                }}
+                size="small"
+                label={product.priority}
+              ></Chip>
+            </TableCell> */}
+            <TableCell align="left">
+              <Typography variant="h6">{item.role}</Typography>
+            </TableCell>
+
             <TableCell>
               <Box
                 sx={{
@@ -117,7 +152,7 @@ const ExTable = (userList) => {
                       fontWeight: "600",
                     }}
                   >
-                    {product.name}
+                    {item.username}
                   </Typography>
                   <Typography
                     color="textSecondary"
@@ -125,30 +160,10 @@ const ExTable = (userList) => {
                       fontSize: "13px",
                     }}
                   >
-                    {product.post}
+                    {formatDate(item.create_time)}
                   </Typography>
                 </Box>
               </Box>
-            </TableCell>
-            <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                {product.pname}
-              </Typography>
-            </TableCell>
-            <TableCell>
-              <Chip
-                sx={{
-                  pl: "4px",
-                  pr: "4px",
-                  backgroundColor: product.pbg,
-                  color: "#fff",
-                }}
-                size="small"
-                label={product.priority}
-              ></Chip>
-            </TableCell>
-            <TableCell align="right">
-              <Typography variant="h6">${product.budget}k</Typography>
             </TableCell>
           </TableRow>
         ))}

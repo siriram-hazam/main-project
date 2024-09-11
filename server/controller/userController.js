@@ -53,7 +53,61 @@ export const createUser = async (req, res) => {
   }
 };
 
-export const updateUser = async (req, res) => {
+export const updateUserPassword = async (req, res) => {
+  const userId = req.user.id;
+  const { oldPassword, newPassword } = req.body;
+
+  const user = await prisma.user_account.findUnique({
+    where: {
+      id: Number(userId),
+    },
+  });
+
+  if (!user) {
+    return res.json({ status: 400, message: "User Not Found!" });
+  }
+
+  if (newPassword == undefined) {
+    return res.json({ status: 400, message: "Password Required!" });
+  }
+
+  if (oldPassword == undefined) {
+    return res.json({ status: 400, message: "Old Password Required!" });
+  }
+
+  if (oldPassword == newPassword) {
+    return res.json({
+      status: 400,
+      message: "Old Password and New Password Cannot be Same!",
+    });
+  }
+
+  const passcheck = await bcrypt.compare(oldPassword, user.password);
+
+  if (!passcheck) {
+    return res.json({ status: 400, message: "Old Password Incorrect!" });
+  }
+
+  try {
+    const passhash = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user_account.update({
+      where: {
+        id: Number(userId),
+      },
+      data: {
+        password: passhash,
+        edit_time: new Date().toISOString(),
+      },
+    });
+
+    return res.json({ status: 200, message: "User Password Updated!!" });
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+export const updateEditUser = async (req, res) => {
   const userId = req.user.id;
   const { password, fullname, role, company_id } = req.body;
 

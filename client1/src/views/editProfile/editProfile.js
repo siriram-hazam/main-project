@@ -15,13 +15,13 @@ import {
 } from "@mui/material";
 import ContactPageOutlinedIcon from "@mui/icons-material/ContactPageOutlined";
 import authUtils from "../../hooks/useAuth";
+import axios from "axios";
 
 const EditProfile = () => {
   const [initialUser, setInitialUser] = useState(null);
   const [user, setUser] = useState(null);
   const [checkUser, setCheckUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [passwords, setPasswords] = useState({
@@ -80,11 +80,34 @@ const EditProfile = () => {
     setIsChanged(false);
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     // Password change logic
-    console.log("Passwords:", passwords);
-    setPasswordDialogOpen(false);
-    resetPasswordFields();
+
+    try {
+      console.log("Password change request:", passwords);
+
+      const response = await axios.put(
+        "http://localhost:3001/api/user/updatePassword",
+        {
+          oldPassword: passwords.oldPassword,
+          newPassword: passwords.newPassword,
+        }
+      );
+
+      if (response.data.status === 200) {
+        console.log("Password changed successfully");
+        setPasswordDialogOpen(false);
+        resetPasswordFields();
+        return;
+      } else {
+        console.error(
+          "Error editProfile handlePasswordChange : ",
+          response.data
+        );
+      }
+    } catch (error) {
+      console.error("Error editProfile handlePasswordChange : ", error);
+    }
   };
 
   const handlePasswordDialogChange = (e) => {
@@ -169,7 +192,7 @@ const EditProfile = () => {
                   fontSize: "2rem",
                 }}
               />
-              Edit Profile
+              Profile
             </Typography>
           </Box>
           <Divider />
@@ -216,6 +239,7 @@ const EditProfile = () => {
                   name="fullname"
                   value={user.fullname}
                   onChange={handleChange}
+                  disabled
                   variant="outlined"
                   sx={{ mb: 2 }}
                 />

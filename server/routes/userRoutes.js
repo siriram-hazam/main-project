@@ -1,19 +1,20 @@
 import { Router } from "express";
 import {
   createUser,
-  updateUser,
+  updateEditUser,
   deleteUser,
   fetchUserLogin,
   userProfile,
   fetchUser,
   fetchUserList,
+  updateUserPassword,
 } from "../controller/userController.js";
 import { auth } from "../middleware/auth.js";
 
 const router = Router();
 
 router.post("/", createUser);
-router.put("/", auth, updateUser);
+router.put("/", auth, updateEditUser);
 router.delete("/:id", auth, deleteUser);
 router.post("/login", fetchUserLogin);
 router.get("/userProfile", auth, userProfile);
@@ -26,5 +27,6 @@ router.get("/logout", (req, res) => {
   res.clearCookie("token");
   res.json({ status: 200, message: "Logout Success" });
 });
+router.put("/updatePassword", auth, updateUserPassword);
 
 export default router;

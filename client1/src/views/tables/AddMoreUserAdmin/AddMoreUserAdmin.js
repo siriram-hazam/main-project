@@ -172,10 +172,18 @@ const EditProfileTable = () => {
           <Typography>Form content goes here...</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
+          <Button
+            onClick={handleCloseDialog}
+            color="primary"
+            sx={{ fontSize: "1rem" }}
+          >
             Cancel
           </Button>
-          <Button onClick={handleCloseDialog} color="primary">
+          <Button
+            onClick={handleCloseDialog}
+            color="primary"
+            sx={{ fontSize: "1rem" }}
+          >
             Save
           </Button>
         </DialogActions>

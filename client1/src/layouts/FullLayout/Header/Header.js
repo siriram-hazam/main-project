@@ -275,7 +275,7 @@ const Header = (props) => {
             <Link to="/user-admin">
               <>
                 <Divider />
-                <MenuItem>
+                <MenuItem onClick={handleClose4}>
                   <Box
                     sx={{
                       ml: 2,
@@ -294,7 +294,7 @@ const Header = (props) => {
           {props.user.data.users.role === "superadmin" ? (
             <>
               <Divider />
-              <MenuItem>
+              <MenuItem onClick={handleClose4}>
                 <Box
                   sx={{
                     ml: 2,
@@ -307,7 +307,7 @@ const Header = (props) => {
                 </Box>
               </MenuItem>
 
-              <MenuItem>
+              <MenuItem onClick={handleClose4}>
                 <Box
                   sx={{
                     ml: 2,

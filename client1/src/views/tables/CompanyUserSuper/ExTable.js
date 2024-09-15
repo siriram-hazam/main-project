@@ -22,7 +22,7 @@ import {
   InputLabel,
 } from "@mui/material";
 
-const ExTable = (company) => {
+const ExTable = (props) => {
   const [open, setOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [formValues, setFormValues] = useState({});
@@ -32,10 +32,15 @@ const ExTable = (company) => {
     useState(false);
   const [password, setPassword] = useState("");
 
+  const validRoles = ["admin", "user", "manager"];
+
   useEffect(() => {
     if (selectedItem) {
-      setInitialValues({ ...selectedItem });
-      setFormValues({ ...selectedItem });
+      const role = validRoles.includes(selectedItem.role)
+        ? selectedItem.role
+        : "user";
+      setInitialValues({ ...selectedItem, role });
+      setFormValues({ ...selectedItem, role });
     }
   }, [selectedItem]);
 
@@ -46,7 +51,9 @@ const ExTable = (company) => {
   }, [formValues, initialValues]);
 
   const handleRowClick = (item) => {
-    setSelectedItem(item);
+    const role = validRoles.includes(item.role) ? item.role : "user";
+    setSelectedItem({ ...item, role });
+    setFormValues({ ...item, role });
     setOpen(true);
   };
 
@@ -124,87 +131,50 @@ const ExTable = (company) => {
         <TableHead>
           <TableRow>
             <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                Id
-              </Typography>
+              <Typography variant="h6">Id</Typography>
             </TableCell>
             <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                Name
-              </Typography>
-            </TableCell>
-            <TableCell align="left">
-              <Typography color="textSecondary" variant="h6">
-                Role
-              </Typography>
+              <Typography variant="h6">Name</Typography>
             </TableCell>
             <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                User ID
-              </Typography>
+              <Typography variant="h6">Role</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="h6">Company</Typography>
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {/* {userList.userList.userslist.map((item) => (
-            <TableRow
-              key={item.id}
-              onClick={() => handleRowClick(item)}
-              style={{ cursor: "pointer" }}
-              sx={{
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: "#f5f5f5",
-                },
-              }}
-            >
-              <TableCell>
-                <Typography
+          {props.companyAdmin.data.map((company) =>
+            company.user_account
+              .filter((user) => user.role === "admin")
+              .map((admin) => (
+                <TableRow
+                  key={admin.id}
+                  onClick={() => handleRowClick(admin)}
+                  style={{ cursor: "pointer" }}
                   sx={{
-                    fontSize: "15px",
-                    fontWeight: "500",
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "#f5f5f5",
+                    },
                   }}
                 >
-                  {item.id}
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Typography color="textSecondary" variant="h6">
-                  {item.fullname}
-                </Typography>
-              </TableCell>
-              <TableCell align="left">
-                <Typography variant="h6">{item.role}</Typography>
-              </TableCell>
-              <TableCell>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: "600",
-                      }}
-                    >
-                      {item.username}
-                    </Typography>
-                    <Typography
-                      color="textSecondary"
-                      sx={{
-                        fontSize: "13px",
-                      }}
-                    >
-                      {formatDate(item.create_time)}
-                    </Typography>
-                  </Box>
-                </Box>
-              </TableCell>
-            </TableRow>
-          ))} */}
+                  <TableCell>
+                    <Typography variant="h6">{admin.id}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="h6">{admin.fullname}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="h6">{admin.role}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="h6">{company.companyName}</Typography>
+                  </TableCell>
+                </TableRow>
+              ))
+          )}
         </TableBody>
       </Table>
 
@@ -276,9 +246,9 @@ const ExTable = (company) => {
                     value={formValues.role}
                     onChange={handleRoleChange}
                   >
+                    <MenuItem value="admin">Admin</MenuItem>
                     <MenuItem value="user">User</MenuItem>
                     <MenuItem value="manager">Manager</MenuItem>
-                    <MenuItem value="admin">Admin</MenuItem>
                   </Select>
                 </FormControl>
 

@@ -107,6 +107,15 @@ const companyList = async () => {
   }
 };
 
+const companyAdmin = async () => {
+  try {
+    const res = await axios.get("http://localhost:3001/api/company/admin-company");
+    return res;
+  } catch (error) {
+    console.error("Error useAuth companyAdmin : ", error);
+  }
+};
+
 const logout = async () => {
   try {
     await axios.get("http://localhost:3001/api/user/logout");
@@ -123,5 +132,6 @@ export default {
   userProfile,
   userCompanyList,
   companyList,
+  companyAdmin,
   logout,
 };

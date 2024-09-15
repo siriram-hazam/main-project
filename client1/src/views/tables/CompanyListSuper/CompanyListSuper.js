@@ -212,7 +212,7 @@ const CompanyListSuper = () => {
                   fontSize: "2rem",
                 }}
               />
-              Company List (Admin)
+              Company List (Super Admin)
             </Typography>
             <Typography variant="h3">
               <Fab

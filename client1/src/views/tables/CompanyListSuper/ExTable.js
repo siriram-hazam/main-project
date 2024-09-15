@@ -76,24 +76,16 @@ const ExTable = (comapany) => {
         <TableHead>
           <TableRow>
             <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                Id
-              </Typography>
+              <Typography variant="h6">Id</Typography>
             </TableCell>
             <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                Name
-              </Typography>
+              <Typography variant="h6">Name</Typography>
             </TableCell>
             <TableCell align="left">
-              <Typography color="textSecondary" variant="h6">
-                Address
-              </Typography>
+              <Typography variant="h6">Address</Typography>
             </TableCell>
             <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                DPO
-              </Typography>
+              <Typography variant="h6">DPO</Typography>
             </TableCell>
           </TableRow>
         </TableHead>

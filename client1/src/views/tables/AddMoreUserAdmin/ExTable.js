@@ -124,24 +124,16 @@ const ExTable = (userList) => {
         <TableHead>
           <TableRow>
             <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                Id
-              </Typography>
+              <Typography variant="h6">Id</Typography>
             </TableCell>
             <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                Name
-              </Typography>
-            </TableCell>
-            <TableCell align="left">
-              <Typography color="textSecondary" variant="h6">
-                Role
-              </Typography>
+              <Typography variant="h6">Name</Typography>
             </TableCell>
             <TableCell>
-              <Typography color="textSecondary" variant="h6">
-                User ID
-              </Typography>
+              <Typography variant="h6">Role</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="h6">User ID</Typography>
             </TableCell>
           </TableRow>
         </TableHead>
@@ -169,9 +161,7 @@ const ExTable = (userList) => {
                 </Typography>
               </TableCell>
               <TableCell>
-                <Typography color="textSecondary" variant="h6">
-                  {item.fullname}
-                </Typography>
+                <Typography variant="h6">{item.fullname}</Typography>
               </TableCell>
               <TableCell align="left">
                 <Typography variant="h6">{item.role}</Typography>

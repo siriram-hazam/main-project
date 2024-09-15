@@ -36,6 +36,7 @@ const CompanyUserSuper = () => {
   });
   const [errors, setErrors] = useState({});
   const [selectedOption, setSelectedOption] = useState(null);
+  const [companyAdmin, setCompanyAdmin] = useState(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -65,7 +66,7 @@ const CompanyUserSuper = () => {
 
     loadUser();
 
-    const companyList = async () => {
+    const companyList2 = async () => {
       try {
         const company = await authUtils.companyList();
         setCompanyList(company);
@@ -77,8 +78,25 @@ const CompanyUserSuper = () => {
       }
     };
 
-    companyList();
+    companyList2();
+
+    const fetchCompanyAdmin = async () => {
+      try {
+        const company = await authUtils.companyAdmin();
+        // console.log("Company Admin : ", company.data.data);
+        setCompanyAdmin(company);
+      } catch (error) {
+        console.error("Error Activities fetchCompanyAdmin : ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCompanyAdmin();
   }, []);
+
+  // console.log("companyList", companyList);
+  // console.log("companyAdmin", companyAdmin);
 
   const handleOpenDialog = () => {
     setFormValues({
@@ -89,6 +107,7 @@ const CompanyUserSuper = () => {
       role: "admin", // Fixed role
       company_id: 0,
     });
+    setSelectedOption(null);
     setErrors({});
     setOpenDialog(true);
   };
@@ -162,7 +181,7 @@ const CompanyUserSuper = () => {
     return <div>Loading...</div>;
   }
 
-  if (!user || !checkUser || !companyList) {
+  if (!user || !checkUser || !companyList || !companyAdmin) {
     return <div>Initializing load user data...</div>;
   }
 
@@ -231,7 +250,7 @@ const CompanyUserSuper = () => {
                     textTransform: "capitalize",
                   }}
                 >
-                  Add User
+                  Add User Admin
                 </Typography>
               </Fab>
             </Typography>
@@ -246,7 +265,10 @@ const CompanyUserSuper = () => {
               mt: 2,
             }}
           >
-            <ExTable company={companyList.data} />
+            <ExTable
+              company={companyList.data}
+              companyAdmin={companyAdmin.data}
+            />
           </Box>
         </CardContent>
       </Card>
@@ -298,7 +320,7 @@ const CompanyUserSuper = () => {
             variant="outlined"
             error={!!errors.email}
             helperText={errors.email}
-            sx={{ mb: 3 }}
+            sx={{ mb: 1 }}
           />
           <Autocomplete
             options={companyList.data.data}

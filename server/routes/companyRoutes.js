@@ -4,6 +4,7 @@ import {
   updateCompany,
   deleteCompany,
   fetchCompany,
+  fetchCompanyAdmin,
 } from "../controller/companyController.js";
 
 import { auth } from "../middleware/auth.js";
@@ -14,5 +15,6 @@ router.post("/", auth, createCompany);
 router.put("/:id", auth, updateCompany);
 router.delete("/:id", auth, deleteCompany);
 router.get("/", auth, fetchCompany);
+router.get("/admin-company", auth, fetchCompanyAdmin);
 
 export default router;

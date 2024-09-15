@@ -82,3 +82,28 @@ export const fetchCompany = async (req, res) => {
     console.error(error.message);
   }
 };
+
+export const fetchCompanyAdmin = async (req, res) => {
+  try {
+    // const company = await prisma.company.findMany({
+    //   where: {
+    //     role: "admin",
+    //   },
+    // });
+    const company = await prisma.company.findMany({
+      where: {},
+      select: {
+        id: true,
+        companyName: true,
+        address: true,
+        phone_number: true,
+        email: true,
+        dpo: true,
+        user_account: {},
+      },
+    });
+    return res.json({ status: 200, data: company });
+  } catch (error) {
+    console.error(error.message);
+  }
+};

@@ -22,6 +22,10 @@ import ActivitiesTable from "../views/tables/Activities/ActivitiesTable.js";
 import PrivacyNoticeTable from "../views/tables/PrivacyNotice/PrivacyNoticeTable.js";
 //Add More User (Admin) Profile Table
 import AddMoreUserAdmin from "../views/tables/AddMoreUserAdmin/AddMoreUserAdmin.js";
+// Company List Super
+import CompanyListSuper from "../views/tables/CompanyListSuper/CompanyListSuper.js";
+// Company User Super
+import CompanyUserSuper from "../views/tables/CompanyUserSuper/CompanyUserSuper.js";
 
 // Define routes
 const Themeroutes = [
@@ -54,6 +58,14 @@ const Themeroutes = [
       {
         path: "user-admin",
         element: <AddMoreUserAdmin />, //Admin Auth
+      },
+      {
+        path: "company-list-super",
+        element: <CompanyListSuper />, //Admin Auth
+      },
+      {
+        path: "company-user-super",
+        element: <CompanyUserSuper />, //Admin Auth
       },
     ],
   },

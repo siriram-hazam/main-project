@@ -293,32 +293,40 @@ const Header = (props) => {
 
           {props.user.data.users.role === "superadmin" ? (
             <>
-              <Divider />
-              <MenuItem onClick={handleClose4}>
-                <Box
-                  sx={{
-                    ml: 2,
-                  }}
-                >
-                  <PersonAddAltOutlinedIcon
-                    sx={{ mr: 1.5, fontSize: "1.2rem" }}
-                  />
-                  Company List (Super Admin)
-                </Box>
-              </MenuItem>
+              <Link to="/company-list-super">
+                <>
+                  <Divider />
+                  <MenuItem onClick={handleClose4}>
+                    <Box
+                      sx={{
+                        ml: 2,
+                      }}
+                    >
+                      <PersonAddAltOutlinedIcon
+                        sx={{ mr: 1.5, fontSize: "1.2rem" }}
+                      />
+                      Company List (Super Admin)
+                    </Box>
+                  </MenuItem>
+                </>
+              </Link>
 
-              <MenuItem onClick={handleClose4}>
-                <Box
-                  sx={{
-                    ml: 2,
-                  }}
-                >
-                  <PersonAddAltOutlinedIcon
-                    sx={{ mr: 1.5, fontSize: "1.2rem" }}
-                  />
-                  Company User (Super Admin)
-                </Box>
-              </MenuItem>
+              <Link to="/company-user-super">
+                <>
+                  <MenuItem onClick={handleClose4}>
+                    <Box
+                      sx={{
+                        ml: 2,
+                      }}
+                    >
+                      <PersonAddAltOutlinedIcon
+                        sx={{ mr: 1.5, fontSize: "1.2rem" }}
+                      />
+                      Company User (Super Admin)
+                    </Box>
+                  </MenuItem>
+                </>
+              </Link>
             </>
           ) : null}
 

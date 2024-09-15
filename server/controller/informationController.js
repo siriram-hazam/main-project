@@ -270,10 +270,14 @@ export const createInformation = async (req, res) => {
 
 export const getInformation = async (req, res) => {
   try {
+    const where = {};
+
+    if (req.user.role !== "superadmin") {
+      where.company_id = req.user.company_id;
+    }
+
     const information = await prisma.information.findMany({
-      where: {
-        company_id: req.user.company_id,
-      },
+      where,
       select: {
         id: true,
         activity_relation: {

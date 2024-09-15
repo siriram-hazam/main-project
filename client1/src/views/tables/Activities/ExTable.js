@@ -189,6 +189,15 @@ const ExTable = (props) => {
                   </TableCell>
                 </>
               ) : null}
+              {props.user.data.users.role === "superadmin" ? (
+                <>
+                  <TableCell>
+                    <Typography color="textSecondary" variant="h6">
+                      Company
+                    </Typography>
+                  </TableCell>
+                </>
+              ) : null}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -379,6 +388,13 @@ const ExTable = (props) => {
                       </Typography>
                     </TableCell>
                   </>
+                ) : null}
+                {props.user.data.users.role === "superadmin" ? (
+                  <TableCell>
+                    <Typography variant="h6">
+                      {item.company_relation.companyName}
+                    </Typography>
+                  </TableCell>
                 ) : null}
               </TableRow>
             ))}

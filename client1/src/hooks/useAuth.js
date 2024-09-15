@@ -98,6 +98,15 @@ const userCompanyList = async () => {
   }
 };
 
+const companyList = async () => {
+  try {
+    const res = await axios.get("http://localhost:3001/api/company/");
+    return res;
+  } catch (error) {
+    console.error("Error useAuth conpanyList : ", error);
+  }
+};
+
 const logout = async () => {
   try {
     await axios.get("http://localhost:3001/api/user/logout");
@@ -113,5 +122,6 @@ export default {
   checkUser,
   userProfile,
   userCompanyList,
+  companyList,
   logout,
 };

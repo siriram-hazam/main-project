@@ -14,7 +14,7 @@ import { auth } from "../middleware/auth.js";
 const router = Router();
 
 router.post("/", createUser);
-router.put("/", auth, updateEditUser);
+router.put("/:id", auth, updateEditUser);
 router.delete("/:id", auth, deleteUser);
 router.post("/login", fetchUserLogin);
 router.get("/userProfile", auth, userProfile);
@@ -27,6 +27,6 @@ router.get("/logout", (req, res) => {
   res.clearCookie("token");
   res.json({ status: 200, message: "Logout Success" });
 });
-router.put("/updatePassword", auth, updateUserPassword);
+router.put("/updatePassword/:id", auth, updateUserPassword);
 
 export default router;

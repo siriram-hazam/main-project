@@ -29,6 +29,11 @@ const EditProfile = () => {
     newPassword: "",
     confirmNewPassword: "",
   });
+  const [passwordErrors, setPasswordErrors] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  });
   const [isSaveEnabled, setIsSaveEnabled] = useState(false);
 
   useEffect(() => {
@@ -50,7 +55,6 @@ const EditProfile = () => {
         const user = await authUtils.userProfile();
         setUser(user.data.users);
         setInitialUser(user.data.users); // Store the initial user data
-        console.log("User Data : ", user.data.users);
       } catch (error) {
         console.error("Error Activities loadUser : ", error);
       } finally {
@@ -84,10 +88,8 @@ const EditProfile = () => {
     // Password change logic
 
     try {
-      console.log("Password change request:", passwords);
-
       const response = await axios.put(
-        "http://localhost:3001/api/user/updatePassword",
+        `http://localhost:3001/api/user/updatePassword/${user.id}`,
         {
           oldPassword: passwords.oldPassword,
           newPassword: passwords.newPassword,
@@ -117,23 +119,58 @@ const EditProfile = () => {
         ...prevPasswords,
         [name]: value,
       };
-      validatePasswords(updatedPasswords);
+      validatePasswords(updatedPasswords, name);
       return updatedPasswords;
     });
   };
 
-  const validatePasswords = (passwords) => {
+  const validatePasswords = (passwords, fieldName) => {
     const { oldPassword, newPassword, confirmNewPassword } = passwords;
+    let errors = { ...passwordErrors };
+
+    if (fieldName === "oldPassword") {
+      if (!oldPassword || oldPassword.length < 8) {
+        errors.oldPassword = "Old password must be at least 8 characters long.";
+      } else {
+        errors.oldPassword = "";
+      }
+    }
+
+    if (fieldName === "newPassword") {
+      if (!newPassword || newPassword.length < 8) {
+        errors.newPassword = "New password must be at least 8 characters long.";
+      } else {
+        errors.newPassword = "";
+      }
+    }
+
+    if (fieldName === "confirmNewPassword") {
+      if (!confirmNewPassword || confirmNewPassword.length < 8) {
+        errors.confirmNewPassword =
+          "Confirm password must be at least 8 characters long.";
+      } else if (newPassword !== confirmNewPassword) {
+        errors.confirmNewPassword =
+          "New password and confirm password do not match.";
+      } else {
+        errors.confirmNewPassword = "";
+      }
+    }
+
+    setPasswordErrors(errors);
+
     const isValid =
-      oldPassword &&
-      newPassword &&
-      confirmNewPassword &&
-      newPassword === confirmNewPassword;
+      !errors.oldPassword && !errors.newPassword && !errors.confirmNewPassword;
+
     setIsSaveEnabled(isValid);
   };
 
   const resetPasswordFields = () => {
     setPasswords({
+      oldPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    });
+    setPasswordErrors({
       oldPassword: "",
       newPassword: "",
       confirmNewPassword: "",
@@ -327,6 +364,8 @@ const EditProfile = () => {
             variant="outlined"
             value={passwords.oldPassword}
             onChange={handlePasswordDialogChange}
+            error={!!passwordErrors.oldPassword}
+            helperText={passwordErrors.oldPassword}
           />
           <TextField
             margin="dense"
@@ -337,6 +376,8 @@ const EditProfile = () => {
             variant="outlined"
             value={passwords.newPassword}
             onChange={handlePasswordDialogChange}
+            error={!!passwordErrors.newPassword}
+            helperText={passwordErrors.newPassword}
           />
           <TextField
             margin="dense"
@@ -347,6 +388,8 @@ const EditProfile = () => {
             variant="outlined"
             value={passwords.confirmNewPassword}
             onChange={handlePasswordDialogChange}
+            error={!!passwordErrors.confirmNewPassword}
+            helperText={passwordErrors.confirmNewPassword}
           />
         </DialogContent>
         <DialogActions>

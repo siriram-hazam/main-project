@@ -31,6 +31,7 @@ const ExTable = (userList) => {
   const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
     useState(false);
   const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   useEffect(() => {
     if (selectedItem) {
@@ -72,18 +73,32 @@ const ExTable = (userList) => {
   const closeResetPasswordDialog = () => {
     setIsResetPasswordDialogOpen(false);
     setPassword("");
+    setPasswordError("");
   };
 
   const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
+    const newPassword = event.target.value;
+    setPassword(newPassword);
+
+    // Validate password
+    if (newPassword.length < 8) {
+      setPasswordError("Password must be at least 8 characters long.");
+    } else {
+      setPasswordError("");
+    }
   };
 
   const handleSavePassword = async () => {
+    if (passwordError) return;
+
     try {
-      await axios.post("/api/reset-password", {
-        userId: selectedItem.id,
-        newPassword: password,
-      });
+      const response = await axios.put(
+        `http://localhost:3001/api/user/${selectedItem.id}`,
+        {
+          password: password,
+        }
+      );
+      console.log(response);
       closeResetPasswordDialog();
     } catch (error) {
       console.error("Error resetting password:", error);
@@ -92,8 +107,15 @@ const ExTable = (userList) => {
 
   const handleSave = async () => {
     try {
-      await axios.put(`/api/users/${selectedItem.id}`, formValues);
+      const response = await axios.put(
+        `http://localhost:3001/api/user/${selectedItem.id}`,
+        formValues
+      );
       handleClose();
+      if (response.data.status === 200) {
+        // console.log("User updated successfully:", response.data);
+        window.location.reload();
+      }
     } catch (error) {
       console.error("Error saving user data:", error);
     }
@@ -263,7 +285,7 @@ const ExTable = (userList) => {
                   <Select
                     label="Role"
                     name="role"
-                    value={formValues.role}
+                    value={formValues.role || ""}
                     onChange={handleRoleChange}
                   >
                     <MenuItem value="user">User</MenuItem>
@@ -319,6 +341,8 @@ const ExTable = (userList) => {
             onChange={handlePasswordChange}
             fullWidth
             sx={{ fontSize: "1rem" }}
+            error={!!passwordError}
+            helperText={passwordError}
           />
         </DialogContent>
         <DialogActions>
@@ -333,6 +357,7 @@ const ExTable = (userList) => {
             onClick={handleSavePassword}
             color="primary"
             sx={{ fontSize: "1rem" }}
+            disabled={!!passwordError}
           >
             Save
           </Button>

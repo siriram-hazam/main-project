@@ -54,7 +54,7 @@ export const createUser = async (req, res) => {
 };
 
 export const updateUserPassword = async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.params.id;
   const { oldPassword, newPassword } = req.body;
 
   const user = await prisma.user_account.findUnique({
@@ -108,10 +108,11 @@ export const updateUserPassword = async (req, res) => {
 };
 
 export const updateEditUser = async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.params.id;
+  // console.log(userId);
   const { password, fullname, role, company_id } = req.body;
 
-  // console.log(password)
+  // console.log(password);
 
   // if (password == undefined) {
   //     passhash = password
@@ -119,25 +120,39 @@ export const updateEditUser = async (req, res) => {
   //     const passhash = await bcrypt.hash(password, 10)
   // }
 
-  try {
-    // const passhash = await bcrypt.hash(password, 10);
+  let data = {};
 
-    // await prisma.user_account.update({
-    //   where: {
-    //     id: Number(userId),
-    //   },
-    //   data: {
-    //     password: passhash,
-    //     fullname: fullname,
-    //     role: role,
-    //     company_id: company_id,
-    //     edit_time: new Date().toISOString(),
-    //   },
-    // });
+  if (password !== undefined) {
+    const passhash = await bcrypt.hash(password, 10);
+    data.password = passhash;
+  }
+
+  if (fullname !== undefined) {
+    data.fullname = fullname;
+  }
+
+  if (role !== undefined) {
+    data.role = role;
+  }
+
+  if (company_id !== undefined) {
+    data.company_id = company_id;
+  }
+
+  data.edit_time = new Date().toISOString();
+
+  try {
+    await prisma.user_account.update({
+      where: {
+        id: Number(userId),
+      },
+      data: data,
+    });
 
     return res.json({ status: 200, message: "User Data Updated!!" });
   } catch (error) {
     console.error(error.message);
+    return res.json({ status: 500, message: "Internal Server Error!!" });
   }
 };
 

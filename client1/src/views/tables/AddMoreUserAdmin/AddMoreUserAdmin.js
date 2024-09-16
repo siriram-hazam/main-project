@@ -97,7 +97,7 @@ const EditProfileTable = () => {
       fullname: "",
       email: "",
       role: "user",
-      company_id: "",
+      company_id: user.data.users.company_id,
     });
     setErrors({});
     setOpenDialog(true);
@@ -125,8 +125,8 @@ const EditProfileTable = () => {
         }
         break;
       case "password":
-        if (value.length < 6) {
-          error = "Password must be at least 6 characters long.";
+        if (value.length < 8) {
+          error = "Password must be at least 8 characters long.";
         }
         break;
       case "email":
@@ -159,8 +159,18 @@ const EditProfileTable = () => {
 
   const handleSave = async () => {
     try {
-      const response = await axios.post("/api/users", formValues);
+      console.log(formValues);
+      const response = await axios.post(
+        "http://localhost:3001/api/user/",
+        formValues
+      );
       console.log("User added successfully:", response.data);
+
+      if (response.data.status === 200) {
+        alert("User added successfully");
+        window.location.reload();
+      }
+
       handleCloseDialog();
     } catch (error) {
       console.error("Error adding user:", error);

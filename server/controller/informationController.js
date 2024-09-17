@@ -280,26 +280,11 @@ export const getInformation = async (req, res) => {
       where,
       select: {
         id: true,
-        activity_relation: {
-          select: {
-            activity: true,
-          },
-        },
+        activity_relation: {},
         status: true,
         create_time: true,
-        user_account_relation: {
-          select: {
-            id: true,
-            username: true,
-            fullname: true,
-          },
-        },
-        company_relation: {
-          select: {
-            id: true,
-            companyName: true,
-          },
-        },
+        user_account_relation: {},
+        company_relation: {},
         category_information: {
           select: {
             category_relation: {
@@ -551,10 +536,11 @@ export const updateInformationApproval = async (req, res) => {
 export const excelProcess = async (req, res) => {
   // console.log("Received request for /api/information/download-excel");
   const item = req.body;
-  // console.log(item);
+
+  console.log(item);
 
   try {
-    const filePath = path.resolve(__dirname + `/assets/excel_template.xlsx`);
+    const filePath = path.resolve(__dirname + `/assets/template_ropa.xlsx`);
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: "Template file not found" });
@@ -563,27 +549,47 @@ export const excelProcess = async (req, res) => {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(filePath);
 
-    const newSheet = workbook.getWorksheet(1);
+    const worksheet = workbook.getWorksheet(1); // เลือก worksheet แรก
 
-    // Create a new sheet
-    // const newSheet = workbook.addWorksheet("New Sheet");
+    worksheet.getCell("B2").value = item.user_account_relation.fullname; //ชื่อผู้ควบคุมข้อมูล หรือ ผู้แทน
+    worksheet.getCell("B3").value = item.company_relation.address; //ที่ตั้งของสถานที่ติดต่อ
+    worksheet.getCell("B4").value = item.company_relation.email; //อีเมล์แอดเดรส
+    worksheet.getCell("B5").value = item.company_relation.phone_number; //เบอร์โทรศัพท์
+    worksheet.getCell("B6").value = item.user_account_relation.fullname; //ชื่อของผู้บันทึกรายการ
 
-    // Populate the new sheet with data
-    newSheet.getCell("A5").value = item.activity_relation.activity;
-    newSheet.getCell("A6").value = item.user_account_relation.fullname;
-    newSheet.getCell("A7").value = item.company_relation.companyName;
-    newSheet.getCell("A8").value = item.status;
-    newSheet.getCell("A9").value = new Date(item.create_time).toLocaleString(
-      "th-TH",
-      {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      }
-    );
+    // worksheet.getCell("B7").value = item.category_information.map((item) => {
+    //   return item.category_relation.department_relation.departmentName;
+    // }); //หน่วยงานที่บันทึกรายการ
+
+    worksheet.getCell("B7").value =
+      item.category_information[0].category_relation.department_relation.departmentName; //หน่วยงานที่บันทึกรายการ
+    worksheet.getCell("B8").value = item.activity_relation.activity; //กิจกรรมงานที่บันทึกรายการ
+
+    worksheet.getCell("K2").value = item.company_relation.dpo; //ชื่อเจ้าหน้าที่คุ้มครองข้อมูลส่วนบุคคล
+    worksheet.getCell("K3").value = item.company_relation.address; //ที่ตั้งของสถานที่ติดต่อ
+    worksheet.getCell("K4").value = item.company_relation.email; //อีเมล์แอดเดรส
+    worksheet.getCell("K5").value = item.company_relation.phone_number; //หมายเลขโทรศัพท์
+    worksheet.getCell("K6").value = item.company_relation.dpo; //ชื่อของผู้ตรวจสอบบันทึกรายการ
+
+    // // Create a new sheet
+    // // const newSheet = workbook.addWorksheet("New Sheet");
+
+    // // Populate the new sheet with data
+    // newSheet.getCell("A5").value = item.activity_relation.activity;
+    // newSheet.getCell("A6").value = item.user_account_relation.fullname;
+    // newSheet.getCell("A7").value = item.company_relation.companyName;
+    // newSheet.getCell("A8").value = item.status;
+    // newSheet.getCell("A9").value = new Date(item.create_time).toLocaleString(
+    //   "th-TH",
+    //   {
+    //     day: "2-digit",
+    //     month: "2-digit",
+    //     year: "numeric",
+    //     hour: "2-digit",
+    //     minute: "2-digit",
+    //     second: "2-digit",
+    //   }
+    // );
 
     //Get the file data as a buffer
     const buffer = await workbook.xlsx.writeBuffer();

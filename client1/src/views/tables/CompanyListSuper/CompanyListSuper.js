@@ -158,8 +158,14 @@ const CompanyListSuper = () => {
 
   const handleSave = async () => {
     try {
-      const response = await axios.post("/api/companies", formValues);
+      const response = await axios.post(
+        "http://localhost:3001/api/company",
+        formValues
+      );
       console.log("Company added successfully:", response.data);
+      if (response.data.status === 200) {
+        window.location.reload();
+      }
       handleCloseDialog();
     } catch (error) {
       console.error("Error adding company:", error);

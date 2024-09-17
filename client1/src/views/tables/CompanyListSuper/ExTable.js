@@ -16,7 +16,10 @@ import {
   Button,
   Divider,
   TextField,
+  Fab,
 } from "@mui/material";
+
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 
 const ExTable = (comapany) => {
   const [open, setOpen] = useState(false);
@@ -24,6 +27,8 @@ const ExTable = (comapany) => {
   const [formValues, setFormValues] = useState({});
   const [initialValues, setInitialValues] = useState({});
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   console.log(comapany.company.data);
 
@@ -57,10 +62,41 @@ const ExTable = (comapany) => {
 
   const handleSave = async () => {
     try {
-      await axios.put(`/api/users/${selectedItem.id}`, formValues);
+      const response = await axios.put(
+        `http://localhost:3001/api/company/${selectedItem.id}`,
+        formValues
+      );
+      if (response.status === 200) {
+        window.location.reload();
+      }
       handleClose();
     } catch (error) {
       console.error("Error saving user data:", error);
+    }
+  };
+
+  const openDeleteDialog = (item) => {
+    setItemToDelete(item);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setItemToDelete(null);
+  };
+
+  const handleDelete = async () => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:3001/api/company/${itemToDelete.id}`
+      );
+      if (response.status === 200) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error deleting company:", error);
+    } finally {
+      closeDeleteDialog();
     }
   };
 
@@ -69,7 +105,7 @@ const ExTable = (comapany) => {
       <Table
         aria-label="simple table"
         sx={{
-          whiteSpace: "nowrap",
+          // whiteSpace: "nowrap",
           overflowX: "auto",
         }}
       >
@@ -86,6 +122,9 @@ const ExTable = (comapany) => {
             </TableCell>
             <TableCell>
               <Typography variant="h6">DPO</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="h6"></Typography>
             </TableCell>
           </TableRow>
         </TableHead>
@@ -159,6 +198,39 @@ const ExTable = (comapany) => {
               <TableCell align="left">
                 <Typography variant="h6">{item.dpo}</Typography>
               </TableCell>
+
+              <TableCell align="center">
+                <Typography variant="h6">
+                  <Fab
+                    color="primary"
+                    variant="extended"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      openDeleteDialog(item);
+                    }}
+                    sx={{
+                      mb: {
+                        xs: 1,
+                        sm: 0,
+                        lg: 0,
+                      },
+                      backgroundColor: "red",
+                      p: 1,
+                    }}
+                  >
+                    <DeleteForeverOutlinedIcon
+                      sx={{
+                        mb: {
+                          xs: 0,
+                          sm: 0,
+                          lg: 0,
+                        },
+                        fontSize: "1.5rem",
+                      }}
+                    />
+                  </Fab>
+                </Typography>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -230,6 +302,31 @@ const ExTable = (comapany) => {
             disabled={isSaveDisabled}
           >
             Update
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onClose={closeDeleteDialog}>
+        <DialogTitle sx={{ fontSize: "1.5rem" }}>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this company?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={closeDeleteDialog}
+            color="primary"
+            sx={{ fontSize: "1rem" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDelete}
+            color="primary"
+            sx={{ fontSize: "1rem" }}
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

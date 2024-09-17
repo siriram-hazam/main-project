@@ -69,6 +69,8 @@ export const deleteCompany = async (req, res) => {
         id: Number(companyId),
       },
     });
+
+    return res.json({ status: 200, message: "Company Data Deleted!" });
   } catch (error) {
     console.error(error.message);
   }

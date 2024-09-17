@@ -21,14 +21,11 @@ import axios from "axios";
 const ActivitiesAdd = () => {
   const [user, setUser] = useState(null);
   const [checkUser, setCheckUser] = useState(null);
-
   const [loading, setLoading] = useState(true);
-
   const [formData, setFormData] = useState(null);
-
   const [optionData, setOptionData] = useState(null);
+  const [isFormComplete, setIsFormComplete] = useState(false);
 
-  // Define the required fields for the main formData object
   const requiredFields = [
     "activity",
     "status",
@@ -51,7 +48,6 @@ const ActivitiesAdd = () => {
     "m_physical",
   ];
 
-  // Define the required fields for each poi_relation
   const requiredPoiFields = [
     "poi_info",
     "poi_info_owner",
@@ -67,7 +63,6 @@ const ActivitiesAdd = () => {
       try {
         const user = await authUtils.checkUser();
         setCheckUser(user);
-        // console.log(user);
       } catch (error) {
         console.error("Error Activities checkUser : ", error);
       } finally {
@@ -81,7 +76,6 @@ const ActivitiesAdd = () => {
       try {
         const user = await authUtils.userProfile();
         setUser(user);
-        // console.log(user.data.users.id);
       } catch (error) {
         console.error("Error Activities loadUser : ", error);
       } finally {
@@ -95,7 +89,6 @@ const ActivitiesAdd = () => {
       try {
         const options = await optionUtils.optionAllDropdown();
         setOptionData(options);
-        // console.log("Options", options);
       } catch (error) {
         console.error("Error Activities loadOptions : ", error);
       }
@@ -103,8 +96,6 @@ const ActivitiesAdd = () => {
 
     loadOptions();
   }, []);
-
-  // console.log(user.data.users.id);
 
   useEffect(() => {
     if (user) {
@@ -143,59 +134,54 @@ const ActivitiesAdd = () => {
     }
   }, [user]);
 
-  // const [formData, setFormData] = useState({
-  //   activity: "",
-  //   status: "pending",
-  //   createBy: user ? user.data.users.id : "",
-  //   company_id: "",
-  //   category: "",
-  //   department_id: "",
-  //   info_role: "",
-  //   info_document: "",
-  //   poi_relations: [
-  //     {
-  //       info: "",
-  //       poi_info_owner: "",
-  //       poi_info_from: "",
-  //       poi_info_format: "",
-  //       poi_info_type: "",
-  //       poi_info_objective: "",
-  //       poi_info_lawbase: [],
-  //     },
-  //   ],
-  //   info_stored_period: [],
-  //   info_placed: [],
-  //   info_allowed_ps: [],
-  //   info_allowed_ps_condition: [],
-  //   info_access: [],
-  //   info_access_condition: [],
-  //   info_ps_usedbyrole_inside: [],
-  //   info_ps_sendto_outside: [],
-  //   info_ps_destroying: [],
-  //   info_ps_destroyer: [],
-  //   m_organization: [],
-  //   m_technical: [],
-  //   m_physical: [],
-  // });
+  useEffect(() => {
+    checkFormCompletion();
+  }, [formData]);
+
+  const checkFormCompletion = () => {
+    if (!formData) return setIsFormComplete(false); // ถ้า formData เป็น null ให้รีเทิร์น false
+
+    const isComplete =
+      requiredFields.every((field) => {
+        const value = formData[field];
+        // เช็คว่าฟิลด์เป็น string และไม่ใช่ empty string
+        return (
+          value &&
+          (Array.isArray(value)
+            ? value.length > 0
+            : typeof value === "string"
+            ? value.trim() !== ""
+            : true)
+        );
+      }) &&
+      formData.poi_relations.every((poi) =>
+        requiredPoiFields.every((field) => {
+          const poiValue = poi[field];
+          // ตรวจสอบค่าเดียวกัน
+          return (
+            poiValue &&
+            (Array.isArray(poiValue)
+              ? poiValue.length > 0
+              : typeof poiValue === "string"
+              ? poiValue.trim() !== ""
+              : true)
+          );
+        })
+      );
+
+    console.log("Form complete status:", isComplete); // Debugging line
+    setIsFormComplete(isComplete);
+  };
 
   const handleAutocompleteChange = (event, value, field) => {
-    // setFormData({
-    //   ...formData,
-    //   [field]: value,
-    // });
     setFormData((prevData) => ({
       ...prevData,
-      [field]: value && value.id ? value.id : value, // Store the id in formData
+      [field]: value && value.id ? value.id : value,
     }));
+    checkFormCompletion(); // ตรวจสอบความครบถ้วนหลังการเปลี่ยนแปลง
   };
 
   const handleNestedAutocompleteChange = (event, value, name, index, field) => {
-    // const newArray = [...formData[name]];
-    // newArray[index][field] = value;
-    // setFormData({
-    //   ...formData,
-    //   [name]: newArray,
-    // });
     setFormData((prevFormData) => {
       const updatedRelations = [...prevFormData.poi_relations];
       updatedRelations[index] = {
@@ -207,6 +193,7 @@ const ActivitiesAdd = () => {
         [name]: updatedRelations,
       };
     });
+    checkFormCompletion(); // ตรวจสอบความครบถ้วนหลังการเปลี่ยนแปลง
   };
 
   const handleSubmit = async (e) => {
@@ -221,7 +208,6 @@ const ActivitiesAdd = () => {
       }
     }
 
-    // Check if all required fields in each poi_relation are filled
     for (let poi of formData.poi_relations) {
       for (let field of requiredPoiFields) {
         if (
@@ -272,54 +258,6 @@ const ActivitiesAdd = () => {
     return <div>Initializing form...</div>;
   }
 
-  // console.log("user", user);
-
-  // console.log("formData", formData);
-
-  // console.log("Options", optionData.data);
-
-  // console.log("Activity", optionData.data.activity);
-  // console.log("Department", optionData.data.department);
-  // console.log("POI Info", optionData.data.info);
-  // console.log("POI Info Owner", optionData.data.poi_info_owner);
-  // console.log("POI Info From", optionData.data.poi_info_from);
-  // console.log("POI Info Format", optionData.data.poi_info_format);
-  // console.log("POI Info Type", optionData.data.poi_info_type);
-  // console.log("POI Info Objective", optionData.data.poi_info_objective);
-  // console.log("POI Info Lawbase", optionData.data.poi_info_lawbase);
-  // console.log("POI Info Stored Period", optionData.data.info_stored_period);
-  // console.log("POI Info Placed", optionData.data.info_placed);
-  // console.log("POI Info Allowed PS", optionData.data.info_allowed_ps);
-  // console.log(
-  //   "POI Info Allowed PS Condition",
-  //   optionData.data.info_allowed_ps_condition
-  // );
-  // console.log("POI Info Access", optionData.data.info_access);
-  // console.log(
-  //   "POI Info Access Condition",
-  //   optionData.data.info_access_condition
-  // );
-  // console.log(
-  //   "POI Info PS Used By Role Inside",
-  //   optionData.data.info_ps_usedbyrole_inside
-  // );
-  // console.log(
-  //   "POI Info PS Send To Outside",
-  //   optionData.data.info_ps_sendto_outside
-  // );
-  // console.log("POI Info PS Destroying", optionData.data.info_ps_destroying);
-  // console.log("POI Info PS Destroyer", optionData.data.info_ps_destroyer);
-  // console.log("POI M Organization", optionData.data.m_organization);
-  // console.log("POI M Technical", optionData.data.m_technical);
-  // console.log("POI M Physical", optionData.data.m_physical);
-
-  // const activityOptions = optionData.data.activity.map((option) => ({
-  //   id: option.id,
-  //   activity: option.activity,
-  // }));
-
-  // console.log("Activity", activityOptions);
-
   return (
     <Box>
       <Card variant="outlined">
@@ -350,7 +288,6 @@ const ActivitiesAdd = () => {
               renderInput={(params) => (
                 <TextField {...params} label="กิจกรรมงานที่บันทึกรายการ" />
               )}
-              // value={formData.activity}
               value={
                 optionData.data.activity.find(
                   (option) => option.id === formData.activity
@@ -361,9 +298,6 @@ const ActivitiesAdd = () => {
               }
               fullWidth
               sx={{ mb: 2 }}
-              // isOptionEqualToValue={(option, value) =>
-              //   option.activity === value || value === ""
-              // }
               isOptionEqualToValue={(option, value) =>
                 option.id === value.id || value === ""
               }
@@ -371,7 +305,6 @@ const ActivitiesAdd = () => {
 
             <Autocomplete
               freeSolo
-              // options={["ข้อมูลในใบรับสมัครพนักงาน", "ข้อมูลอื่นๆ"]}
               options={optionData.data.category ? optionData.data.category : []}
               renderInput={(params) => (
                 <TextField
@@ -405,7 +338,7 @@ const ActivitiesAdd = () => {
                 <TextField {...params} label="หน่วยงานที่บันทึกรายการ" />
               )}
               value={optionData.data.department.find(
-                (option) => option.id === formData.departmentName || null
+                (option) => option.id === formData.department_id || null
               )}
               onChange={(event, value) =>
                 handleAutocompleteChange(event, value, "department_id")
@@ -688,7 +621,6 @@ const ActivitiesAdd = () => {
             >
               <PlusOneOutlinedIcon
                 sx={{
-                  // color: "grey",
                   mr: 1,
                   mb: {
                     xs: 1,
@@ -1165,10 +1097,10 @@ const ActivitiesAdd = () => {
               sx={{
                 fontSize: "1.1rem",
               }}
+              disabled={!isFormComplete} // Disable button if form is not complete
             >
               <NoteAddOutlinedIcon
                 sx={{
-                  // color: "grey",
                   mr: 1,
                   mb: {
                     xs: 1,

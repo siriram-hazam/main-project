@@ -20,7 +20,10 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Fab,
 } from "@mui/material";
+
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 
 const ExTable = (props) => {
   const [open, setOpen] = useState(false);
@@ -31,6 +34,10 @@ const ExTable = (props) => {
   const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
     useState(false);
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
+  const [passwordError, setPasswordError] = useState("");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   const validRoles = ["admin", "user", "manager"];
 
@@ -46,9 +53,10 @@ const ExTable = (props) => {
 
   useEffect(() => {
     setIsSaveDisabled(
-      JSON.stringify(initialValues) === JSON.stringify(formValues)
+      JSON.stringify(initialValues) === JSON.stringify(formValues) ||
+        Object.values(errors).some((error) => error !== "")
     );
-  }, [formValues, initialValues]);
+  }, [formValues, initialValues, errors]);
 
   const handleRowClick = (item) => {
     const role = validRoles.includes(item.role) ? item.role : "user";
@@ -65,11 +73,41 @@ const ExTable = (props) => {
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormValues((prevValues) => ({ ...prevValues, [name]: value }));
+    validateField(name, value);
   };
 
   const handleRoleChange = (event) => {
     const newRole = event.target.value;
     setFormValues((prevValues) => ({ ...prevValues, role: newRole }));
+    validateField("role", newRole);
+  };
+
+  const validateField = (name, value) => {
+    let error = "";
+    switch (name) {
+      case "fullname":
+        if (value.trim() === "") {
+          error = "Full Name is required.";
+        }
+        break;
+      case "email":
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(value)) {
+          error = "Invalid email address.";
+        }
+        break;
+      case "role":
+        if (!validRoles.includes(value)) {
+          error = "Invalid role.";
+        }
+        break;
+      default:
+        break;
+    }
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: error,
+    }));
   };
 
   const openResetPasswordDialog = () => {
@@ -79,18 +117,32 @@ const ExTable = (props) => {
   const closeResetPasswordDialog = () => {
     setIsResetPasswordDialogOpen(false);
     setPassword("");
+    setPasswordError("");
   };
 
   const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
+    const newPassword = event.target.value;
+    setPassword(newPassword);
+
+    // Validate password
+    if (newPassword.length < 8) {
+      setPasswordError("Password must be at least 8 characters long.");
+    } else {
+      setPasswordError("");
+    }
   };
 
   const handleSavePassword = async () => {
+    if (passwordError) return;
+
     try {
-      await axios.post("/api/reset-password", {
-        userId: selectedItem.id,
-        newPassword: password,
-      });
+      const response = await axios.put(
+        `http://localhost:3001/api/user/${selectedItem.id}`,
+        {
+          password: password,
+        }
+      );
+      console.log(response);
       closeResetPasswordDialog();
     } catch (error) {
       console.error("Error resetting password:", error);
@@ -103,6 +155,31 @@ const ExTable = (props) => {
       handleClose();
     } catch (error) {
       console.error("Error saving user data:", error);
+    }
+  };
+
+  const openDeleteDialog = (item) => {
+    setItemToDelete(item);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setItemToDelete(null);
+  };
+
+  const handleDelete = async () => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:3001/api/user/${itemToDelete.id}`
+      );
+      if (response.status === 200) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    } finally {
+      closeDeleteDialog();
     }
   };
 
@@ -124,7 +201,7 @@ const ExTable = (props) => {
       <Table
         aria-label="simple table"
         sx={{
-          whiteSpace: "nowrap",
+          // whiteSpace: "nowrap",
           overflowX: "auto",
         }}
       >
@@ -141,6 +218,9 @@ const ExTable = (props) => {
             </TableCell>
             <TableCell>
               <Typography variant="h6">Company</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="h6"></Typography>
             </TableCell>
           </TableRow>
         </TableHead>
@@ -171,6 +251,38 @@ const ExTable = (props) => {
                   </TableCell>
                   <TableCell>
                     <Typography variant="h6">{company.companyName}</Typography>
+                  </TableCell>
+                  <TableCell align="center">
+                    <Typography variant="h6">
+                      <Fab
+                        color="primary"
+                        variant="extended"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openDeleteDialog(admin);
+                        }}
+                        sx={{
+                          mb: {
+                            xs: 1,
+                            sm: 0,
+                            lg: 0,
+                          },
+                          backgroundColor: "red",
+                          p: 1,
+                        }}
+                      >
+                        <DeleteForeverOutlinedIcon
+                          sx={{
+                            mb: {
+                              xs: 0,
+                              sm: 0,
+                              lg: 0,
+                            },
+                            fontSize: "1.5rem",
+                          }}
+                        />
+                      </Fab>
+                    </Typography>
                   </TableCell>
                 </TableRow>
               ))
@@ -229,6 +341,8 @@ const ExTable = (props) => {
                   onChange={handleInputChange}
                   variant="outlined"
                   sx={{ mb: 2 }}
+                  error={!!errors.fullname}
+                  helperText={errors.fullname}
                 />
                 <TextField
                   label="Email"
@@ -237,6 +351,8 @@ const ExTable = (props) => {
                   disabled
                   variant="outlined"
                   sx={{ mb: 2 }}
+                  error={!!errors.email}
+                  helperText={errors.email}
                 />
                 <FormControl variant="outlined" sx={{ mb: 2 }}>
                   <InputLabel>Role</InputLabel>
@@ -245,11 +361,17 @@ const ExTable = (props) => {
                     name="role"
                     value={formValues.role}
                     onChange={handleRoleChange}
+                    error={!!errors.role}
                   >
                     <MenuItem value="admin">Admin</MenuItem>
                     <MenuItem value="user">User</MenuItem>
                     <MenuItem value="manager">Manager</MenuItem>
                   </Select>
+                  {errors.role && (
+                    <Typography color="error" variant="caption">
+                      {errors.role}
+                    </Typography>
+                  )}
                 </FormControl>
 
                 <Button
@@ -299,6 +421,8 @@ const ExTable = (props) => {
             onChange={handlePasswordChange}
             fullWidth
             sx={{ fontSize: "1rem" }}
+            error={!!passwordError}
+            helperText={passwordError}
           />
         </DialogContent>
         <DialogActions>
@@ -313,8 +437,34 @@ const ExTable = (props) => {
             onClick={handleSavePassword}
             color="primary"
             sx={{ fontSize: "1rem" }}
+            disabled={!!passwordError}
           >
             Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onClose={closeDeleteDialog}>
+        <DialogTitle sx={{ fontSize: "1.5rem" }}>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this user?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={closeDeleteDialog}
+            color="primary"
+            sx={{ fontSize: "1rem" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDelete}
+            color="primary"
+            sx={{ fontSize: "1rem" }}
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

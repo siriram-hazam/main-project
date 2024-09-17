@@ -134,8 +134,8 @@ const CompanyUserSuper = () => {
         }
         break;
       case "password":
-        if (value.length < 6) {
-          error = "Password must be at least 6 characters long.";
+        if (value.length < 8) {
+          error = "Password must be at least 8 characters long.";
         }
         break;
       case "email":
@@ -169,8 +169,16 @@ const CompanyUserSuper = () => {
   const handleSave = async () => {
     // console.log(formValues); // Log formValues to check the values before sending
     try {
-      const response = await axios.post("/api/users", formValues);
+      const response = await axios.post(
+        "http://localhost:3001/api/user/",
+        formValues
+      );
       console.log("User added successfully:", response.data);
+
+      if (response.data.status === 200) {
+        // alert("User added successfully");
+        window.location.reload();
+      }
       handleCloseDialog();
     } catch (error) {
       console.error("Error adding user:", error);
@@ -273,7 +281,7 @@ const CompanyUserSuper = () => {
         </CardContent>
       </Card>
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth={true}>
-        <DialogTitle sx={{ fontSize: "2rem" }}>Add User</DialogTitle>
+        <DialogTitle sx={{ fontSize: "2rem" }}>Add User Admin</DialogTitle>
         <DialogContent>
           <Divider />
         </DialogContent>

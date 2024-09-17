@@ -20,7 +20,10 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Fab,
 } from "@mui/material";
+
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 
 const ExTable = (userList) => {
   const [open, setOpen] = useState(false);
@@ -32,6 +35,9 @@ const ExTable = (userList) => {
     useState(false);
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   useEffect(() => {
     if (selectedItem) {
@@ -121,6 +127,31 @@ const ExTable = (userList) => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:3001/api/user/${itemToDelete.id}`
+      );
+      if (response.status === 200) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    } finally {
+      closeDeleteDialog();
+    }
+  };
+
+  const openDeleteDialog = (item) => {
+    setItemToDelete(item);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setItemToDelete(null);
+  };
+
   const formatDate = (isoDate) => {
     const date = new Date(isoDate);
     return new Intl.DateTimeFormat("en-US", {
@@ -139,7 +170,7 @@ const ExTable = (userList) => {
       <Table
         aria-label="simple table"
         sx={{
-          whiteSpace: "nowrap",
+          // whiteSpace: "nowrap",
           overflowX: "auto",
         }}
       >
@@ -157,66 +188,106 @@ const ExTable = (userList) => {
             <TableCell>
               <Typography variant="h6">User ID</Typography>
             </TableCell>
+            <TableCell>
+              <Typography variant="h6"></Typography>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {userList.userList.userslist.map((item) => (
-            <TableRow
-              key={item.id}
-              onClick={() => handleRowClick(item)}
-              style={{ cursor: "pointer" }}
-              sx={{
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: "#f5f5f5",
-                },
-              }}
-            >
-              <TableCell>
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: "500",
-                  }}
-                >
-                  {item.id}
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="h6">{item.fullname}</Typography>
-              </TableCell>
-              <TableCell align="left">
-                <Typography variant="h6">{item.role}</Typography>
-              </TableCell>
-              <TableCell>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: "600",
-                      }}
-                    >
-                      {item.username}
-                    </Typography>
-                    <Typography
-                      color="textSecondary"
-                      sx={{
-                        fontSize: "13px",
-                      }}
-                    >
-                      {formatDate(item.create_time)}
-                    </Typography>
+          {userList.userList.userslist
+            .filter(
+              (item) => item.role !== "admin" && item.role !== "superadmin"
+              // (item) => item.role !== "superadmin"
+            )
+            .map((item) => (
+              <TableRow
+                key={item.id}
+                onClick={() => handleRowClick(item)}
+                style={{ cursor: "pointer" }}
+                sx={{
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#f5f5f5",
+                  },
+                }}
+              >
+                <TableCell>
+                  <Typography
+                    sx={{
+                      fontSize: "15px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    {item.id}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="h6">{item.fullname}</Typography>
+                </TableCell>
+                <TableCell align="left">
+                  <Typography variant="h6">{item.role}</Typography>
+                </TableCell>
+                <TableCell>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: "600",
+                        }}
+                      >
+                        {item.username}
+                      </Typography>
+                      <Typography
+                        color="textSecondary"
+                        sx={{
+                          fontSize: "13px",
+                        }}
+                      >
+                        {formatDate(item.create_time)}
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+                <TableCell align="center">
+                  <Typography variant="h6">
+                    <Fab
+                      color="primary"
+                      variant="extended"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        openDeleteDialog(item);
+                      }}
+                      sx={{
+                        mb: {
+                          xs: 1,
+                          sm: 0,
+                          lg: 0,
+                        },
+                        backgroundColor: "red",
+                        p: 1,
+                      }}
+                    >
+                      <DeleteForeverOutlinedIcon
+                        sx={{
+                          mb: {
+                            xs: 0,
+                            sm: 0,
+                            lg: 0,
+                          },
+                          fontSize: "1.5rem",
+                        }}
+                      />
+                    </Fab>
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
 
@@ -360,6 +431,31 @@ const ExTable = (userList) => {
             disabled={!!passwordError}
           >
             Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onClose={closeDeleteDialog}>
+        <DialogTitle sx={{ fontSize: "1.5rem" }}>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this user?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={closeDeleteDialog}
+            color="primary"
+            sx={{ fontSize: "1rem" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDelete}
+            color="primary"
+            sx={{ fontSize: "1rem" }}
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

@@ -167,7 +167,7 @@ const EditProfileTable = () => {
       console.log("User added successfully:", response.data);
 
       if (response.data.status === 200) {
-        alert("User added successfully");
+        // alert("User added successfully");
         window.location.reload();
       }
 

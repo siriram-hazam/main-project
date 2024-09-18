@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 // Components
-import PrivateRoute from "../components/PrivateRoute/PrivateRoute.jsx";
+import PrivateRoute from "../components/PrivateRoute/PrivateRoute.js";
 
 // Layouts
 import FullLayout from "../layouts/FullLayout/FullLayout.js";

@@ -20,6 +20,9 @@ import {
   Switch,
 } from "@mui/material";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import TextField from "@mui/material/TextField";
 
 // sx={{
@@ -40,20 +43,43 @@ axios.defaults.withCredentials = true;
 
 const handleDelete = async (id) => {
   try {
-    await axios.delete("http://localhost:3001/api/information/" + id);
-    window.location.reload();
+    const response = await axios.delete(
+      `${process.env.REACT_APP_SERVER_SIDE}/information/` + id
+    );
+
+    if (response.status === 200) {
+      toast.success("Delete success");
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } else {
+      toast.error("Delete failed");
+    }
+
     console.log("Delete success");
   } catch (error) {
+    toast.error("Delete failed");
     console.error("Error handleDelete : ", error);
   }
 };
 
 const handleApprove = async (id) => {
   try {
-    await axios.put("http://localhost:3001/api/information/" + id);
-    window.location.reload();
-    console.log("Approve success");
+    const response = await axios.put(
+      `${process.env.REACT_APP_SERVER_SIDE}/information/` + id
+    );
+
+    if (response.status === 200) {
+      toast.success("Approve success");
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } else {
+      toast.error("Approve failed");
+    }
+    // console.log("Approve success");
   } catch (error) {
+    toast.error("Approve failed");
     console.error("Error handleApprove : ", error);
   }
 };
@@ -113,7 +139,7 @@ const ExTable = (props) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/information/downloadexcel",
+        `${process.env.REACT_APP_SERVER_SIDE}/information/downloadexcel`,
         item,
         {
           responseType: "blob",
@@ -401,6 +427,8 @@ const ExTable = (props) => {
           </TableBody>
         </Table>
       </Box>
+
+      <ToastContainer />
 
       <Dialog
         open={open}

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Typography,
-  Box,
   Table,
   TableBody,
   TableCell,
@@ -22,6 +21,9 @@ import {
   InputLabel,
   Fab,
 } from "@mui/material";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 
@@ -137,23 +139,40 @@ const ExTable = (props) => {
 
     try {
       const response = await axios.put(
-        `http://localhost:3001/api/user/${selectedItem.id}`,
+        `${process.env.REACT_APP_SERVER_SIDE}/user/${selectedItem.id}`,
         {
           password: password,
         }
       );
-      console.log(response);
-      closeResetPasswordDialog();
+      if (response.status === 200) {
+        toast.success("Password reset successfully");
+        closeResetPasswordDialog();
+      } else {
+        toast.error("Error resetting password");
+      }
+      // console.log(response);
     } catch (error) {
+      toast.error("Error resetting password");
       console.error("Error resetting password:", error);
     }
   };
 
   const handleSave = async () => {
     try {
-      await axios.put(`/api/users/${selectedItem.id}`, formValues);
-      handleClose();
+      const response = await axios.put(
+        `${process.env.REACT_APP_SERVER_SIDE}/users/${selectedItem.id}`,
+        formValues
+      );
+      if (response.status === 200) {
+        toast.success("User updated successfully");
+        setTimeout(() => {
+          handleClose();
+        }, 2000);
+      } else {
+        toast.error("Error updating user");
+      }
     } catch (error) {
+      toast.error("Error saving user data");
       console.error("Error saving user data:", error);
     }
   };
@@ -171,15 +190,20 @@ const ExTable = (props) => {
   const handleDelete = async () => {
     try {
       const response = await axios.delete(
-        `http://localhost:3001/api/user/${itemToDelete.id}`
+        `${process.env.REACT_APP_SERVER_SIDE}/user/${itemToDelete.id}`
       );
       if (response.status === 200) {
-        window.location.reload();
+        toast.success("User deleted successfully");
+        setTimeout(() => {
+          closeDeleteDialog();
+          window.location.reload();
+        }, 2000);
+      } else {
+        toast.error("Error deleting user");
       }
     } catch (error) {
+      toast.error("Error deleting user");
       console.error("Error deleting user:", error);
-    } finally {
-      closeDeleteDialog();
     }
   };
 
@@ -198,6 +222,7 @@ const ExTable = (props) => {
 
   return (
     <>
+      <ToastContainer />
       <Table
         aria-label="simple table"
         sx={{

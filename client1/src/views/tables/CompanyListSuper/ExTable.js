@@ -19,6 +19,9 @@ import {
   Fab,
 } from "@mui/material";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 
 const ExTable = (comapany) => {
@@ -63,14 +66,20 @@ const ExTable = (comapany) => {
   const handleSave = async () => {
     try {
       const response = await axios.put(
-        `http://localhost:3001/api/company/${selectedItem.id}`,
+        `${process.env.REACT_APP_SERVER_SIDE}/company/${selectedItem.id}`,
         formValues
       );
       if (response.status === 200) {
-        window.location.reload();
+        toast.success("Company updated successfully");
+        setTimeout(() => {
+          handleClose();
+          window.location.reload();
+        }, 2000);
+      } else {
+        toast.error("Error updating company");
       }
-      handleClose();
     } catch (error) {
+      toast.error("Error saving user data");
       console.error("Error saving user data:", error);
     }
   };
@@ -88,20 +97,26 @@ const ExTable = (comapany) => {
   const handleDelete = async () => {
     try {
       const response = await axios.delete(
-        `http://localhost:3001/api/company/${itemToDelete.id}`
+        `${process.env.REACT_APP_SERVER_SIDE}/company/${itemToDelete.id}`
       );
       if (response.status === 200) {
-        window.location.reload();
+        toast.success("Company deleted successfully");
+        setTimeout(() => {
+          closeDeleteDialog();
+          window.location.reload();
+        }, 2000);
+      } else {
+        toast.error("Error deleting company");
       }
     } catch (error) {
+      toast.error("Error deleting company");
       console.error("Error deleting company:", error);
-    } finally {
-      closeDeleteDialog();
     }
   };
 
   return (
     <>
+      <ToastContainer />
       <Table
         aria-label="simple table"
         sx={{

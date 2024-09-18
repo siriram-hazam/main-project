@@ -3,6 +3,9 @@ import React, { useState } from "react";
 //Hooks
 import authUtils from "../../hooks/useAuth";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function Login() {
   const [username, setUsename] = useState("");
   const [password, setPassword] = useState("");
@@ -10,7 +13,16 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await authUtils.authLogin(username, password);
+      const response = await authUtils.authLogin(username, password);
+      // console.log("response", response);
+      if (response.success) {
+        toast.success(response.message);
+        setTimeout(() => {
+          window.location = "/dashboards";
+        }, 2000); // หน่วงเวลา 2 วินาที
+      } else {
+        toast.error(response.message);
+      }
     } catch (error) {
       console.error("Error Login handleSubmit : ", error);
     }
@@ -21,7 +33,7 @@ function Login() {
       <section className="bg-gradient-to-r from-cyan-500 to-blue-500 w-screen h-screen">
         <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
           <a
-            href="#"
+            // href="#"
             className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
           >
             {/* <img
@@ -122,6 +134,7 @@ function Login() {
           </div>
         </div>
       </section>
+      <ToastContainer />
     </>
   );
 }

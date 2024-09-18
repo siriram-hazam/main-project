@@ -75,17 +75,17 @@ export const updateUserPassword = async (req, res) => {
     return res.json({ status: 400, message: "Old Password Required!" });
   }
 
+  const passcheck = await bcrypt.compare(oldPassword, user.password);
+
+  if (!passcheck) {
+    return res.json({ status: 400, message: "Old Password Incorrect!" });
+  }
+
   if (oldPassword == newPassword) {
     return res.json({
       status: 400,
       message: "Old Password and New Password Cannot be Same!",
     });
-  }
-
-  const passcheck = await bcrypt.compare(oldPassword, user.password);
-
-  if (!passcheck) {
-    return res.json({ status: 400, message: "Old Password Incorrect!" });
   }
 
   try {

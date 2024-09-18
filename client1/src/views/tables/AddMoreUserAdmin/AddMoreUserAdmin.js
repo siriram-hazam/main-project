@@ -23,6 +23,9 @@ import authUtils from "../../../hooks/useAuth";
 import ExTable from "./ExTable";
 import axios from "axios";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const EditProfileTable = () => {
   const [user, setUser] = useState(null);
   const [checkUser, setCheckUser] = useState(null);
@@ -161,18 +164,24 @@ const EditProfileTable = () => {
     try {
       console.log(formValues);
       const response = await axios.post(
-        "http://localhost:3001/api/user/",
+        `${process.env.REACT_APP_SERVER_SIDE}/user/`,
         formValues
       );
       console.log("User added successfully:", response.data);
 
       if (response.data.status === 200) {
         // alert("User added successfully");
-        window.location.reload();
+        toast.success("User added successfully");
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        toast.error("Error adding user");
       }
 
       handleCloseDialog();
     } catch (error) {
+      toast.error("Error adding user");
       console.error("Error adding user:", error);
     }
   };
@@ -186,172 +195,175 @@ const EditProfileTable = () => {
   }
 
   return (
-    <Box>
-      <Card variant="outlined">
-        <CardContent>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexDirection: {
-                xs: "column",
-                sm: "row",
-                md: "row",
-                lg: "row",
-              },
-              mb: 2,
-            }}
-          >
-            <Typography
-              variant="h3"
+    <>
+      <Box>
+        <Card variant="outlined">
+          <CardContent>
+            <Box
               sx={{
-                fontSize: "1.5rem",
-                textWrap: "no-wrap",
+                display: "flex",
+                justifyContent: "space-between",
                 alignItems: "center",
+                flexDirection: {
+                  xs: "column",
+                  sm: "row",
+                  md: "row",
+                  lg: "row",
+                },
+                mb: 2,
               }}
             >
-              <AccessibilityNewOutlinedIcon
+              <Typography
+                variant="h3"
                 sx={{
-                  color: "grey",
-                  mr: 1,
-                  mb: {
-                    xs: 1,
-                    sm: 0,
-                    lg: 0,
-                  },
-                  fontSize: "2rem",
+                  fontSize: "1.5rem",
+                  textWrap: "no-wrap",
+                  alignItems: "center",
                 }}
-              />
-              User List (Admin)
-            </Typography>
-            <Typography variant="h3">
-              <Fab
-                color="primary"
-                variant="extended"
-                sx={{
-                  mr: 1,
-                  mb: {
-                    xs: 1,
-                    sm: 0,
-                    lg: 0,
-                  },
-                }}
-                onClick={handleOpenDialog}
               >
-                <AddToPhotosOutlinedIcon
+                <AccessibilityNewOutlinedIcon
                   sx={{
-                    fontSize: "1.3rem",
+                    color: "grey",
+                    mr: 1,
+                    mb: {
+                      xs: 1,
+                      sm: 0,
+                      lg: 0,
+                    },
+                    fontSize: "2rem",
                   }}
                 />
-                <Typography
+                User List (Admin)
+              </Typography>
+              <Typography variant="h3">
+                <Fab
+                  color="primary"
+                  variant="extended"
                   sx={{
-                    ml: 1,
-                    textTransform: "capitalize",
+                    mr: 1,
+                    mb: {
+                      xs: 1,
+                      sm: 0,
+                      lg: 0,
+                    },
                   }}
+                  onClick={handleOpenDialog}
                 >
-                  Add User
-                </Typography>
-              </Fab>
-            </Typography>
-          </Box>
-          <Divider />
-          <Box
-            sx={{
-              overflow: {
-                xs: "auto",
-                sm: "unset",
-              },
-              mt: 2,
-            }}
-          >
-            <ExTable userList={userCompanyList.data} />
-          </Box>
-        </CardContent>
-      </Card>
-      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth={true}>
-        <DialogTitle sx={{ fontSize: "2rem" }}>Add User</DialogTitle>
-        <DialogContent>
-          <Divider />
-        </DialogContent>
-        <DialogContent>
-          <TextField
-            label="Username"
-            name="username"
-            value={formValues.username}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            error={!!errors.username}
-            helperText={errors.username}
-          />
-          <TextField
-            label="Password"
-            name="password"
-            type="password"
-            value={formValues.password}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            error={!!errors.password}
-            helperText={errors.password}
-          />
-          <TextField
-            label="Full Name"
-            name="fullname"
-            value={formValues.fullname}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-          />
-          <TextField
-            label="Email"
-            name="email"
-            value={formValues.email}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            error={!!errors.email}
-            helperText={errors.email}
-            sx={{ mb: 3 }}
-          />
-          <FormControl variant="outlined" fullWidth>
-            <InputLabel>Role</InputLabel>
-            <Select
-              label="Role"
-              name="role"
-              value={formValues.role}
-              onChange={handleChange}
+                  <AddToPhotosOutlinedIcon
+                    sx={{
+                      fontSize: "1.3rem",
+                    }}
+                  />
+                  <Typography
+                    sx={{
+                      ml: 1,
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    Add User
+                  </Typography>
+                </Fab>
+              </Typography>
+            </Box>
+            <Divider />
+            <Box
+              sx={{
+                overflow: {
+                  xs: "auto",
+                  sm: "unset",
+                },
+                mt: 2,
+              }}
             >
-              <MenuItem value="user">User</MenuItem>
-              <MenuItem value="manager">Manager</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleCloseDialog}
-            color="primary"
-            sx={{ fontSize: "1rem" }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            color="primary"
-            sx={{ fontSize: "1rem" }}
-            disabled={!isFormValid()}
-          >
-            Create User
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+              <ExTable userList={userCompanyList.data} />
+            </Box>
+          </CardContent>
+        </Card>
+        <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth={true}>
+          <DialogTitle sx={{ fontSize: "2rem" }}>Add User</DialogTitle>
+          <DialogContent>
+            <Divider />
+          </DialogContent>
+          <DialogContent>
+            <TextField
+              label="Username"
+              name="username"
+              value={formValues.username}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              error={!!errors.username}
+              helperText={errors.username}
+            />
+            <TextField
+              label="Password"
+              name="password"
+              type="password"
+              value={formValues.password}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              error={!!errors.password}
+              helperText={errors.password}
+            />
+            <TextField
+              label="Full Name"
+              name="fullname"
+              value={formValues.fullname}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+            />
+            <TextField
+              label="Email"
+              name="email"
+              value={formValues.email}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              error={!!errors.email}
+              helperText={errors.email}
+              sx={{ mb: 3 }}
+            />
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel>Role</InputLabel>
+              <Select
+                label="Role"
+                name="role"
+                value={formValues.role}
+                onChange={handleChange}
+              >
+                <MenuItem value="user">User</MenuItem>
+                <MenuItem value="manager">Manager</MenuItem>
+                <MenuItem value="admin">Admin</MenuItem>
+              </Select>
+            </FormControl>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleCloseDialog}
+              color="primary"
+              sx={{ fontSize: "1rem" }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
+              color="primary"
+              sx={{ fontSize: "1rem" }}
+              disabled={!isFormValid()}
+            >
+              Create User
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+      <ToastContainer />
+    </>
   );
 };
 

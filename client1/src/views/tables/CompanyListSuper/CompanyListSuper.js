@@ -19,6 +19,9 @@ import authUtils from "../../../hooks/useAuth";
 import ExTable from "./ExTable";
 import axios from "axios";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const CompanyListSuper = () => {
   const [user, setUser] = useState(null);
   const [checkUser, setCheckUser] = useState(null);
@@ -159,15 +162,21 @@ const CompanyListSuper = () => {
   const handleSave = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/company",
+        `${process.env.REACT_APP_SERVER_SIDE}/company`,
         formValues
       );
       console.log("Company added successfully:", response.data);
       if (response.data.status === 200) {
-        window.location.reload();
+        toast.success("Company added successfully!");
+        setTimeout(() => {
+          handleCloseDialog();
+          window.location.reload();
+        }, 2000);
+      } else {
+        toast.error("Error adding company");
       }
-      handleCloseDialog();
     } catch (error) {
+      toast.error("Error adding company");
       console.error("Error adding company:", error);
     }
   };
@@ -181,171 +190,174 @@ const CompanyListSuper = () => {
   }
 
   return (
-    <Box>
-      <Card variant="outlined">
-        <CardContent>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexDirection: {
-                xs: "column",
-                sm: "row",
-                md: "row",
-                lg: "row",
-              },
-              mb: 2,
-            }}
-          >
-            <Typography
-              variant="h3"
+    <>
+      <Box>
+        <Card variant="outlined">
+          <CardContent>
+            <Box
               sx={{
-                fontSize: "1.5rem",
-                textWrap: "no-wrap",
+                display: "flex",
+                justifyContent: "space-between",
                 alignItems: "center",
+                flexDirection: {
+                  xs: "column",
+                  sm: "row",
+                  md: "row",
+                  lg: "row",
+                },
+                mb: 2,
               }}
             >
-              <BusinessOutlinedIcon
+              <Typography
+                variant="h3"
                 sx={{
-                  color: "grey",
-                  mr: 1,
-                  mb: {
-                    xs: 1,
-                    sm: 0,
-                    lg: 0,
-                  },
-                  fontSize: "2rem",
+                  fontSize: "1.5rem",
+                  textWrap: "no-wrap",
+                  alignItems: "center",
                 }}
-              />
-              Company List (Super Admin)
-            </Typography>
-            <Typography variant="h3">
-              <Fab
-                color="primary"
-                variant="extended"
-                sx={{
-                  mr: 1,
-                  mb: {
-                    xs: 1,
-                    sm: 0,
-                    lg: 0,
-                  },
-                }}
-                onClick={handleOpenDialog}
               >
-                <AddToPhotosOutlinedIcon
+                <BusinessOutlinedIcon
                   sx={{
-                    fontSize: "1.3rem",
+                    color: "grey",
+                    mr: 1,
+                    mb: {
+                      xs: 1,
+                      sm: 0,
+                      lg: 0,
+                    },
+                    fontSize: "2rem",
                   }}
                 />
-                <Typography
+                Company List (Super Admin)
+              </Typography>
+              <Typography variant="h3">
+                <Fab
+                  color="primary"
+                  variant="extended"
                   sx={{
-                    ml: 1,
-                    textTransform: "capitalize",
+                    mr: 1,
+                    mb: {
+                      xs: 1,
+                      sm: 0,
+                      lg: 0,
+                    },
                   }}
+                  onClick={handleOpenDialog}
                 >
-                  Add Company
-                </Typography>
-              </Fab>
-            </Typography>
-          </Box>
-          <Divider />
-          <Box
-            sx={{
-              overflow: {
-                xs: "auto",
-                sm: "unset",
-              },
-              mt: 2,
-            }}
-          >
-            <ExTable company={companyList.data} />
-          </Box>
-        </CardContent>
-      </Card>
-      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth={true}>
-        <DialogTitle sx={{ fontSize: "2rem" }}>Add Company</DialogTitle>
-        <DialogContent>
-          <Divider />
-        </DialogContent>
-        <DialogContent>
-          <TextField
-            label="Company Name"
-            name="companyName"
-            value={formValues.companyName}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            error={!!errors.companyName}
-            helperText={errors.companyName}
-          />
-          <TextField
-            label="Address"
-            name="address"
-            value={formValues.address}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            error={!!errors.address}
-            helperText={errors.address}
-          />
-          <TextField
-            label="Phone Number"
-            name="phone_number"
-            value={formValues.phone_number}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            error={!!errors.phone_number}
-            helperText={errors.phone_number}
-          />
-          <TextField
-            label="Email"
-            name="email"
-            value={formValues.email}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            error={!!errors.email}
-            helperText={errors.email}
-          />
-          <TextField
-            label="DPO"
-            name="dpo"
-            value={formValues.dpo}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            error={!!errors.dpo}
-            helperText={errors.dpo}
-            sx={{ mb: 3 }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleCloseDialog}
-            color="primary"
-            sx={{ fontSize: "1rem" }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            color="primary"
-            sx={{ fontSize: "1rem" }}
-            disabled={!isFormValid()}
-          >
-            Create Company
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+                  <AddToPhotosOutlinedIcon
+                    sx={{
+                      fontSize: "1.3rem",
+                    }}
+                  />
+                  <Typography
+                    sx={{
+                      ml: 1,
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    Add Company
+                  </Typography>
+                </Fab>
+              </Typography>
+            </Box>
+            <Divider />
+            <Box
+              sx={{
+                overflow: {
+                  xs: "auto",
+                  sm: "unset",
+                },
+                mt: 2,
+              }}
+            >
+              <ExTable company={companyList.data} />
+            </Box>
+          </CardContent>
+        </Card>
+        <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth={true}>
+          <DialogTitle sx={{ fontSize: "2rem" }}>Add Company</DialogTitle>
+          <DialogContent>
+            <Divider />
+          </DialogContent>
+          <DialogContent>
+            <TextField
+              label="Company Name"
+              name="companyName"
+              value={formValues.companyName}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              error={!!errors.companyName}
+              helperText={errors.companyName}
+            />
+            <TextField
+              label="Address"
+              name="address"
+              value={formValues.address}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              error={!!errors.address}
+              helperText={errors.address}
+            />
+            <TextField
+              label="Phone Number"
+              name="phone_number"
+              value={formValues.phone_number}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              error={!!errors.phone_number}
+              helperText={errors.phone_number}
+            />
+            <TextField
+              label="Email"
+              name="email"
+              value={formValues.email}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              error={!!errors.email}
+              helperText={errors.email}
+            />
+            <TextField
+              label="DPO"
+              name="dpo"
+              value={formValues.dpo}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              error={!!errors.dpo}
+              helperText={errors.dpo}
+              sx={{ mb: 3 }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleCloseDialog}
+              color="primary"
+              sx={{ fontSize: "1rem" }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
+              color="primary"
+              sx={{ fontSize: "1rem" }}
+              disabled={!isFormValid()}
+            >
+              Create Company
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+      <ToastContainer />
+    </>
   );
 };
 

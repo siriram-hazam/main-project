@@ -648,6 +648,19 @@ const ExTable = (props) => {
                     </Typography>
                     <div style={{ paddingLeft: "2rem" }}>
                       <TextField
+                        label={`POI Info ${index + 1}`}
+                        value={poi.poi_relation.poi_info
+                          .map((info) => info.info_relation.info_)
+                          .join(", ")}
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        multiline
+                      />
+                      <TextField
                         label={`POI Owner ${index + 1}`}
                         value={poi.poi_relation.poi_info_owner
                           .map((owner) => owner.info_owner_relation.owner_)

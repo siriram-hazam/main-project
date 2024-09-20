@@ -605,7 +605,112 @@ export const excelProcess = async (req, res) => {
     //   return item.poi_relation.poi_info.info_relation.info_;
     // });
 
+    const poiRelationsCount = item.poi_information.length;
+
     let startRow = 11; // Starting row for the first poi_relation
+
+    // Duplicate the row based on the number of poi_relation items
+    for (let i = 1; i < poiRelationsCount; i++) {
+      worksheet.duplicateRow(startRow + i - 1, 1, true);
+    }
+
+    const endRow = startRow + poiRelationsCount - 1;
+
+    // Merge cells from H11 to Q11
+    worksheet.mergeCells(`H${startRow}:H${endRow}`);
+    worksheet.mergeCells(`I${startRow}:I${endRow}`);
+    worksheet.mergeCells(`J${startRow}:J${endRow}`);
+    worksheet.mergeCells(`K${startRow}:K${endRow}`);
+    worksheet.mergeCells(`L${startRow}:L${endRow}`);
+    worksheet.mergeCells(`M${startRow}:M${endRow}`);
+    worksheet.mergeCells(`N${startRow}:N${endRow}`);
+    worksheet.mergeCells(`O${startRow}:O${endRow}`);
+    worksheet.mergeCells(`P${startRow}:P${endRow}`);
+    worksheet.mergeCells(`Q${startRow}:Q${endRow}`);
+
+    // Set values for the merged cells
+    worksheet.getCell(`H${startRow}`).value =
+      item.information_info_stored_period
+        .map(
+          (placed, index) =>
+            `(${index + 1}) ${placed.info_stored_period_relation.period_}`
+        )
+        .join("\n");
+
+    worksheet.getCell(`I${startRow}`).value = item.information_info_placed
+      .map(
+        (placed, index) =>
+          `(${index + 1}) ${placed.info_placed_relation.placed_}`
+      )
+      .join("\n");
+
+    worksheet.getCell(`J${startRow}`).value = item.information_info_allowed_ps
+      .map(
+        (allowed, index) =>
+          `(${index + 1}) ${allowed.info_allowed_ps_relation.allowed_ps_}`
+      )
+      .join("\n");
+
+    worksheet.getCell(`K${startRow}`).value =
+      item.information_info_allowed_ps_condition
+        .map(
+          (allowed, index) =>
+            `(${index + 1}) ${
+              allowed.info_allowed_ps_condition_relation.allowed_ps_condition_
+            }`
+        )
+        .join("\n");
+
+    worksheet.getCell(`L${startRow}`).value = item.information_info_access
+      .map(
+        (access, index) =>
+          `(${index + 1}) ${access.info_access_relation.access_}`
+      )
+      .join("\n");
+
+    worksheet.getCell(`M${startRow}`).value =
+      item.information_info_access_condition
+        .map(
+          (access, index) =>
+            `(${index + 1}) ${
+              access.info_access_condition_relation.access_condition_
+            }`
+        )
+        .join("\n");
+
+    worksheet.getCell(`N${startRow}`).value =
+      item.information_info_ps_usedbyrole_inside
+        .map(
+          (used, index) =>
+            `(${index + 1}) ${
+              used.info_ps_usedbyrole_inside_relation.use_by_role_
+            }`
+        )
+        .join("\n");
+
+    worksheet.getCell(`O${startRow}`).value =
+      item.information_info_ps_sendto_outside
+        .map(
+          (send, index) =>
+            `(${index + 1}) ${send.info_ps_sendto_outside_relation.sendto_}`
+        )
+        .join("\n");
+
+    worksheet.getCell(`P${startRow}`).value =
+      item.information_info_ps_destroying
+        .map(
+          (destroy, index) =>
+            `(${index + 1}) ${destroy.info_ps_destroying_relation.destroying_}`
+        )
+        .join("\n");
+
+    worksheet.getCell(`Q${startRow}`).value = item.information_info_ps_destroyer
+      .map(
+        (destroyer, index) =>
+          `(${index + 1}) ${destroyer.info_ps_destroyer_relation.destroyer_}`
+      )
+      .join("\n");
+
     let previousValues = {
       info: null,
       owner: null,
@@ -617,9 +722,6 @@ export const excelProcess = async (req, res) => {
     };
 
     item.poi_information.forEach((poiInfo) => {
-      // Copy the current row and paste it below
-      worksheet.duplicateRow(startRow, 1, true);
-
       worksheet.getRow(startRow).height = 40; // Set the height of the row
 
       const relations = Array.isArray(poiInfo.poi_relation)
@@ -698,102 +800,6 @@ export const excelProcess = async (req, res) => {
         startRow++;
       });
     });
-
-    worksheet.getCell("H11").value = item.information_info_stored_period
-      .map(
-        (placed, index) =>
-          `(${index + 1}) ${placed.info_stored_period_relation.period_}`
-      )
-      .join("\n");
-
-    worksheet.getCell("I11").value = item.information_info_placed
-      .map(
-        (placed, index) =>
-          `(${index + 1}) ${placed.info_placed_relation.placed_}`
-      )
-      .join("\n");
-
-    worksheet.getCell("J11").value = item.information_info_allowed_ps
-      .map(
-        (allowed, index) =>
-          `(${index + 1}) ${allowed.info_allowed_ps_relation.allowed_ps_}`
-      )
-      .join("\n");
-
-    worksheet.getCell("K11").value = item.information_info_allowed_ps_condition
-      .map(
-        (allowed, index) =>
-          `(${index + 1}) ${
-            allowed.info_allowed_ps_condition_relation.allowed_ps_condition_
-          }`
-      )
-      .join("\n");
-
-    worksheet.getCell("L11").value = item.information_info_access
-      .map(
-        (access, index) =>
-          `(${index + 1}) ${access.info_access_relation.access_}`
-      )
-      .join("\n");
-
-    worksheet.getCell("M11").value = item.information_info_access_condition
-      .map(
-        (access, index) =>
-          `(${index + 1}) ${
-            access.info_access_condition_relation.access_condition_
-          }`
-      )
-      .join("\n");
-
-    worksheet.getCell("N11").value = item.information_info_ps_usedbyrole_inside
-      .map(
-        (used, index) =>
-          `(${index + 1}) ${
-            used.info_ps_usedbyrole_inside_relation.use_by_role_
-          }`
-      )
-      .join("\n");
-
-    worksheet.getCell("O11").value = item.information_info_ps_sendto_outside
-      .map(
-        (send, index) =>
-          `(${index + 1}) ${send.info_ps_sendto_outside_relation.sendto_}`
-      )
-      .join("\n");
-
-    worksheet.getCell("P11").value = item.information_info_ps_destroying
-      .map(
-        (destroy, index) =>
-          `(${index + 1}) ${destroy.info_ps_destroying_relation.destroying_}`
-      )
-      .join("\n");
-
-    worksheet.getCell("Q11").value = item.information_info_ps_destroyer
-      .map(
-        (destroyer, index) =>
-          `(${index + 1}) ${destroyer.info_ps_destroyer_relation.destroyer_}`
-      )
-      .join("\n");
-
-    // // Create a new sheet
-    // // const newSheet = workbook.addWorksheet("New Sheet");
-
-    // // Populate the new sheet with data
-    // newSheet.getCell("A5").value = item.activity_relation.activity;
-    // newSheet.getCell("A6").value = item.user_account_relation.fullname;
-    // newSheet.getCell("A7").value = item.company_relation.companyName;
-    // newSheet.getCell("A8").value = item.status;
-    // newSheet.getCell("A9").value = new Date(item.create_time).toLocaleString(
-    //   "th-TH",
-    //   {
-    //     day: "2-digit",
-    //     month: "2-digit",
-    //     year: "numeric",
-    //     hour: "2-digit",
-    //     minute: "2-digit",
-    //     second: "2-digit",
-    //   }
-    // );
 
     //Get the file data as a buffer
     const buffer = await workbook.xlsx.writeBuffer();

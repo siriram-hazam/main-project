@@ -19,7 +19,7 @@ import ActivitiesAdd from "../views/activities/Activities.js";
 //Activities Table
 import ActivitiesTable from "../views/tables/Activities/ActivitiesTable.js";
 //Privacy Notice Table
-import PrivacyNoticeTable from "../views/tables/PrivacyNotice/PrivacyNoticeTable.js";
+// import PrivacyNoticeTable from "../views/tables/PrivacyNotice/PrivacyNoticeTable.js";
 //Add More User (Admin) Profile Table
 import AddMoreUserAdmin from "../views/tables/AddMoreUserAdmin/AddMoreUserAdmin.js";
 // Company List Super
@@ -47,10 +47,10 @@ const Themeroutes = [
         path: "activities/add",
         element: <ActivitiesAdd />,
       },
-      {
-        path: "privacy-notice",
-        element: <PrivacyNoticeTable />,
-      },
+      // {
+      //   path: "privacy-notice",
+      //   element: <PrivacyNoticeTable />,
+      // },
       {
         path: "edit-profile",
         element: <EditProfile />,

@@ -571,6 +571,129 @@ export const excelProcess = async (req, res) => {
     worksheet.getCell("K5").value = item.company_relation.phone_number; //หมายเลขโทรศัพท์
     worksheet.getCell("K6").value = item.company_relation.dpo; //ชื่อของผู้ตรวจสอบบันทึกรายการ
 
+    const organizations = item.information_m_organization;
+    let row_organizations = 15; // Starting row for the first organization
+
+    organizations.forEach((org, index) => {
+      worksheet.getCell(`A${row_organizations}`).value = `(${index + 1}) ${
+        org.m_organization_relation.organization
+      }`;
+      row_organizations++; // Move to the next row for the next organization
+    });
+
+    const technicals = item.information_m_technical;
+    let row_technicals = 15; // Starting row for the first technical
+
+    technicals.forEach((tech, index) => {
+      worksheet.getCell(`F${row_technicals}`).value = `(${index + 1}) ${
+        tech.m_technical_relation.technical
+      }`;
+      row_technicals++; // Move to the next row for the next technical
+    });
+
+    const physicals = item.information_m_physical;
+    let row_physicals = 15; // Starting row for the first physical
+
+    physicals.forEach((phy, index) => {
+      worksheet.getCell(`L${row_physicals}`).value = `(${index + 1}) ${
+        phy.m_physical_relation.physical
+      }`;
+      row_physicals++; // Move to the next row for the next physical
+    });
+
+    // workbook.getCell("A11").value = item.poi_information.map((item) => {
+    //   return item.poi_relation.poi_info.info_relation.info_;
+    // });
+
+    let startRow = 11; // Starting row for the first poi_relation
+    let previousValues = {
+      info: null,
+      owner: null,
+      from: null,
+      format: null,
+      type: null,
+      objective: null,
+      lawbase: null,
+    };
+
+    item.poi_information.forEach((poiInfo) => {
+      // Copy the current row and paste it below
+      worksheet.duplicateRow(startRow, 1, true);
+
+      const relations = Array.isArray(poiInfo.poi_relation)
+        ? poiInfo.poi_relation
+        : [poiInfo.poi_relation];
+      relations.forEach((relation) => {
+        const infoValue = relation.poi_info
+          .map((info) => info.info_relation.info_)
+          .join(", ");
+        const ownerValue = relation.poi_info_owner
+          .map((owner) => owner.info_owner_relation.owner_)
+          .join(", ");
+        const fromValue = relation.poi_info_from
+          .map((from) => from.info_from_relation.from_)
+          .join(", ");
+        const formatValue = relation.poi_info_format
+          .map((format) => format.info_format_relation.format_)
+          .join(", ");
+        const typeValue = relation.poi_info_type
+          .map((type) => type.info_type_relation.type_)
+          .join(", ");
+        const objectiveValue = relation.poi_info_objective
+          .map((objective) => objective.info_objective_relation.objective_)
+          .join(", ");
+        const lawbaseValue = relation.poi_info_lawbase
+          .map((lawbase) => lawbase.info_lawbase_relation.lawBase_)
+          .join(", ");
+
+        worksheet.getCell(`A${startRow}`).value = infoValue;
+
+        if (ownerValue !== previousValues.owner) {
+          worksheet.getCell(`B${startRow}`).value = ownerValue;
+          previousValues.owner = ownerValue;
+        } else {
+          worksheet.mergeCells(`B${startRow - 1}:B${startRow}`);
+        }
+
+        if (fromValue !== previousValues.from) {
+          worksheet.getCell(`C${startRow}`).value = fromValue;
+          previousValues.from = fromValue;
+        } else {
+          worksheet.mergeCells(`C${startRow - 1}:C${startRow}`);
+        }
+
+        if (formatValue !== previousValues.format) {
+          worksheet.getCell(`D${startRow}`).value = formatValue;
+          previousValues.format = formatValue;
+        } else {
+          worksheet.mergeCells(`D${startRow - 1}:D${startRow}`);
+        }
+
+        if (typeValue !== previousValues.type) {
+          worksheet.getCell(`E${startRow}`).value = typeValue;
+          previousValues.type = typeValue;
+        } else {
+          worksheet.mergeCells(`E${startRow - 1}:E${startRow}`);
+        }
+
+        if (objectiveValue !== previousValues.objective) {
+          worksheet.getCell(`F${startRow}`).value = objectiveValue;
+          previousValues.objective = objectiveValue;
+        } else {
+          worksheet.mergeCells(`F${startRow - 1}:F${startRow}`);
+        }
+
+        if (lawbaseValue !== previousValues.lawbase) {
+          worksheet.getCell(`G${startRow}`).value = lawbaseValue;
+          previousValues.lawbase = lawbaseValue;
+        } else {
+          worksheet.mergeCells(`G${startRow - 1}:G${startRow}`);
+        }
+
+        startRow++;
+      });
+    });
+
     // // Create a new sheet
     // // const newSheet = workbook.addWorksheet("New Sheet");
 

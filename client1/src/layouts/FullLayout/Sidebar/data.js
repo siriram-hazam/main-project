@@ -1,6 +1,6 @@
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import AllInboxOutlinedIcon from "@mui/icons-material/AllInboxOutlined";
-import DocumentScannerOutlinedIcon from "@mui/icons-material/DocumentScannerOutlined";
+// import DocumentScannerOutlinedIcon from "@mui/icons-material/DocumentScannerOutlined";
 // import AddToPhotosOutlinedIcon from "@mui/icons-material/AddToPhotosOutlined";
 // import AspectRatioOutlinedIcon from "@mui/icons-material/AspectRatioOutlined";
 // import AssignmentTurnedInOutlinedIcon from "@mui/icons-material/AssignmentTurnedInOutlined";
@@ -21,11 +21,11 @@ const Menuitems = [
     icon: AllInboxOutlinedIcon,
     href: "/activities",
   },
-  {
-    title: "Privacy Notice",
-    icon: DocumentScannerOutlinedIcon,
-    href: "/privacy-notice",
-  },
+  // {
+  //   title: "Privacy Notice",
+  //   icon: DocumentScannerOutlinedIcon,
+  //   href: "/privacy-notice",
+  // },
   // {
   //   title: "Autocomplete",
   //   icon: AddToPhotosOutlinedIcon,

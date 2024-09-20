@@ -140,6 +140,7 @@ const logout = async () => {
 
 export default {
   authLogin,
+  checkLoginStatus,
   checkAuthStatus,
   checkUser,
   userProfile,

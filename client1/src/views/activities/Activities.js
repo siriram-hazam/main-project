@@ -298,24 +298,42 @@ const ActivitiesAdd = () => {
                 freeSolo
                 options={optionData.data.activity}
                 getOptionLabel={(option) =>
-                  option.activity ? option.activity : ""
-                }
+                  // option.activity ? option.activity : ""
+                  typeof option === "string" ? option : option.activity || ""
+                } //Display option label
                 renderInput={(params) => (
                   <TextField {...params} label="กิจกรรมงานที่บันทึกรายการ" />
                 )}
                 value={
-                  optionData.data.activity.find(
-                    (option) => option.id === formData.activity
-                  ) || null
-                }
+                  // optionData.data.activity.find(
+                  //   (option) => option.id === formData.activity
+                  // ) || null
+                  typeof formData.activity === "string"
+                    ? formData.activity
+                    : optionData.data.activity.find(
+                        (option) => option.id === formData.activity
+                      ) || ""
+                } // Handle the input value
                 onChange={(event, value) =>
-                  handleAutocompleteChange(event, value, "activity")
-                }
+                  // handleAutocompleteChange(event, value, "activity")
+                  handleAutocompleteChange(
+                    event,
+                    typeof value === "string" ? value : value?.id || "",
+                    "activity"
+                  )
+                } // Handle change when selecting from dropdown
+                onInputChange={(event, newInputValue) => {
+                  setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    activity: newInputValue,
+                  }));
+                  checkFormCompletion();
+                }} // Handle free solo input change
                 fullWidth
                 sx={{ mb: 2 }}
                 isOptionEqualToValue={(option, value) =>
-                  option.id === value.id || value === ""
-                }
+                  option.id === value.id || value === "" || option === value
+                } // Check for matching value
               />
 
               <Autocomplete
@@ -345,28 +363,6 @@ const ActivitiesAdd = () => {
                   option === value || value === ""
                 }
               />
-
-              {/* <Autocomplete
-                options={optionData.data.department}
-                getOptionLabel={(option) =>
-                  option.departmentName ? option.departmentName : ""
-                }
-                renderInput={(params) => (
-                  <TextField {...params} label="หน่วยงานที่บันทึกรายการ" />
-                )}
-                value={optionData.data.department.find(
-                  (option) => option.id === formData.department_id || null
-                )}
-                onChange={(event, value) =>
-                  handleAutocompleteChange(event, value, "department_id")
-                }
-                fullWidth
-                sx={{ mb: 2 }}
-                isOptionEqualToValue={(option, value) =>
-                  option.id === value.id || value === ""
-                }
-                freeSolo
-              /> */}
 
               <Autocomplete
                 freeSolo

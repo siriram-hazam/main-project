@@ -8,7 +8,7 @@ const __dirname = path.resolve();
 
 export const createInformation = async (req, res) => {
   const {
-    activity,
+    activity, // Modified to handle both new and existing activity
     status = "pending", // Default value for status
     createBy, // Auto-added from frontend session
     company_id, // Auto-added from frontend session
@@ -32,10 +32,10 @@ export const createInformation = async (req, res) => {
 
   try {
     let departmentId;
+    let activityId;
 
-    // Check if department_id is a string (new department to be created)
+    // Handle department similar to before
     if (isNaN(department_id)) {
-      // First, check if the department already exists
       const existingDepartment = await prisma.department.findFirst({
         where: {
           departmentName: department_id,
@@ -44,10 +44,8 @@ export const createInformation = async (req, res) => {
       });
 
       if (existingDepartment) {
-        // If it exists, use its ID
         departmentId = existingDepartment.id;
       } else {
-        // If it doesn't exist, create a new department
         const newDepartment = await prisma.department.create({
           data: {
             departmentName: department_id, // Using department_id as the new name
@@ -57,15 +55,38 @@ export const createInformation = async (req, res) => {
         departmentId = newDepartment.id; // Use the newly created department ID
       }
     } else {
-      // If department_id is already a number (existing department)
       departmentId = department_id;
+    }
+
+    // Handle activity, check if it exists or create a new one
+    if (isNaN(activity)) {
+      const existingActivity = await prisma.activity.findFirst({
+        where: {
+          activity: activity,
+          company_id: company_id, // Ensure the activity is checked within the company
+        },
+      });
+
+      if (existingActivity) {
+        activityId = existingActivity.id;
+      } else {
+        const newActivity = await prisma.activity.create({
+          data: {
+            activity: activity, // Using activity as the new name
+            company_id: company_id, // Linking the new activity to the company
+          },
+        });
+        activityId = newActivity.id; // Use the newly created activity ID
+      }
+    } else {
+      activityId = activity;
     }
 
     // Create the information record
     const newInformation = await prisma.information.create({
       data: {
         activity_relation: {
-          connect: { id: activity },
+          connect: { id: activityId }, // Use the existing or newly created activity ID
         },
         status,
         user_account_relation: {

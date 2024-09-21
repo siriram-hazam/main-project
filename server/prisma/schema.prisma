@@ -57,6 +57,9 @@ model company {
   info_ps_sendto_outside    info_ps_sendto_outside[]
   info_ps_destroying        info_ps_destroying[]
   info_ps_destroyer         info_ps_destroyer[]
+  m_organization            m_organization[]
+  m_technical               m_technical[]
+  m_physical                m_physical[]
 }
 
 model activity {
@@ -121,8 +124,12 @@ model information {
 // }
 
 model m_organization {
-  id                         Int                          @id @default(autoincrement())
-  organization               String
+  id           Int    @id @default(autoincrement())
+  organization String
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
+
   information_m_organization information_m_organization[]
 }
 
@@ -136,8 +143,12 @@ model information_m_organization {
 }
 
 model m_technical {
-  id                      Int                       @id @default(autoincrement())
-  technical               String
+  id        Int    @id @default(autoincrement())
+  technical String
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
+
   information_m_technical information_m_technical[]
 }
 
@@ -151,8 +162,12 @@ model information_m_technical {
 }
 
 model m_physical {
-  id                     Int                      @id @default(autoincrement())
-  physical               String
+  id       Int    @id @default(autoincrement())
+  physical String
+
+  company_id       Int     @default(0)
+  company_relation company @relation(fields: [company_id], references: [id])
+
   information_m_physical information_m_physical[]
 }
 
@@ -234,6 +249,7 @@ model poi_info {
 
   @@id([info_id, poi_id])
 }
+
 //--------------------------------------------------------------
 
 //--------------------------------------------------------------

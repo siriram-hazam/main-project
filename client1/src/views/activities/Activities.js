@@ -202,6 +202,8 @@ const ActivitiesAdd = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("Form data", formData);
+
     for (let field of requiredFields) {
       if (
         !formData[field] ||
@@ -344,7 +346,7 @@ const ActivitiesAdd = () => {
                 }
               />
 
-              <Autocomplete
+              {/* <Autocomplete
                 options={optionData.data.department}
                 getOptionLabel={(option) =>
                   option.departmentName ? option.departmentName : ""
@@ -363,6 +365,46 @@ const ActivitiesAdd = () => {
                 isOptionEqualToValue={(option, value) =>
                   option.id === value.id || value === ""
                 }
+                freeSolo
+              /> */}
+
+              <Autocomplete
+                freeSolo
+                options={optionData.data.department} // Option list
+                getOptionLabel={(option) =>
+                  typeof option === "string"
+                    ? option
+                    : option.departmentName || ""
+                } // Display option label
+                renderInput={(params) => (
+                  <TextField {...params} label="หน่วยงานที่บันทึกรายการ" />
+                )}
+                value={
+                  typeof formData.department_id === "string"
+                    ? formData.department_id
+                    : optionData.data.department.find(
+                        (option) => option.id === formData.department_id
+                      ) || ""
+                } // Handle the input value
+                onChange={(event, value) =>
+                  handleAutocompleteChange(
+                    event,
+                    typeof value === "string" ? value : value?.id || "",
+                    "department_id"
+                  )
+                } // Handle change when selecting from dropdown
+                onInputChange={(event, newInputValue) => {
+                  setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    department_id: newInputValue,
+                  }));
+                  checkFormCompletion();
+                }} // Handle free solo input change
+                fullWidth
+                sx={{ mb: 2 }}
+                isOptionEqualToValue={(option, value) =>
+                  option.id === value.id || value === "" || option === value
+                } // Check for matching value
               />
 
               {formData.poi_relations.map((relation, index) => (

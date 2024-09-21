@@ -9,181 +9,107 @@ const __dirname = path.resolve();
 export const createInformation = async (req, res) => {
   const {
     activity,
-    status, //set default value ("pending")
-    createBy, //fontend auto add from session
-    company_id, //frontend auto add from session
+    status = "pending", // Default value for status
+    createBy, // Auto-added from frontend session
+    company_id, // Auto-added from frontend session
     category,
-    department_id, //fontend show text but map to id then send to backend
-    poi_relations, //fontend show text but map to id then send to backend
-    // poi_info_owner, //ย้ายไปใน poi_relations
-    // poi_info_from,
-    // poi_info_format,
-    // poi_info_type,
-    // poi_info_objective,
-    // poi_info_lawbase,
-    info_stored_period, //fontend show text but map to id then send to backend
-    info_placed, //fontend show text but map to id then send to backend
-    info_allowed_ps, //fontend show text but map to id then send to backend
-    info_allowed_ps_condition, //fontend show text but map to id then send to backend
-    info_access, //fontend show text but map to id then send to backend
-    info_access_condition, //fontend show text but map to id then send to backend
-    info_ps_usedbyrole_inside, //fontend show text but map to id then send to backend
-    info_ps_sendto_outside, //fontend show text but map to id then send to backend
-    info_ps_destroying, //fontend show text but map to id then send to backend
-    info_ps_destroyer, //fontend show text but map to id then send to backend
-    m_organization, //fontend show text but map to id then send to backend
-    m_technical, //fontend show text but map to id then send to backend
-    m_physical, //fontend show text but map to id then send to backend
+    department_id, // Check if it's a string to create new department
+    poi_relations,
+    info_stored_period,
+    info_placed,
+    info_allowed_ps,
+    info_allowed_ps_condition,
+    info_access,
+    info_access_condition,
+    info_ps_usedbyrole_inside,
+    info_ps_sendto_outside,
+    info_ps_destroying,
+    info_ps_destroyer,
+    m_organization,
+    m_technical,
+    m_physical,
   } = req.body;
 
-  //   {
-  //     "activity": "งานสรรหาว่าจ้าง",
-  //     "status" : "pending",
-  //     "createBy": 1,
-  //     "company_id": 1,
-  //     "category": "ข้อมูลในใบรับสมัครพนักงาน",
-  //     "department_id": 1,
-  //     "info_role": "",
-  //     "info_document": "",
-  //     "poi_relations": [
-  //         {
-  //             "info": "ข้อมูลที่หนึ่ง",
-  //             "poi_info_owner": 1,
-  //             "poi_info_from": 1,
-  //             "poi_info_format": 1,
-  //             "poi_info_type": 1,
-  //             "poi_info_objective": 1,
-  //             "poi_info_lawbase": [3,1]
-  //         },
-  //         {
-  //             "info": "ข้อมูลที่สอง",
-  //             "poi_info_owner": 1,
-  //             "poi_info_from": 1,
-  //             "poi_info_format": 1,
-  //             "poi_info_type": 1,
-  //             "poi_info_objective": 1,
-  //             "poi_info_lawbase": [2,3]
-  //         }
-  //     ],
-  //     "info_stored_period" : [1,2,3],
-  //     "info_placed" : [1,2],
-  //     "info_allowed_ps" : [1,2,3],
-  //     "info_allowed_ps_condition" : [1,2,3],
-  //     "info_access" : [1,2],
-  //     "info_access_condition" : [1,2],
-  //     "info_ps_usedbyrole_inside" : [1,2,3],
-  //     "info_ps_sendto_outside" : [4,5],
-  //     "info_ps_destroying" : [1,2,3],
-  //     "info_ps_destroyer" : [1]
-  // }
-
-  console.log(req.body);
-
   try {
+    let departmentId;
+
+    // Check if department_id is a string (new department to be created)
+    if (isNaN(department_id)) {
+      // First, check if the department already exists
+      const existingDepartment = await prisma.department.findFirst({
+        where: {
+          departmentName: department_id,
+          company_id: company_id, // Ensure the department is checked within the company
+        },
+      });
+
+      if (existingDepartment) {
+        // If it exists, use its ID
+        departmentId = existingDepartment.id;
+      } else {
+        // If it doesn't exist, create a new department
+        const newDepartment = await prisma.department.create({
+          data: {
+            departmentName: department_id, // Using department_id as the new name
+            company_id: company_id, // Linking the new department to the company
+          },
+        });
+        departmentId = newDepartment.id; // Use the newly created department ID
+      }
+    } else {
+      // If department_id is already a number (existing department)
+      departmentId = department_id;
+    }
+
+    // Create the information record
     const newInformation = await prisma.information.create({
       data: {
-        // activity: activity,
-        // activity_relation: {
-        //   create: {
-        //     activity: activity,
-        //   },
-        // },
-        // activity_id: activity,
         activity_relation: {
           connect: { id: activity },
         },
-        status: status,
-        // createBy: createBy,
+        status,
         user_account_relation: {
           connect: { id: createBy },
         },
-        // company_id: company_id,
         company_relation: {
           connect: { id: company_id },
         },
-        // department_id: department_id,
         department_relation: {
-          connect: { id: department_id },
+          connect: { id: departmentId }, // Use the existing or newly created department ID
         },
-        // company_information: {
-        //     create: [
-        //         {
-        //             company_id: Number(company_id)
-        //         }
-        //     ]
-        // },
         category_information: {
           create: [
             {
               category_relation: {
                 create: {
-                  category: category,
-                  department_id: department_id,
+                  category,
+                  department_id: departmentId,
                 },
               },
             },
           ],
         },
-        // information_info_role: {
-        //   create: [
-        //     {
-        //       info_role_id: info_role,
-        //     },
-        //   ],
-        // },
-        // information_info_document: {
-        //   create: [
-        //     {
-        //       info_document_id: info_document,
-        //     },
-        //   ],
-        // },
         poi_information: {
           create: poi_relations.map((item) => ({
             poi_relation: {
               create: {
-                // info: item.info,
                 poi_info: {
-                  create: [
-                    {
-                      info_id: item.poi_info,
-                    },
-                  ],
+                  create: [{ info_id: item.poi_info }],
                 },
                 poi_info_owner: {
-                  create: [
-                    {
-                      info_owner_id: item.poi_info_owner,
-                    },
-                  ],
+                  create: [{ info_owner_id: item.poi_info_owner }],
                 },
                 poi_info_from: {
-                  create: [
-                    {
-                      info_from_id: item.poi_info_from,
-                    },
-                  ],
+                  create: [{ info_from_id: item.poi_info_from }],
                 },
                 poi_info_format: {
-                  create: [
-                    {
-                      info_format_id: item.poi_info_format,
-                    },
-                  ],
+                  create: [{ info_format_id: item.poi_info_format }],
                 },
                 poi_info_type: {
-                  create: [
-                    {
-                      info_type_id: item.poi_info_type,
-                    },
-                  ],
+                  create: [{ info_type_id: item.poi_info_type }],
                 },
                 poi_info_objective: {
-                  create: [
-                    {
-                      info_objective_id: item.poi_info_objective,
-                    },
-                  ],
+                  create: [{ info_objective_id: item.poi_info_objective }],
                 },
                 poi_info_lawbase: {
                   create: item.poi_info_lawbase.map((lawbase) => ({
@@ -262,9 +188,13 @@ export const createInformation = async (req, res) => {
       },
     });
 
+    // Return success response
     return res.json({ status: 200, message: newInformation });
   } catch (error) {
-    console.error(error);
+    console.error("Error creating information: ", error);
+    return res
+      .status(500)
+      .json({ status: 500, message: "Error creating information" });
   }
 };
 

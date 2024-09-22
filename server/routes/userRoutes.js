@@ -8,6 +8,7 @@ import {
   fetchUser,
   fetchUserList,
   updateUserPassword,
+  checkUserSytem,
 } from "../controller/userController.js";
 import { auth } from "../middleware/auth.js";
 
@@ -20,7 +21,7 @@ router.post("/login", fetchUserLogin);
 router.get("/userProfile", auth, userProfile);
 router.get("/userList", auth, fetchUserList);
 router.get("/status", auth, (req, res) => {
-  res.json({ status: "authenticated" });
+  res.json({ status: "authenticated", user: req.user });
 });
 router.get("/checkUser", auth, fetchUser);
 router.get("/logout", (req, res) => {

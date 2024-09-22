@@ -67,6 +67,7 @@ const checkAuthStatus = async () => {
     const res = await axios.get(
       `${process.env.REACT_APP_SERVER_SIDE}/user/status`
     );
+    // console.log("checkAuthStatus : ", res);
     return res;
   } catch (error) {
     console.error("Error useAuth checkAuthStatus : ", error);
@@ -114,7 +115,7 @@ const companyList = async () => {
     );
     return res;
   } catch (error) {
-    console.error("Error useAuth conpanyList : ", error);
+    console.error("Error useAuth companyList : ", error);
   }
 };
 
@@ -138,6 +139,17 @@ const logout = async () => {
   }
 };
 
+const checkUserSystem = async () => {
+  try {
+    const res = await axios.get(
+      `${process.env.REACT_APP_SERVER_SIDE}/user/checkUserSystem`
+    );
+    return res;
+  } catch (error) {
+    console.error("Error useAuth checkUserSystem : ", error);
+  }
+};
+
 export default {
   authLogin,
   checkLoginStatus,
@@ -148,4 +160,5 @@ export default {
   companyList,
   companyAdmin,
   logout,
+  checkUserSystem,
 };

@@ -1,5 +1,6 @@
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import AllInboxOutlinedIcon from "@mui/icons-material/AllInboxOutlined";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 // import DocumentScannerOutlinedIcon from "@mui/icons-material/DocumentScannerOutlined";
 // import AddToPhotosOutlinedIcon from "@mui/icons-material/AddToPhotosOutlined";
 // import AspectRatioOutlinedIcon from "@mui/icons-material/AspectRatioOutlined";
@@ -20,6 +21,11 @@ const Menuitems = [
     title: "Activities",
     icon: AllInboxOutlinedIcon,
     href: "/activities",
+  },
+  {
+    title: "ประเมิน โปรเจค และ ข้อเสนอแนะ",
+    icon: InsertDriveFileIcon,
+    href: "/form",
   },
   // {
   //   title: "Privacy Notice",

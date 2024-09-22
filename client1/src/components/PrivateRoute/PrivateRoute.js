@@ -1,40 +1,54 @@
 import React, { useEffect, useState } from "react";
-
 import { Navigate } from "react-router-dom";
-
-//Hooks
 import authUtils from "../../hooks/useAuth";
 
-const PrivateRoute = ({ children }) => {
+const PrivateRoute = ({ children, requiredRole }) => {
   const [auth, setAuth] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState(null);
+  const [userCount, setUserCount] = useState(0);
+
+  console.log("User Count:", userCount);
+  console.log("Auth Status:", auth);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const loadAuthAndUserCount = async () => {
+      setLoading(true); // ตั้งค่า loading เป็น true ก่อนเริ่มโหลด
       try {
-        const res = await authUtils.checkAuthStatus();
-        // console.log(res);
-        if (res.data.status === "authenticated") {
+        const [authRes, userCountRes] = await Promise.all([
+          authUtils.checkAuthStatus(),
+          authUtils.checkUserSystem(),
+        ]);
+
+        if (authRes.data.status === "authenticated") {
           setAuth(true);
+          setUserRole(authRes.data.user.role);
         } else {
           setAuth(false);
         }
+
+        setUserCount(userCountRes.data.haveUser || 0);
       } catch (error) {
         setAuth(false);
-        console.error("Error PrivateRoute checkAuth : ", error);
+        console.error("Error in PrivateRoute: ", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // ตั้งค่า loading เป็น false หลังจากทุกอย่างเสร็จสิ้น
       }
     };
 
-    checkAuth();
-  }, []);
+    loadAuthAndUserCount();
+  }, []); // ใช้ dependency array ว่างเพื่อให้ run เพียงครั้งเดียว
 
   if (loading) {
     return <div>Loading....</div>;
   }
 
-  return auth ? children : <Navigate to="/" />;
+  // ตรวจสอบยศของผู้ใช้
+  if (auth && requiredRole && userRole !== requiredRole) {
+    return <Navigate to="/" replace />;
+  }
+
+  return auth ? children : <Navigate to="/" replace />;
 };
 
 export default PrivateRoute;

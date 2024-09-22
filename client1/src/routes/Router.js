@@ -26,6 +26,8 @@ import AddMoreUserAdmin from "../views/tables/AddMoreUserAdmin/AddMoreUserAdmin.
 import CompanyListSuper from "../views/tables/CompanyListSuper/CompanyListSuper.js";
 // Company User Super
 import CompanyUserSuper from "../views/tables/CompanyUserSuper/CompanyUserSuper.js";
+// Form
+import Form from "../views/form/Form.js";
 
 // Define routes
 const Themeroutes = [
@@ -47,6 +49,10 @@ const Themeroutes = [
         path: "activities/add",
         element: <ActivitiesAdd />,
       },
+      {
+        path: "form",
+        element: <Form />,
+      },
       // {
       //   path: "privacy-notice",
       //   element: <PrivacyNoticeTable />,
@@ -57,15 +63,27 @@ const Themeroutes = [
       },
       {
         path: "user-admin",
-        element: <AddMoreUserAdmin />, //Admin Auth
+        element: (
+          <PrivateRoute requiredRole="admin">
+            <AddMoreUserAdmin />
+          </PrivateRoute>
+        ),
       },
       {
         path: "company-list-super",
-        element: <CompanyListSuper />, //Admin Auth
+        element: (
+          <PrivateRoute requiredRole="superadmin">
+            <CompanyListSuper />
+          </PrivateRoute>
+        ),
       },
       {
         path: "company-user-super",
-        element: <CompanyUserSuper />, //Admin Auth
+        element: (
+          <PrivateRoute requiredRole="superadmin">
+            <CompanyUserSuper />
+          </PrivateRoute>
+        ),
       },
     ],
   },

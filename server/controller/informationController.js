@@ -8,12 +8,12 @@ const __dirname = path.resolve();
 
 export const createInformation = async (req, res) => {
   const {
-    activity, // Modified to handle both new and existing activity
-    status = "pending", // Default value for status
-    createBy, // Auto-added from frontend session
-    company_id, // Auto-added from frontend session
+    activity,
+    status = "pending",
+    createBy,
+    company_id,
     category,
-    department_id, // Check if it's a string to create new department
+    department_id,
     poi_relations,
     info_stored_period,
     info_placed,
@@ -30,186 +30,365 @@ export const createInformation = async (req, res) => {
     m_physical,
   } = req.body;
 
-  try {
-    let departmentId;
-    let activityId;
+  const handleStringField = async (item, modelName) => {
+    if (typeof item === "string") {
+      const fieldMapping = {
+        info_stored_period: "period_",
+        info_placed: "placed_", // Correct field name for info_placed
+        info_allowed_ps: "allowed_ps_",
+        info_allowed_ps_condition: "allowed_ps_condition_",
+        info_access: "access_",
+        info_access_condition: "access_condition_",
+        info_ps_usedbyrole_inside: "use_by_role_",
+        info_ps_sendto_outside: "sendto_",
+        info_ps_destroying: "destroying_",
+        info_ps_destroyer: "destroyer_",
+        m_organization: "organization",
+        m_technical: "technical",
+        m_physical: "physical",
+      };
 
-    // Handle department similar to before
-    if (isNaN(department_id)) {
-      const existingDepartment = await prisma.department.findFirst({
-        where: {
-          departmentName: department_id,
-          company_id: company_id, // Ensure the department is checked within the company
-        },
+      const fieldName = fieldMapping[modelName];
+
+      if (!fieldName) {
+        throw new Error(`Field mapping not found for model: ${modelName}`);
+      }
+
+      const existingRecord = await prisma[modelName].findFirst({
+        where: { [fieldName]: item, company_id }, // Use dynamic field name
       });
 
-      if (existingDepartment) {
-        departmentId = existingDepartment.id;
-      } else {
-        const newDepartment = await prisma.department.create({
-          data: {
-            departmentName: department_id, // Using department_id as the new name
-            company_id: company_id, // Linking the new department to the company
-          },
-        });
-        departmentId = newDepartment.id; // Use the newly created department ID
-      }
+      return existingRecord
+        ? existingRecord.id
+        : (
+            await prisma[modelName].create({
+              data: { [fieldName]: item, company_id }, // Use dynamic field name
+            })
+          ).id;
+    } else {
+      throw new Error(`Invalid value for ${modelName}: ${item}`);
+    }
+  };
+
+  try {
+    let departmentId, activityId;
+
+    // Handle department
+    if (isNaN(department_id)) {
+      const existingDepartment = await prisma.department.findFirst({
+        where: { departmentName: department_id, company_id },
+      });
+      departmentId = existingDepartment
+        ? existingDepartment.id
+        : (
+            await prisma.department.create({
+              data: { departmentName: department_id, company_id },
+            })
+          ).id;
     } else {
       departmentId = department_id;
     }
 
-    // Handle activity, check if it exists or create a new one
+    // Handle activity
     if (isNaN(activity)) {
       const existingActivity = await prisma.activity.findFirst({
-        where: {
-          activity: activity,
-          company_id: company_id, // Ensure the activity is checked within the company
-        },
+        where: { activity, company_id },
       });
-
-      if (existingActivity) {
-        activityId = existingActivity.id;
-      } else {
-        const newActivity = await prisma.activity.create({
-          data: {
-            activity: activity, // Using activity as the new name
-            company_id: company_id, // Linking the new activity to the company
-          },
-        });
-        activityId = newActivity.id; // Use the newly created activity ID
-      }
+      activityId = existingActivity
+        ? existingActivity.id
+        : (await prisma.activity.create({ data: { activity, company_id } })).id;
     } else {
       activityId = activity;
     }
 
+    // Handle poi_relations
+    const poiIds = await Promise.all(
+      poi_relations.map(async (item) => {
+        const infoOwnerId = parseInt(item.poi_info_owner);
+        let ownerIdToUse;
+
+        if (!isNaN(infoOwnerId)) {
+          const existingOwner = await prisma.info_owner.findFirst({
+            where: { id: infoOwnerId },
+          });
+          ownerIdToUse = existingOwner
+            ? existingOwner.id
+            : (
+                await prisma.info_owner.create({
+                  data: { owner_: item.poi_info_owner, company_id },
+                })
+              ).id;
+        } else {
+          ownerIdToUse = (
+            await prisma.info_owner.create({
+              data: { owner_: item.poi_info_owner, company_id },
+            })
+          ).id;
+        }
+
+        const infoId = item.poi_info; // Keep as string for check
+        if (!infoId) {
+          console.error("Invalid info_id for item:", item);
+          throw new Error("Invalid info_id");
+        }
+
+        // Check if info_id exists or create a new one
+        const existingInfo = await prisma.info.findFirst({
+          where: { info_: infoId, company_id },
+        });
+        const infoIdToUse = existingInfo
+          ? existingInfo.id
+          : (await prisma.info.create({ data: { info_: infoId, company_id } }))
+              .id;
+
+        const infoFromId = parseInt(item.poi_info_from);
+        const existingInfoFrom = !isNaN(infoFromId)
+          ? await prisma.info_from.findFirst({ where: { id: infoFromId } })
+          : null;
+        const infoFromIdToUse = existingInfoFrom
+          ? existingInfoFrom.id
+          : (
+              await prisma.info_from.create({
+                data: { from_: item.poi_info_from, company_id },
+              })
+            ).id;
+
+        const infoFormatId = parseInt(item.poi_info_format);
+        const existingInfoFormat = !isNaN(infoFormatId)
+          ? await prisma.info_format.findFirst({ where: { id: infoFormatId } })
+          : null;
+        const infoFormatIdToUse = existingInfoFormat
+          ? existingInfoFormat.id
+          : (
+              await prisma.info_format.create({
+                data: { format_: item.poi_info_format, company_id },
+              })
+            ).id;
+
+        const infoTypeId = parseInt(item.poi_info_type);
+        const existingInfoType = !isNaN(infoTypeId)
+          ? await prisma.info_type.findFirst({ where: { id: infoTypeId } })
+          : null;
+        const infoTypeIdToUse = existingInfoType
+          ? existingInfoType.id
+          : (
+              await prisma.info_type.create({
+                data: { type_: item.poi_info_type, company_id },
+              })
+            ).id;
+
+        const infoObjectiveId = parseInt(item.poi_info_objective);
+        const existingInfoObjective = !isNaN(infoObjectiveId)
+          ? await prisma.info_objective.findFirst({
+              where: { id: infoObjectiveId },
+            })
+          : null;
+        const infoObjectiveIdToUse = existingInfoObjective
+          ? existingInfoObjective.id
+          : (
+              await prisma.info_objective.create({
+                data: { objective_: item.poi_info_objective, company_id },
+              })
+            ).id;
+
+        // Handle poi_info_lawbase
+        const lawbaseIds = await Promise.all(
+          item.poi_info_lawbase.map(async (lawbase) => {
+            const existingLawbase = await prisma.info_lawbase.findFirst({
+              where: { lawBase_: lawbase, company_id },
+            });
+            return existingLawbase
+              ? existingLawbase.id
+              : (
+                  await prisma.info_lawbase.create({
+                    data: { lawBase_: lawbase, company_id },
+                  })
+                ).id;
+          })
+        );
+
+        return {
+          poi_relation: {
+            create: {
+              poi_info: {
+                create: [
+                  {
+                    info_id: infoIdToUse, // Use the correct info_id here
+                  },
+                ],
+              },
+              poi_info_owner: {
+                create: [
+                  {
+                    info_owner_id: ownerIdToUse,
+                  },
+                ],
+              },
+              poi_info_from: {
+                create: {
+                  info_from_relation: {
+                    connect: { id: infoFromIdToUse },
+                  },
+                },
+              },
+              poi_info_format: {
+                create: [
+                  {
+                    info_format_id: infoFormatIdToUse,
+                  },
+                ],
+              },
+              poi_info_type: {
+                create: [
+                  {
+                    info_type_id: infoTypeIdToUse,
+                  },
+                ],
+              },
+              poi_info_objective: {
+                create: [
+                  {
+                    info_objective_id: infoObjectiveIdToUse,
+                  },
+                ],
+              },
+              poi_info_lawbase: {
+                create: lawbaseIds.map((lawbaseId) => ({
+                  info_lawbase_id: lawbaseId,
+                  // piece_of_info_relation: {
+                  //   connect: { id: lawbaseId },
+                  // },
+                })),
+              },
+            },
+          },
+        };
+      })
+    );
+
+    // Handle other fields with correct field names
+    const storedPeriodIds = await Promise.all(
+      info_stored_period.map((item) =>
+        handleStringField(item, "info_stored_period")
+      )
+    );
+    const placedIds = await Promise.all(
+      info_placed.map((item) => handleStringField(item, "info_placed"))
+    );
+    const allowedPsIds = await Promise.all(
+      info_allowed_ps.map((item) => handleStringField(item, "info_allowed_ps"))
+    );
+    const allowedPsConditionIds = await Promise.all(
+      info_allowed_ps_condition.map((item) =>
+        handleStringField(item, "info_allowed_ps_condition")
+      )
+    );
+    const accessIds = await Promise.all(
+      info_access.map((item) => handleStringField(item, "info_access"))
+    );
+    const accessConditionIds = await Promise.all(
+      info_access_condition.map((item) =>
+        handleStringField(item, "info_access_condition")
+      )
+    );
+    const psUsedByRoleInsideIds = await Promise.all(
+      info_ps_usedbyrole_inside.map((item) =>
+        handleStringField(item, "info_ps_usedbyrole_inside")
+      )
+    );
+    const psSendToOutsideIds = await Promise.all(
+      info_ps_sendto_outside.map((item) =>
+        handleStringField(item, "info_ps_sendto_outside")
+      )
+    );
+    const psDestroyingIds = await Promise.all(
+      info_ps_destroying.map((item) =>
+        handleStringField(item, "info_ps_destroying")
+      )
+    );
+    const psDestroyerIds = await Promise.all(
+      info_ps_destroyer.map((item) =>
+        handleStringField(item, "info_ps_destroyer")
+      )
+    );
+    const organizationIds = await Promise.all(
+      m_organization.map((item) => handleStringField(item, "m_organization"))
+    );
+    const technicalIds = await Promise.all(
+      m_technical.map((item) => handleStringField(item, "m_technical"))
+    );
+    const physicalIds = await Promise.all(
+      m_physical.map((item) => handleStringField(item, "m_physical"))
+    );
+
     // Create the information record
     const newInformation = await prisma.information.create({
       data: {
-        activity_relation: {
-          connect: { id: activityId }, // Use the existing or newly created activity ID
-        },
+        activity_relation: { connect: { id: activityId } },
         status,
-        user_account_relation: {
-          connect: { id: createBy },
-        },
-        company_relation: {
-          connect: { id: company_id },
-        },
-        department_relation: {
-          connect: { id: departmentId }, // Use the existing or newly created department ID
-        },
+        user_account_relation: { connect: { id: createBy } },
+        company_relation: { connect: { id: company_id } },
+        department_relation: { connect: { id: departmentId } },
         category_information: {
           create: [
             {
               category_relation: {
-                create: {
-                  category,
-                  department_id: departmentId,
-                },
+                create: { category, department_id: departmentId },
               },
             },
           ],
         },
-        poi_information: {
-          create: poi_relations.map((item) => ({
-            poi_relation: {
-              create: {
-                poi_info: {
-                  create: [{ info_id: item.poi_info }],
-                },
-                poi_info_owner: {
-                  create: [{ info_owner_id: item.poi_info_owner }],
-                },
-                poi_info_from: {
-                  create: [{ info_from_id: item.poi_info_from }],
-                },
-                poi_info_format: {
-                  create: [{ info_format_id: item.poi_info_format }],
-                },
-                poi_info_type: {
-                  create: [{ info_type_id: item.poi_info_type }],
-                },
-                poi_info_objective: {
-                  create: [{ info_objective_id: item.poi_info_objective }],
-                },
-                poi_info_lawbase: {
-                  create: item.poi_info_lawbase.map((lawbase) => ({
-                    info_lawbase_id: lawbase,
-                  })),
-                },
-              },
-            },
-          })),
-        },
+        poi_information: { create: poiIds },
         information_info_stored_period: {
-          create: info_stored_period.map((item) => ({
-            info_stored_period_id: item,
-          })),
+          create: storedPeriodIds.map((id) => ({ info_stored_period_id: id })),
         },
         information_info_placed: {
-          create: info_placed.map((item) => ({
-            info_placed_id: item,
-          })),
+          create: placedIds.map((id) => ({ info_placed_id: id })),
         },
         information_info_allowed_ps: {
-          create: info_allowed_ps.map((item) => ({
-            info_allowed_ps_id: item,
-          })),
+          create: allowedPsIds.map((id) => ({ info_allowed_ps_id: id })),
         },
         information_info_allowed_ps_condition: {
-          create: info_allowed_ps_condition.map((item) => ({
-            info_allowed_ps_condition_id: item,
+          create: allowedPsConditionIds.map((id) => ({
+            info_allowed_ps_condition_id: id,
           })),
         },
         information_info_access: {
-          create: info_access.map((item) => ({
-            info_access_id: item,
-          })),
+          create: accessIds.map((id) => ({ info_access_id: id })),
         },
         information_info_access_condition: {
-          create: info_access_condition.map((item) => ({
-            info_access_condition_id: item,
+          create: accessConditionIds.map((id) => ({
+            info_access_condition_id: id,
           })),
         },
         information_info_ps_usedbyrole_inside: {
-          create: info_ps_usedbyrole_inside.map((item) => ({
-            info_ps_usedbyrole_inside_id: item,
+          create: psUsedByRoleInsideIds.map((id) => ({
+            info_ps_usedbyrole_inside_id: id,
           })),
         },
         information_info_ps_sendto_outside: {
-          create: info_ps_sendto_outside.map((item) => ({
-            info_ps_sendto_outside_id: item,
+          create: psSendToOutsideIds.map((id) => ({
+            info_ps_sendto_outside_id: id,
           })),
         },
         information_info_ps_destroying: {
-          create: info_ps_destroying.map((item) => ({
-            info_ps_destroying_id: item,
-          })),
+          create: psDestroyingIds.map((id) => ({ info_ps_destroying_id: id })),
         },
         information_info_ps_destroyer: {
-          create: info_ps_destroyer.map((item) => ({
-            info_ps_destroyer_id: item,
-          })),
+          create: psDestroyerIds.map((id) => ({ info_ps_destroyer_id: id })),
         },
         information_m_organization: {
-          create: m_organization.map((item) => ({
-            m_organization_id: item,
-          })),
+          create: organizationIds.map((id) => ({ m_organization_id: id })),
         },
         information_m_technical: {
-          create: m_technical.map((item) => ({
-            m_technical_id: item,
-          })),
+          create: technicalIds.map((id) => ({ m_technical_id: id })),
         },
         information_m_physical: {
-          create: m_physical.map((item) => ({
-            m_physical_id: item,
-          })),
+          create: physicalIds.map((id) => ({ m_physical_id: id })),
         },
       },
     });
 
-    // Return success response
     return res.json({ status: 200, message: newInformation });
   } catch (error) {
     console.error("Error creating information: ", error);

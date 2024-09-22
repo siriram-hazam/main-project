@@ -30,181 +30,78 @@ export const createInformation = async (req, res) => {
     m_physical,
   } = req.body;
 
-  const handleStringField = async (item, modelName) => {
-    if (typeof item === "string") {
-      const fieldMapping = {
-        info_stored_period: "period_",
-        info_placed: "placed_", // Correct field name for info_placed
-        info_allowed_ps: "allowed_ps_",
-        info_allowed_ps_condition: "allowed_ps_condition_",
-        info_access: "access_",
-        info_access_condition: "access_condition_",
-        info_ps_usedbyrole_inside: "use_by_role_",
-        info_ps_sendto_outside: "sendto_",
-        info_ps_destroying: "destroying_",
-        info_ps_destroyer: "destroyer_",
-        m_organization: "organization",
-        m_technical: "technical",
-        m_physical: "physical",
-      };
-
-      const fieldName = fieldMapping[modelName];
-
-      if (!fieldName) {
-        throw new Error(`Field mapping not found for model: ${modelName}`);
-      }
-
+  const handleField = async (item, modelName, fieldName) => {
+    if (typeof item === "string" && isNaN(parseInt(item))) {
+      // Handle string case
       const existingRecord = await prisma[modelName].findFirst({
-        where: { [fieldName]: item, company_id }, // Use dynamic field name
+        where: { [fieldName]: item, company_id },
       });
 
       return existingRecord
         ? existingRecord.id
         : (
             await prisma[modelName].create({
-              data: { [fieldName]: item, company_id }, // Use dynamic field name
+              data: { [fieldName]: item, company_id },
             })
           ).id;
     } else {
-      throw new Error(`Invalid value for ${modelName}: ${item}`);
+      // Assume item is the id
+      const id = parseInt(item);
+      return id;
     }
   };
 
   try {
-    let departmentId, activityId;
-
     // Handle department
-    if (isNaN(department_id)) {
-      const existingDepartment = await prisma.department.findFirst({
-        where: { departmentName: department_id, company_id },
-      });
-      departmentId = existingDepartment
-        ? existingDepartment.id
-        : (
-            await prisma.department.create({
-              data: { departmentName: department_id, company_id },
-            })
-          ).id;
-    } else {
-      departmentId = department_id;
-    }
+    const departmentId = await handleField(
+      department_id,
+      "department",
+      "departmentName"
+    );
 
     // Handle activity
-    if (isNaN(activity)) {
-      const existingActivity = await prisma.activity.findFirst({
-        where: { activity, company_id },
-      });
-      activityId = existingActivity
-        ? existingActivity.id
-        : (await prisma.activity.create({ data: { activity, company_id } })).id;
-    } else {
-      activityId = activity;
-    }
+    const activityId = await handleField(activity, "activity", "activity");
 
     // Handle poi_relations
     const poiIds = await Promise.all(
       poi_relations.map(async (item) => {
-        const infoOwnerId = parseInt(item.poi_info_owner);
-        let ownerIdToUse;
+        const ownerIdToUse = await handleField(
+          item.poi_info_owner,
+          "info_owner",
+          "owner_"
+        );
 
-        if (!isNaN(infoOwnerId)) {
-          const existingOwner = await prisma.info_owner.findFirst({
-            where: { id: infoOwnerId },
-          });
-          ownerIdToUse = existingOwner
-            ? existingOwner.id
-            : (
-                await prisma.info_owner.create({
-                  data: { owner_: item.poi_info_owner, company_id },
-                })
-              ).id;
-        } else {
-          ownerIdToUse = (
-            await prisma.info_owner.create({
-              data: { owner_: item.poi_info_owner, company_id },
-            })
-          ).id;
-        }
+        const infoIdToUse = await handleField(item.poi_info, "info", "info_");
 
-        const infoId = item.poi_info; // Keep as string for check
-        if (!infoId) {
-          console.error("Invalid info_id for item:", item);
-          throw new Error("Invalid info_id");
-        }
+        const infoFromIdToUse = await handleField(
+          item.poi_info_from,
+          "info_from",
+          "from_"
+        );
 
-        // Check if info_id exists or create a new one
-        const existingInfo = await prisma.info.findFirst({
-          where: { info_: infoId, company_id },
-        });
-        const infoIdToUse = existingInfo
-          ? existingInfo.id
-          : (await prisma.info.create({ data: { info_: infoId, company_id } }))
-              .id;
+        const infoFormatIdToUse = await handleField(
+          item.poi_info_format,
+          "info_format",
+          "format_"
+        );
 
-        const infoFromId = parseInt(item.poi_info_from);
-        const existingInfoFrom = !isNaN(infoFromId)
-          ? await prisma.info_from.findFirst({ where: { id: infoFromId } })
-          : null;
-        const infoFromIdToUse = existingInfoFrom
-          ? existingInfoFrom.id
-          : (
-              await prisma.info_from.create({
-                data: { from_: item.poi_info_from, company_id },
-              })
-            ).id;
+        const infoTypeIdToUse = await handleField(
+          item.poi_info_type,
+          "info_type",
+          "type_"
+        );
 
-        const infoFormatId = parseInt(item.poi_info_format);
-        const existingInfoFormat = !isNaN(infoFormatId)
-          ? await prisma.info_format.findFirst({ where: { id: infoFormatId } })
-          : null;
-        const infoFormatIdToUse = existingInfoFormat
-          ? existingInfoFormat.id
-          : (
-              await prisma.info_format.create({
-                data: { format_: item.poi_info_format, company_id },
-              })
-            ).id;
-
-        const infoTypeId = parseInt(item.poi_info_type);
-        const existingInfoType = !isNaN(infoTypeId)
-          ? await prisma.info_type.findFirst({ where: { id: infoTypeId } })
-          : null;
-        const infoTypeIdToUse = existingInfoType
-          ? existingInfoType.id
-          : (
-              await prisma.info_type.create({
-                data: { type_: item.poi_info_type, company_id },
-              })
-            ).id;
-
-        const infoObjectiveId = parseInt(item.poi_info_objective);
-        const existingInfoObjective = !isNaN(infoObjectiveId)
-          ? await prisma.info_objective.findFirst({
-              where: { id: infoObjectiveId },
-            })
-          : null;
-        const infoObjectiveIdToUse = existingInfoObjective
-          ? existingInfoObjective.id
-          : (
-              await prisma.info_objective.create({
-                data: { objective_: item.poi_info_objective, company_id },
-              })
-            ).id;
+        const infoObjectiveIdToUse = await handleField(
+          item.poi_info_objective,
+          "info_objective",
+          "objective_"
+        );
 
         // Handle poi_info_lawbase
         const lawbaseIds = await Promise.all(
-          item.poi_info_lawbase.map(async (lawbase) => {
-            const existingLawbase = await prisma.info_lawbase.findFirst({
-              where: { lawBase_: lawbase, company_id },
-            });
-            return existingLawbase
-              ? existingLawbase.id
-              : (
-                  await prisma.info_lawbase.create({
-                    data: { lawBase_: lawbase, company_id },
-                  })
-                ).id;
-          })
+          item.poi_info_lawbase.map((lawbase) =>
+            handleField(lawbase, "info_lawbase", "lawBase_")
+          )
         );
 
         return {
@@ -213,7 +110,7 @@ export const createInformation = async (req, res) => {
               poi_info: {
                 create: [
                   {
-                    info_id: infoIdToUse, // Use the correct info_id here
+                    info_id: infoIdToUse,
                   },
                 ],
               },
@@ -255,9 +152,6 @@ export const createInformation = async (req, res) => {
               poi_info_lawbase: {
                 create: lawbaseIds.map((lawbaseId) => ({
                   info_lawbase_id: lawbaseId,
-                  // piece_of_info_relation: {
-                  //   connect: { id: lawbaseId },
-                  // },
                 })),
               },
             },
@@ -269,56 +163,60 @@ export const createInformation = async (req, res) => {
     // Handle other fields with correct field names
     const storedPeriodIds = await Promise.all(
       info_stored_period.map((item) =>
-        handleStringField(item, "info_stored_period")
+        handleField(item, "info_stored_period", "period_")
       )
     );
     const placedIds = await Promise.all(
-      info_placed.map((item) => handleStringField(item, "info_placed"))
+      info_placed.map((item) => handleField(item, "info_placed", "placed_"))
     );
     const allowedPsIds = await Promise.all(
-      info_allowed_ps.map((item) => handleStringField(item, "info_allowed_ps"))
+      info_allowed_ps.map((item) =>
+        handleField(item, "info_allowed_ps", "allowed_ps_")
+      )
     );
     const allowedPsConditionIds = await Promise.all(
       info_allowed_ps_condition.map((item) =>
-        handleStringField(item, "info_allowed_ps_condition")
+        handleField(item, "info_allowed_ps_condition", "allowed_ps_condition_")
       )
     );
     const accessIds = await Promise.all(
-      info_access.map((item) => handleStringField(item, "info_access"))
+      info_access.map((item) => handleField(item, "info_access", "access_"))
     );
     const accessConditionIds = await Promise.all(
       info_access_condition.map((item) =>
-        handleStringField(item, "info_access_condition")
+        handleField(item, "info_access_condition", "access_condition_")
       )
     );
     const psUsedByRoleInsideIds = await Promise.all(
       info_ps_usedbyrole_inside.map((item) =>
-        handleStringField(item, "info_ps_usedbyrole_inside")
+        handleField(item, "info_ps_usedbyrole_inside", "use_by_role_")
       )
     );
     const psSendToOutsideIds = await Promise.all(
       info_ps_sendto_outside.map((item) =>
-        handleStringField(item, "info_ps_sendto_outside")
+        handleField(item, "info_ps_sendto_outside", "sendto_")
       )
     );
     const psDestroyingIds = await Promise.all(
       info_ps_destroying.map((item) =>
-        handleStringField(item, "info_ps_destroying")
+        handleField(item, "info_ps_destroying", "destroying_")
       )
     );
     const psDestroyerIds = await Promise.all(
       info_ps_destroyer.map((item) =>
-        handleStringField(item, "info_ps_destroyer")
+        handleField(item, "info_ps_destroyer", "destroyer_")
       )
     );
     const organizationIds = await Promise.all(
-      m_organization.map((item) => handleStringField(item, "m_organization"))
+      m_organization.map((item) =>
+        handleField(item, "m_organization", "organization")
+      )
     );
     const technicalIds = await Promise.all(
-      m_technical.map((item) => handleStringField(item, "m_technical"))
+      m_technical.map((item) => handleField(item, "m_technical", "technical"))
     );
     const physicalIds = await Promise.all(
-      m_physical.map((item) => handleStringField(item, "m_physical"))
+      m_physical.map((item) => handleField(item, "m_physical", "physical"))
     );
 
     // Create the information record
@@ -372,10 +270,14 @@ export const createInformation = async (req, res) => {
           })),
         },
         information_info_ps_destroying: {
-          create: psDestroyingIds.map((id) => ({ info_ps_destroying_id: id })),
+          create: psDestroyingIds.map((id) => ({
+            info_ps_destroying_id: id,
+          })),
         },
         information_info_ps_destroyer: {
-          create: psDestroyerIds.map((id) => ({ info_ps_destroyer_id: id })),
+          create: psDestroyerIds.map((id) => ({
+            info_ps_destroyer_id: id,
+          })),
         },
         information_m_organization: {
           create: organizationIds.map((id) => ({ m_organization_id: id })),

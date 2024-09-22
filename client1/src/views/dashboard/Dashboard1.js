@@ -20,7 +20,7 @@ const Dashboard1 = () => {
         setActivity(response.data.message);
 
         const approved = response.data.message.filter(
-          (item) => item.status === "approved"
+          (item) => item.status === "success"
         );
         const pending = response.data.message.filter(
           (item) => item.status === "pending"
@@ -30,25 +30,27 @@ const Dashboard1 = () => {
         setPendingData(pending);
       } catch (error) {
         console.error("Error loading activities: ", error);
+        setLoading(false); // เพิ่มบรรทัดนี้
       }
     };
 
     const loadUserCompanyList = async () => {
       try {
         const users = await authUtils.userCompanyList();
-        setUserCompanyList(users.data.userslist); // ตั้งค่ารายชื่อผู้ใช้
+        setUserCompanyList(users.data.userslist);
       } catch (error) {
         console.error("Error loading user company list: ", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    const loadData = async () => {
-      await Promise.all([loadActivity(), loadUserCompanyList()]);
-      setLoading(false); // ตั้งค่า loading เป็น false หลังจากทั้งสองโหลดเสร็จ
-    };
-
-    loadData();
+    loadActivity();
+    loadUserCompanyList();
   }, []);
+
+  // console.log("activity: ", activity);
+  // console.log("approvedData: ", approvedData);
 
   if (loading) {
     return <div>Loading....</div>;

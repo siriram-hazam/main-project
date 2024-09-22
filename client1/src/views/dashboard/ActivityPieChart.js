@@ -6,12 +6,12 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 // Register the ArcElement and other required components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const MyPieChart = ({ approve, pending }) => {
+const MyPieChart = ({ approved, pending }) => {
   const data = {
     labels: ["Approve", "Pending"],
     datasets: [
       {
-        data: [approve, pending],
+        data: [approved, pending],
         backgroundColor: ["#28b463", "#e74c3c"],
         hoverBackgroundColor: ["#2ecc71", "#ec7063"],
       },

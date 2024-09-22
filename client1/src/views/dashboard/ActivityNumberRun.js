@@ -2,12 +2,12 @@ import React from "react";
 import { useSpring, animated } from "react-spring";
 import { Box, Typography } from "@mui/material";
 
-const AnimatedNumbers = ({ total, approve, pending }) => {
+const AnimatedNumbers = ({ total, approved, pending }) => {
   //   console.log("AnimatedNumbers props: ", total);
   // Animation for the first number (0 to 300)
   const props1 = useSpring({
     from: { value: 0 },
-    to: { value: approve },
+    to: { value: approved },
     config: { duration: 2000 }, // ระยะเวลาในการเคลื่อนไหว
   });
 

@@ -7,8 +7,6 @@ const PrivateRoute = ({ children, requiredRole, status_route }) => {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
 
-  const [status, setStatus] = useState(null);
-
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -30,28 +28,10 @@ const PrivateRoute = ({ children, requiredRole, status_route }) => {
     };
 
     checkAuth();
-
-    const checkUserSystem = async () => {
-      try {
-        const status = await authUtils.checkUserSystem();
-        setStatus(status.data.status);
-        // console.log("PrivateRoute checkUser : ", status.data.status);
-      } catch (error) {
-        console.error("Error PrivateRoute checkUser : ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkUserSystem();
   }, []);
 
   if (loading) {
     return <div>Loading....</div>;
-  }
-
-  if (status == "false" && status_route == "false") {
-    return <Navigate to="/register-superadmin" />;
   }
 
   // ตรวจสอบยศของผู้ใช้

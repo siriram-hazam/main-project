@@ -8,7 +8,6 @@ import {
   fetchUser,
   fetchUserList,
   updateUserPassword,
-  checkUserSytem,
 } from "../controller/userController.js";
 import { auth } from "../middleware/auth.js";
 

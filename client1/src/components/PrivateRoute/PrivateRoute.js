@@ -2,53 +2,64 @@ import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import authUtils from "../../hooks/useAuth";
 
-const PrivateRoute = ({ children, requiredRole }) => {
+const PrivateRoute = ({ children, requiredRole, status_route }) => {
   const [auth, setAuth] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
-  const [userCount, setUserCount] = useState(0);
 
-  console.log("User Count:", userCount);
-  console.log("Auth Status:", auth);
+  const [status, setStatus] = useState(null);
 
   useEffect(() => {
-    const loadAuthAndUserCount = async () => {
-      setLoading(true); // ตั้งค่า loading เป็น true ก่อนเริ่มโหลด
+    const checkAuth = async () => {
       try {
-        const [authRes, userCountRes] = await Promise.all([
-          authUtils.checkAuthStatus(),
-          authUtils.checkUserSystem(),
-        ]);
-
-        if (authRes.data.status === "authenticated") {
+        const res = await authUtils.checkAuthStatus();
+        // console.log("PrivateRoute checkAuth : ", res.data.user.role);
+        // console.log(users);
+        if (res.data.status === "authenticated") {
           setAuth(true);
-          setUserRole(authRes.data.user.role);
+          setUserRole(res.data.user.role); // เก็บข้อมูลยศ
         } else {
           setAuth(false);
         }
-
-        setUserCount(userCountRes.data.haveUser || 0);
       } catch (error) {
         setAuth(false);
-        console.error("Error in PrivateRoute: ", error);
+        console.error("Error PrivateRoute checkAuth : ", error);
       } finally {
-        setLoading(false); // ตั้งค่า loading เป็น false หลังจากทุกอย่างเสร็จสิ้น
+        setLoading(false);
       }
     };
 
-    loadAuthAndUserCount();
-  }, []); // ใช้ dependency array ว่างเพื่อให้ run เพียงครั้งเดียว
+    checkAuth();
+
+    const checkUserSystem = async () => {
+      try {
+        const status = await authUtils.checkUserSystem();
+        setStatus(status.data.status);
+        // console.log("PrivateRoute checkUser : ", status.data.status);
+      } catch (error) {
+        console.error("Error PrivateRoute checkUser : ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUserSystem();
+  }, []);
 
   if (loading) {
     return <div>Loading....</div>;
   }
 
-  // ตรวจสอบยศของผู้ใช้
-  if (auth && requiredRole && userRole !== requiredRole) {
-    return <Navigate to="/" replace />;
+  if (status == "false" && status_route == "false") {
+    return <Navigate to="/register-superadmin" />;
   }
 
-  return auth ? children : <Navigate to="/" replace />;
+  // ตรวจสอบยศของผู้ใช้
+  if (auth && requiredRole && userRole !== requiredRole) {
+    return <Navigate to="/" />; // เปลี่ยนเส้นทางไปยังหน้า unauthorized
+  }
+
+  return auth ? children : <Navigate to="/" />;
 };
 
 export default PrivateRoute;

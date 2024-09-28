@@ -60,6 +60,7 @@ model company {
   m_organization            m_organization[]
   m_technical               m_technical[]
   m_physical                m_physical[]
+  category                  category[]
 }
 
 model activity {
@@ -185,6 +186,11 @@ model category {
   category             String
   department_id        Int
   department_relation  department             @relation(fields: [department_id], references: [id])
+  company_id           Int                    @default(0)
+  company              company                @relation(fields: [company_id], references: [id])
+  // piece_of_info        Int
+  // poi_relation         piece_of_info          @relation(fields: [piece_of_info], references: [id])
+  piece_of_info        piece_of_info[]
   category_information category_information[]
 }
 
@@ -211,7 +217,6 @@ model poi_information {
 model piece_of_info {
   id                 Int                  @id @default(autoincrement())
   poi_info           poi_info[]
-  poi_information    poi_information[]
   poi_info_owner     poi_info_owner[]
   poi_info_from      poi_info_from[]
   poi_info_format    poi_info_format[]
@@ -229,6 +234,10 @@ model piece_of_info {
   // poi_info_ps_sendto_outside    poi_info_ps_sendto_outside[]
   // poi_info_ps_destroying        poi_info_ps_destroying[]
   // poi_info_ps_destroyer         poi_info_ps_destroyer[]
+  poi_information poi_information[]
+  // category        category[]
+  category        category?         @relation(fields: [categoryId], references: [id])
+  categoryId      Int?
 }
 
 //--------------------------------------------------------------

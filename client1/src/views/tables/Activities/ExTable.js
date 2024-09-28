@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+// ExTable.js
 
+import React, { useState } from "react";
 import {
   Typography,
   Box,
@@ -13,83 +14,69 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Divider,
   Button,
   Switch,
+  TextField,
 } from "@mui/material";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import TextField from "@mui/material/TextField";
-
-// sx={{
-//   // color: "grey",
-//   mr: 1,
-//   mb: {
-//     xs: 1,
-//     sm: 0,
-//     lg: 0,
-//   },
-//   fontSize: "1.5rem",
-// }}
 import FileOpenOutlinedIcon from "@mui/icons-material/FileOpenOutlined";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 import axios from "axios";
 axios.defaults.withCredentials = true;
 
-const handleDelete = async (id) => {
-  try {
-    const response = await axios.delete(
-      `${process.env.REACT_APP_SERVER_SIDE}/information/` + id
-    );
-
-    if (response.status === 200) {
-      toast.success("Delete success");
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } else {
-      toast.error("Delete failed");
-    }
-
-    console.log("Delete success");
-  } catch (error) {
-    toast.error("Delete failed");
-    console.error("Error handleDelete : ", error);
-  }
-};
-
-const handleApprove = async (id) => {
-  try {
-    const response = await axios.put(
-      `${process.env.REACT_APP_SERVER_SIDE}/information/` + id
-    );
-
-    if (response.status === 200) {
-      toast.success("Approve success");
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } else {
-      toast.error("Approve failed");
-    }
-    // console.log("Approve success");
-  } catch (error) {
-    toast.error("Approve failed");
-    console.error("Error handleApprove : ", error);
-  }
-};
-
 const ExTable = (props) => {
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [alertOpen, setAlertOpen] = useState(false);
   const [rowData, setRowData] = useState(null);
+  const [editData, setEditData] = useState(null);
   const [rowDialogOpen, setRowDialogOpen] = useState(false);
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await axios.delete(
+        `${process.env.REACT_APP_SERVER_SIDE}/information/` + id
+      );
+
+      if (response.status === 200) {
+        toast.success("Delete success");
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        toast.error("Delete failed");
+      }
+    } catch (error) {
+      toast.error("Delete failed");
+      console.error("Error handleDelete : ", error);
+    }
+  };
+
+  const handleApprove = async (id) => {
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_SERVER_SIDE}/information/` + id
+      );
+
+      if (response.status === 200) {
+        toast.success("Approve success");
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        toast.error("Approve failed");
+      }
+    } catch (error) {
+      toast.error("Approve failed");
+      console.error("Error handleApprove : ", error);
+    }
+  };
 
   const handleClickOpen = (id) => {
     setSelectedId(id);
@@ -125,18 +112,17 @@ const ExTable = (props) => {
 
   const handleRowClick = (item) => {
     setRowData(item);
-    // console.log(item);
+    setEditData(JSON.parse(JSON.stringify(item))); // Deep copy for editing
     setRowDialogOpen(true);
   };
 
   const handleRowDialogClose = () => {
     setRowDialogOpen(false);
     setRowData(null);
+    setEditData(null);
   };
 
   const handleDownload = async (item) => {
-    console.log("handleDownload : ", item);
-
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER_SIDE}/information/downloadexcel`,
@@ -161,15 +147,30 @@ const ExTable = (props) => {
     }
   };
 
+  const handleSave = async () => {
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_SERVER_SIDE}/information/update/${rowData.id}`,
+        editData
+      );
+
+      if (response.status === 200) {
+        toast.success("Update success");
+        setRowDialogOpen(false);
+        window.location.reload();
+      } else {
+        toast.error("Update failed");
+      }
+    } catch (error) {
+      toast.error("Update failed");
+      console.error("Error updating the information:", error);
+    }
+  };
+
   return (
     <>
       <Box sx={{ overflowX: "auto" }}>
-        <Table
-          aria-label="Activity Table"
-          sx={{
-            mt: 3,
-          }}
-        >
+        <Table aria-label="Activity Table" sx={{ mt: 3 }}>
           <TableHead>
             <TableRow>
               <TableCell>
@@ -197,7 +198,7 @@ const ExTable = (props) => {
                   Create Time
                 </Typography>
               </TableCell>
-              <TableCell align="left">
+              <TableCell align="center">
                 <Typography color="textSecondary" variant="h6"></Typography>
               </TableCell>
               {props.user.data.users.role === "manager" ||
@@ -274,9 +275,9 @@ const ExTable = (props) => {
                           fontSize: "13px",
                         }}
                       >
-                        {item.category_information.map(
-                          (item) => item.category_relation.category
-                        )}
+                        {(item.category_information || [])
+                          .map((item) => item.category_relation.category)
+                          .join(", ")}
                       </Typography>
                       <Typography
                         color="textSecondary"
@@ -284,11 +285,13 @@ const ExTable = (props) => {
                           fontSize: "13px",
                         }}
                       >
-                        {item.category_information.map(
-                          (item) =>
-                            item.category_relation.department_relation
-                              .departmentName
-                        )}
+                        {(item.category_information || [])
+                          .map(
+                            (item) =>
+                              item.category_relation.department_relation
+                                .departmentName
+                          )
+                          .join(", ")}
                       </Typography>
                     </Box>
                   </Box>
@@ -332,13 +335,12 @@ const ExTable = (props) => {
                     <Fab
                       color="primary"
                       variant="extended"
-                      // disabled={item.status === "success" ? true : false}
+                      disabled={item.status === "success" ? true : false}
                       onClick={(event) => {
                         event.stopPropagation();
                         handleClickOpen(item.id);
                       }}
                       sx={{
-                        // mr: 1,
                         mb: {
                           xs: 1,
                           sm: 0,
@@ -358,7 +360,6 @@ const ExTable = (props) => {
                           fontSize: "1.5rem",
                         }}
                       />
-                      {/* Delete */}
                     </Fab>
                   </Typography>
                 </TableCell>
@@ -370,13 +371,11 @@ const ExTable = (props) => {
                         <Fab
                           color="success"
                           variant="extended"
-                          // disabled={item.status === "success" ? true : false}
                           onClick={(event) => {
                             event.stopPropagation();
                             handleDownload(item);
                           }}
                           sx={{
-                            // mr: 1,
                             mb: {
                               xs: 0,
                               sm: 0,
@@ -396,7 +395,6 @@ const ExTable = (props) => {
                               fontSize: "1.5rem",
                             }}
                           />
-                          {/* Excel File */}
                         </Fab>
                       </Typography>
                     </TableCell>
@@ -430,6 +428,7 @@ const ExTable = (props) => {
 
       <ToastContainer />
 
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -438,9 +437,9 @@ const ExTable = (props) => {
       >
         <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
+          <Typography id="alert-dialog-description">
             Are you sure you want to delete this item?
-          </DialogContentText>
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button
@@ -465,6 +464,7 @@ const ExTable = (props) => {
         </DialogActions>
       </Dialog>
 
+      {/* Approve Confirmation Dialog */}
       <Dialog
         open={alertOpen}
         onClose={handleAlertClose}
@@ -473,9 +473,9 @@ const ExTable = (props) => {
       >
         <DialogTitle id="alert-dialog-title">{"Enable Switch"}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
+          <Typography id="alert-dialog-description">
             Do you want to enable this switch?
-          </DialogContentText>
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button
@@ -500,6 +500,7 @@ const ExTable = (props) => {
         </DialogActions>
       </Dialog>
 
+      {/* Activity Details Dialog */}
       <Dialog
         open={rowDialogOpen}
         onClose={handleRowDialogClose}
@@ -528,19 +529,19 @@ const ExTable = (props) => {
         </DialogTitle>
         <DialogContent>
           <Divider sx={{ mt: 2, mb: 2 }} />
-        </DialogContent>
-        <DialogContent>
-          <DialogContentText
+          <Typography variant="h5" sx={{ marginBottom: "1rem" }}>
+            เอกสารที่ 1
+          </Typography>
+          <div
             id="row-dialog-description"
-            sx={{ fontSize: "1rem" }}
             style={{ paddingLeft: "2rem", paddingRight: "2rem" }}
           >
-            {/* {console.log(rowData)} */}
-            {rowData && (
+            {editData && (
               <>
+                {/* General Information */}
                 <TextField
                   label="Id"
-                  value={rowData.id}
+                  value={editData.id}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -551,9 +552,14 @@ const ExTable = (props) => {
                 />
                 <TextField
                   label="Activity"
-                  value={rowData.activity_relation.activity}
+                  value={editData.activity_relation.activity}
                   InputProps={{
-                    readOnly: true,
+                    readOnly: editData.status !== "pending",
+                  }}
+                  onChange={(e) => {
+                    const updatedData = { ...editData };
+                    updatedData.activity_relation.activity = e.target.value;
+                    setEditData(updatedData);
                   }}
                   variant="outlined"
                   fullWidth
@@ -562,7 +568,7 @@ const ExTable = (props) => {
                 />
                 <TextField
                   label="Status"
-                  value={rowData.status}
+                  value={editData.status}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -573,14 +579,17 @@ const ExTable = (props) => {
                 />
                 <TextField
                   label="Create Time"
-                  value={new Date(rowData.create_time).toLocaleString("th-TH", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  })}
+                  value={new Date(editData.create_time).toLocaleString(
+                    "th-TH",
+                    {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    }
+                  )}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -591,7 +600,7 @@ const ExTable = (props) => {
                 />
                 <TextField
                   label="Created By"
-                  value={rowData.user_account_relation.fullname}
+                  value={editData.user_account_relation.fullname}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -602,7 +611,7 @@ const ExTable = (props) => {
                 />
                 <TextField
                   label="Company"
-                  value={rowData.company_relation.companyName}
+                  value={editData.company_relation.companyName}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -611,177 +620,222 @@ const ExTable = (props) => {
                   margin="normal"
                   multiline
                 />
-                <TextField
-                  label="Category"
-                  value={rowData.category_information
-                    .map((item) => item.category_relation.category)
-                    .join(", ")}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
-                  multiline
-                />
-                <TextField
-                  label="Department"
-                  value={rowData.category_information
-                    .map(
-                      (item) =>
-                        item.category_relation.department_relation
-                          .departmentName
-                    )
-                    .join(", ")}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
-                  multiline
-                />
-                {rowData.poi_information.map((poi, index) => (
-                  <div key={index}>
-                    <Typography variant="h6" sx={{ marginTop: "1rem" }}>
-                      POI Information Set {index + 1}
-                    </Typography>
-                    <div style={{ paddingLeft: "2rem" }}>
-                      <TextField
-                        label={`POI Info ${index + 1}`}
-                        value={poi.poi_relation.poi_info
-                          .map((info) => info.info_relation.info_)
-                          .join(", ")}
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        multiline
-                      />
-                      <TextField
-                        label={`POI Owner ${index + 1}`}
-                        value={poi.poi_relation.poi_info_owner
-                          .map((owner) => owner.info_owner_relation.owner_)
-                          .join(", ")}
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        multiline
-                      />
-                      <TextField
-                        label={`POI From ${index + 1}`}
-                        value={poi.poi_relation.poi_info_from
-                          .map((from) => from.info_from_relation.from_)
-                          .join(", ")}
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        multiline
-                      />
-                      <TextField
-                        label={`POI Format ${index + 1}`}
-                        value={poi.poi_relation.poi_info_format
-                          .map((format) => format.info_format_relation.format_)
-                          .join(", ")}
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        multiline
-                      />
-                      <TextField
-                        label={`POI Type ${index + 1}`}
-                        value={poi.poi_relation.poi_info_type
-                          .map((type) => type.info_type_relation.type_)
-                          .join(", ")}
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        multiline
-                      />
-                      <TextField
-                        label={`POI Objective ${index + 1}`}
-                        value={poi.poi_relation.poi_info_objective
-                          .map(
-                            (objective) =>
-                              objective.info_objective_relation.objective_
-                          )
-                          .join(", ")}
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        multiline
-                      />
-                      <TextField
-                        label={`POI Lawbase ${index + 1}`}
-                        value={poi.poi_relation.poi_info_lawbase
-                          .map(
-                            (lawbase) => lawbase.info_lawbase_relation.lawBase_
-                          )
-                          .join(", ")}
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        multiline
-                      />
+
+                {/* Categories and POI Relations */}
+                {(editData.category_information || []).map(
+                  (categoryInfo, categoryIndex) => (
+                    <div key={categoryIndex}>
+                      <Typography variant="h6" sx={{ marginTop: "1rem" }}>
+                        Category: {categoryInfo.category_relation.category}
+                      </Typography>
+
+                      {/* Filter POIs for this category */}
+                      {(
+                        editData.poi_information.filter(
+                          (poiInfo) =>
+                            poiInfo.poi_relation.category_id ===
+                            categoryInfo.category_id
+                        ) || []
+                      ).map((poiInfo, poiIndex) => (
+                        <div key={poiIndex} style={{ paddingLeft: "2rem" }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ marginTop: "1rem" }}
+                          >
+                            POI Information Set {poiIndex + 1}
+                          </Typography>
+                          {/* POI Info */}
+                          <TextField
+                            label={`POI Info ${poiIndex + 1}`}
+                            value={(poiInfo.poi_relation.poi_info || [])
+                              .map((info) => info.info_relation.info_)
+                              .join(", ")}
+                            InputProps={{
+                              readOnly: editData.status !== "pending",
+                            }}
+                            onChange={(e) => {
+                              const updatedData = { ...editData };
+                              updatedData.poi_information[
+                                poiIndex
+                              ].poi_relation.poi_info[0].info_relation.info_ =
+                                e.target.value;
+                              setEditData(updatedData);
+                            }}
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            multiline
+                          />
+                          {/* POI Owner */}
+                          <TextField
+                            label={`POI Owner ${poiIndex + 1}`}
+                            value={(poiInfo.poi_relation.poi_info_owner || [])
+                              .map((owner) => owner.info_owner_relation.owner_)
+                              .join(", ")}
+                            InputProps={{
+                              readOnly: editData.status !== "pending",
+                            }}
+                            onChange={(e) => {
+                              const updatedData = { ...editData };
+                              updatedData.poi_information[
+                                poiIndex
+                              ].poi_relation.poi_info_owner[0].info_owner_relation.owner_ =
+                                e.target.value;
+                              setEditData(updatedData);
+                            }}
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            multiline
+                          />
+                          {/* POI From */}
+                          <TextField
+                            label={`POI From ${poiIndex + 1}`}
+                            value={(poiInfo.poi_relation.poi_info_from || [])
+                              .map((from) => from.info_from_relation.from_)
+                              .join(", ")}
+                            InputProps={{
+                              readOnly: editData.status !== "pending",
+                            }}
+                            onChange={(e) => {
+                              const updatedData = { ...editData };
+                              updatedData.poi_information[
+                                poiIndex
+                              ].poi_relation.poi_info_from[0].info_from_relation.from_ =
+                                e.target.value;
+                              setEditData(updatedData);
+                            }}
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            multiline
+                          />
+                          {/* POI Format */}
+                          <TextField
+                            label={`POI Format ${poiIndex + 1}`}
+                            value={(poiInfo.poi_relation.poi_info_format || [])
+                              .map(
+                                (format) => format.info_format_relation.format_
+                              )
+                              .join(", ")}
+                            InputProps={{
+                              readOnly: editData.status !== "pending",
+                            }}
+                            onChange={(e) => {
+                              const updatedData = { ...editData };
+                              updatedData.poi_information[
+                                poiIndex
+                              ].poi_relation.poi_info_format[0].info_format_relation.format_ =
+                                e.target.value;
+                              setEditData(updatedData);
+                            }}
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            multiline
+                          />
+                          {/* POI Type */}
+                          <TextField
+                            label={`POI Type ${poiIndex + 1}`}
+                            value={(poiInfo.poi_relation.poi_info_type || [])
+                              .map((type) => type.info_type_relation.type_)
+                              .join(", ")}
+                            InputProps={{
+                              readOnly: editData.status !== "pending",
+                            }}
+                            onChange={(e) => {
+                              const updatedData = { ...editData };
+                              updatedData.poi_information[
+                                poiIndex
+                              ].poi_relation.poi_info_type[0].info_type_relation.type_ =
+                                e.target.value;
+                              setEditData(updatedData);
+                            }}
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            multiline
+                          />
+                          {/* POI Objective */}
+                          <TextField
+                            label={`POI Objective ${poiIndex + 1}`}
+                            value={(
+                              poiInfo.poi_relation.poi_info_objective || []
+                            )
+                              .map(
+                                (objective) =>
+                                  objective.info_objective_relation.objective_
+                              )
+                              .join(", ")}
+                            InputProps={{
+                              readOnly: editData.status !== "pending",
+                            }}
+                            onChange={(e) => {
+                              const updatedData = { ...editData };
+                              updatedData.poi_information[
+                                poiIndex
+                              ].poi_relation.poi_info_objective[0].info_objective_relation.objective_ =
+                                e.target.value;
+                              setEditData(updatedData);
+                            }}
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            multiline
+                          />
+                          {/* POI Lawbase */}
+                          {(poiInfo.poi_relation.poi_info_lawbase || []).map(
+                            (lawbaseItem, lawbaseIndex) => (
+                              <TextField
+                                key={lawbaseIndex}
+                                label={`POI Lawbase ${poiIndex + 1} - Lawbase ${
+                                  lawbaseIndex + 1
+                                }`}
+                                value={
+                                  lawbaseItem.info_lawbase_relation.lawBase_
+                                }
+                                InputProps={{
+                                  readOnly: editData.status !== "pending",
+                                }}
+                                onChange={(e) => {
+                                  const updatedData = { ...editData };
+                                  updatedData.poi_information[
+                                    poiIndex
+                                  ].poi_relation.poi_info_lawbase[
+                                    lawbaseIndex
+                                  ].info_lawbase_relation.lawBase_ =
+                                    e.target.value;
+                                  setEditData(updatedData);
+                                }}
+                                variant="outlined"
+                                fullWidth
+                                margin="normal"
+                                multiline
+                              />
+                            )
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ))}
-                {rowData.information_info_stored_period.map((period, index) => (
-                  <TextField
-                    key={index}
-                    label={`Stored Period ${index + 1}`}
-                    value={period.info_stored_period_relation.period_}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    multiline
-                  />
-                ))}
-                {rowData.information_info_placed.map((placed, index) => (
-                  <TextField
-                    key={index}
-                    label={`Info Placed ${index + 1}`}
-                    value={placed.info_placed_relation.placed_}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    multiline
-                  />
-                ))}
-                {rowData.information_info_allowed_ps.map(
-                  (allowed_ps, index) => (
+                  )
+                )}
+
+                {/* Other Information Sections */}
+                {(editData.information_info_stored_period || []).map(
+                  (period, index) => (
                     <TextField
                       key={index}
-                      label={`Allowed PS ${index + 1}`}
-                      value={allowed_ps.info_allowed_ps_relation.allowed_ps_}
+                      label={`Stored Period ${index + 1}`}
+                      value={period.info_stored_period_relation.period_}
                       InputProps={{
-                        readOnly: true,
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_info_stored_period[
+                          index
+                        ].info_stored_period_relation.period_ = e.target.value;
+                        setEditData(updatedData);
                       }}
                       variant="outlined"
                       fullWidth
@@ -790,7 +844,53 @@ const ExTable = (props) => {
                     />
                   )
                 )}
-                {rowData.information_info_allowed_ps_condition.map(
+                {(editData.information_info_placed || []).map(
+                  (placed, index) => (
+                    <TextField
+                      key={index}
+                      label={`Info Placed ${index + 1}`}
+                      value={placed.info_placed_relation.placed_}
+                      InputProps={{
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_info_placed[
+                          index
+                        ].info_placed_relation.placed_ = e.target.value;
+                        setEditData(updatedData);
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {(editData.information_info_allowed_ps || []).map(
+                  (allowedPs, index) => (
+                    <TextField
+                      key={index}
+                      label={`Allowed PS ${index + 1}`}
+                      value={allowedPs.info_allowed_ps_relation.allowed_ps_}
+                      InputProps={{
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_info_allowed_ps[
+                          index
+                        ].info_allowed_ps_relation.allowed_ps_ = e.target.value;
+                        setEditData(updatedData);
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {(editData.information_info_allowed_ps_condition || []).map(
                   (condition, index) => (
                     <TextField
                       key={index}
@@ -800,7 +900,15 @@ const ExTable = (props) => {
                           .allowed_ps_condition_
                       }
                       InputProps={{
-                        readOnly: true,
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_info_allowed_ps_condition[
+                          index
+                        ].info_allowed_ps_condition_relation.allowed_ps_condition_ =
+                          e.target.value;
+                        setEditData(updatedData);
                       }}
                       variant="outlined"
                       fullWidth
@@ -809,31 +917,48 @@ const ExTable = (props) => {
                     />
                   )
                 )}
-                {rowData.information_info_access.map((access, index) => (
-                  <TextField
-                    key={index}
-                    label={`Info Access ${index + 1}`}
-                    value={access.info_access_relation.access_}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    multiline
-                  />
-                ))}
-                {rowData.information_info_access_condition.map(
-                  (access_condition, index) => (
+                {(editData.information_info_access || []).map(
+                  (access, index) => (
+                    <TextField
+                      key={index}
+                      label={`Info Access ${index + 1}`}
+                      value={access.info_access_relation.access_}
+                      InputProps={{
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_info_access[
+                          index
+                        ].info_access_relation.access_ = e.target.value;
+                        setEditData(updatedData);
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {(editData.information_info_access_condition || []).map(
+                  (accessCondition, index) => (
                     <TextField
                       key={index}
                       label={`Access Condition ${index + 1}`}
                       value={
-                        access_condition.info_access_condition_relation
+                        accessCondition.info_access_condition_relation
                           .access_condition_
                       }
                       InputProps={{
-                        readOnly: true,
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_info_access_condition[
+                          index
+                        ].info_access_condition_relation.access_condition_ =
+                          e.target.value;
+                        setEditData(updatedData);
                       }}
                       variant="outlined"
                       fullWidth
@@ -842,17 +967,25 @@ const ExTable = (props) => {
                     />
                   )
                 )}
-                {rowData.information_info_ps_usedbyrole_inside.map(
-                  (usedbyrole, index) => (
+                {(editData.information_info_ps_usedbyrole_inside || []).map(
+                  (usedByRole, index) => (
                     <TextField
                       key={index}
                       label={`Used by Role Inside ${index + 1}`}
                       value={
-                        usedbyrole.info_ps_usedbyrole_inside_relation
+                        usedByRole.info_ps_usedbyrole_inside_relation
                           .use_by_role_
                       }
                       InputProps={{
-                        readOnly: true,
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_info_ps_usedbyrole_inside[
+                          index
+                        ].info_ps_usedbyrole_inside_relation.use_by_role_ =
+                          e.target.value;
+                        setEditData(updatedData);
                       }}
                       variant="outlined"
                       fullWidth
@@ -861,14 +994,24 @@ const ExTable = (props) => {
                     />
                   )
                 )}
-                {rowData.information_info_ps_sendto_outside.map(
-                  (sendto, index) => (
+                {(editData.information_info_ps_sendto_outside || []).map(
+                  (sendToOutside, index) => (
                     <TextField
                       key={index}
                       label={`Send to Outside ${index + 1}`}
-                      value={sendto.info_ps_sendto_outside_relation.sendto_}
+                      value={
+                        sendToOutside.info_ps_sendto_outside_relation.sendto_
+                      }
                       InputProps={{
-                        readOnly: true,
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_info_ps_sendto_outside[
+                          index
+                        ].info_ps_sendto_outside_relation.sendto_ =
+                          e.target.value;
+                        setEditData(updatedData);
                       }}
                       variant="outlined"
                       fullWidth
@@ -877,14 +1020,22 @@ const ExTable = (props) => {
                     />
                   )
                 )}
-                {rowData.information_info_ps_destroying.map(
+                {(editData.information_info_ps_destroying || []).map(
                   (destroying, index) => (
                     <TextField
                       key={index}
                       label={`Destroying ${index + 1}`}
                       value={destroying.info_ps_destroying_relation.destroying_}
                       InputProps={{
-                        readOnly: true,
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_info_ps_destroying[
+                          index
+                        ].info_ps_destroying_relation.destroying_ =
+                          e.target.value;
+                        setEditData(updatedData);
                       }}
                       variant="outlined"
                       fullWidth
@@ -893,14 +1044,22 @@ const ExTable = (props) => {
                     />
                   )
                 )}
-                {rowData.information_info_ps_destroyer.map(
+                {(editData.information_info_ps_destroyer || []).map(
                   (destroyer, index) => (
                     <TextField
                       key={index}
                       label={`Destroyer ${index + 1}`}
                       value={destroyer.info_ps_destroyer_relation.destroyer_}
                       InputProps={{
-                        readOnly: true,
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_info_ps_destroyer[
+                          index
+                        ].info_ps_destroyer_relation.destroyer_ =
+                          e.target.value;
+                        setEditData(updatedData);
                       }}
                       variant="outlined"
                       fullWidth
@@ -909,14 +1068,21 @@ const ExTable = (props) => {
                     />
                   )
                 )}
-                {rowData.information_m_organization.map(
+                {(editData.information_m_organization || []).map(
                   (organization, index) => (
                     <TextField
                       key={index}
                       label={`Organization ${index + 1}`}
                       value={organization.m_organization_relation.organization}
                       InputProps={{
-                        readOnly: true,
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_m_organization[
+                          index
+                        ].m_organization_relation.organization = e.target.value;
+                        setEditData(updatedData);
                       }}
                       variant="outlined"
                       fullWidth
@@ -925,39 +1091,66 @@ const ExTable = (props) => {
                     />
                   )
                 )}
-                {rowData.information_m_technical.map((technical, index) => (
-                  <TextField
-                    key={index}
-                    label={`Technical ${index + 1}`}
-                    value={technical.m_technical_relation.technical}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    multiline
-                  />
-                ))}
-                {rowData.information_m_physical.map((physical, index) => (
-                  <TextField
-                    key={index}
-                    label={`Physical ${index + 1}`}
-                    value={physical.m_physical_relation.physical}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    multiline
-                  />
-                ))}
+                {(editData.information_m_technical || []).map(
+                  (technical, index) => (
+                    <TextField
+                      key={index}
+                      label={`Technical ${index + 1}`}
+                      value={technical.m_technical_relation.technical}
+                      InputProps={{
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_m_technical[
+                          index
+                        ].m_technical_relation.technical = e.target.value;
+                        setEditData(updatedData);
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
+                {(editData.information_m_physical || []).map(
+                  (physical, index) => (
+                    <TextField
+                      key={index}
+                      label={`Physical ${index + 1}`}
+                      value={physical.m_physical_relation.physical}
+                      InputProps={{
+                        readOnly: editData.status !== "pending",
+                      }}
+                      onChange={(e) => {
+                        const updatedData = { ...editData };
+                        updatedData.information_m_physical[
+                          index
+                        ].m_physical_relation.physical = e.target.value;
+                        setEditData(updatedData);
+                      }}
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      multiline
+                    />
+                  )
+                )}
               </>
             )}
-          </DialogContentText>
+          </div>
         </DialogContent>
         <DialogActions>
+          {editData && editData.status === "pending" && (
+            <Button
+              onClick={handleSave}
+              color="primary"
+              sx={{ fontSize: "1rem" }}
+            >
+              Save
+            </Button>
+          )}
           <Button
             onClick={handleRowDialogClose}
             color="primary"

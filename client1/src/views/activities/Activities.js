@@ -25,7 +25,42 @@ const ActivitiesAdd = () => {
   const [user, setUser] = useState(null);
   const [checkUser, setCheckUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState(null);
+  const [formData, setFormData] = useState({
+    activity: "",
+    status: "pending",
+    createBy: "",
+    company_id: "",
+    department_id: "",
+    categories: [
+      {
+        category: "",
+        poi_relations: [
+          {
+            poi_info: "",
+            poi_info_owner: "",
+            poi_info_from: "",
+            poi_info_format: "",
+            poi_info_type: "",
+            poi_info_objective: "",
+            poi_info_lawbase: [],
+          },
+        ],
+      },
+    ],
+    info_stored_period: [],
+    info_placed: [],
+    info_allowed_ps: [],
+    info_allowed_ps_condition: [],
+    info_access: [],
+    info_access_condition: [],
+    info_ps_usedbyrole_inside: [],
+    info_ps_sendto_outside: [],
+    info_ps_destroying: [],
+    info_ps_destroyer: [],
+    m_organization: [],
+    m_technical: [],
+    m_physical: [],
+  });
   const [optionData, setOptionData] = useState(null);
   const [isFormComplete, setIsFormComplete] = useState(false);
 
@@ -34,7 +69,6 @@ const ActivitiesAdd = () => {
     "status",
     "createBy",
     "company_id",
-    "category",
     "department_id",
     "info_stored_period",
     "info_placed",
@@ -79,6 +113,13 @@ const ActivitiesAdd = () => {
       try {
         const user = await authUtils.userProfile();
         setUser(user);
+
+        // Update formData with user information
+        setFormData((prevData) => ({
+          ...prevData,
+          createBy: user.data.users.id,
+          company_id: user.data.users.company_id,
+        }));
       } catch (error) {
         console.error("Error Activities loadUser : ", error);
       } finally {
@@ -101,43 +142,6 @@ const ActivitiesAdd = () => {
   }, []);
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        activity: "",
-        status: "pending",
-        createBy: user.data.users.id,
-        company_id: user.data.users.company_id,
-        category: "",
-        department_id: "",
-        poi_relations: [
-          {
-            poi_info: "",
-            poi_info_owner: "",
-            poi_info_from: "",
-            poi_info_format: "",
-            poi_info_type: "",
-            poi_info_objective: "",
-            poi_info_lawbase: [],
-          },
-        ],
-        info_stored_period: [],
-        info_placed: [],
-        info_allowed_ps: [],
-        info_allowed_ps_condition: [],
-        info_access: [],
-        info_access_condition: [],
-        info_ps_usedbyrole_inside: [],
-        info_ps_sendto_outside: [],
-        info_ps_destroying: [],
-        info_ps_destroyer: [],
-        m_organization: [],
-        m_technical: [],
-        m_physical: [],
-      });
-    }
-  }, [user]);
-
-  useEffect(() => {
     checkFormCompletion();
   }, [formData]);
 
@@ -156,18 +160,22 @@ const ActivitiesAdd = () => {
             : true)
         );
       }) &&
-      formData.poi_relations.every((poi) =>
-        requiredPoiFields.every((field) => {
-          const poiValue = poi[field];
-          return (
-            poiValue &&
-            (Array.isArray(poiValue)
-              ? poiValue.length > 0
-              : typeof poiValue === "string"
-              ? poiValue.trim() !== ""
-              : true)
-          );
-        })
+      formData.categories.every(
+        (categoryItem) =>
+          categoryItem.category &&
+          categoryItem.poi_relations.every((poi) =>
+            requiredPoiFields.every((field) => {
+              const poiValue = poi[field];
+              return (
+                poiValue &&
+                (Array.isArray(poiValue)
+                  ? poiValue.length > 0
+                  : typeof poiValue === "string"
+                  ? poiValue.trim() !== ""
+                  : true)
+              );
+            })
+          )
       );
 
     setIsFormComplete(isComplete);
@@ -178,22 +186,76 @@ const ActivitiesAdd = () => {
       ...prevData,
       [field]: value && value.id ? value.id : value,
     }));
-    checkFormCompletion(); // ตรวจสอบความครบถ้วนหลังการเปลี่ยนแปลง
+    checkFormCompletion();
   };
 
-  const handleNestedAutocompleteChange = (event, value, name, index, field) => {
+  const handleCategoryChange = (event, value, categoryIndex) => {
     setFormData((prevFormData) => {
-      const updatedRelations = [...prevFormData.poi_relations];
+      const updatedCategories = [...prevFormData.categories];
+      updatedCategories[categoryIndex].category =
+        value && value.id ? value.id : value;
+      return { ...prevFormData, categories: updatedCategories };
+    });
+    checkFormCompletion();
+  };
+
+  const handleCategoryInputChange = (event, newInputValue, categoryIndex) => {
+    setFormData((prevFormData) => {
+      const updatedCategories = [...prevFormData.categories];
+      updatedCategories[categoryIndex].category = newInputValue;
+      return { ...prevFormData, categories: updatedCategories };
+    });
+    checkFormCompletion();
+  };
+
+  const handleNestedAutocompleteChange = (
+    event,
+    value,
+    categoryIndex,
+    index,
+    field
+  ) => {
+    setFormData((prevFormData) => {
+      const updatedCategories = [...prevFormData.categories];
+      const updatedRelations = [
+        ...updatedCategories[categoryIndex].poi_relations,
+      ];
       updatedRelations[index] = {
         ...updatedRelations[index],
-        [field]: value,
+        [field]: value && value.id ? value.id : value,
       };
+      updatedCategories[categoryIndex].poi_relations = updatedRelations;
       return {
         ...prevFormData,
-        [name]: updatedRelations,
+        categories: updatedCategories,
       };
     });
-    checkFormCompletion(); // ตรวจสอบความครบถ้วนหลังการเปลี่ยนแปลง
+    checkFormCompletion();
+  };
+
+  const handleNestedInputChange = (
+    event,
+    newInputValue,
+    categoryIndex,
+    index,
+    field
+  ) => {
+    setFormData((prevFormData) => {
+      const updatedCategories = [...prevFormData.categories];
+      const updatedRelations = [
+        ...updatedCategories[categoryIndex].poi_relations,
+      ];
+      updatedRelations[index] = {
+        ...updatedRelations[index],
+        [field]: newInputValue,
+      };
+      updatedCategories[categoryIndex].poi_relations = updatedRelations;
+      return {
+        ...prevFormData,
+        categories: updatedCategories,
+      };
+    });
+    checkFormCompletion();
   };
 
   const handleSubmit = async (e) => {
@@ -201,6 +263,7 @@ const ActivitiesAdd = () => {
 
     console.log("Form data", formData);
 
+    // Validation
     for (let field of requiredFields) {
       if (
         !formData[field] ||
@@ -210,13 +273,20 @@ const ActivitiesAdd = () => {
       }
     }
 
-    for (let poi of formData.poi_relations) {
-      for (let field of requiredPoiFields) {
-        if (
-          !poi[field] ||
-          (Array.isArray(poi[field]) && poi[field].length === 0)
-        ) {
-          return alert(`Please fill in the ${field} in poi_relations`);
+    for (let category of formData.categories) {
+      if (!category.category || category.category.trim() === "") {
+        return alert("Please fill in the category");
+      }
+      for (let poi of category.poi_relations) {
+        for (let field of requiredPoiFields) {
+          if (
+            !poi[field] ||
+            (Array.isArray(poi[field]) && poi[field].length === 0)
+          ) {
+            return alert(
+              `Please fill in the ${field} in poi_relations of category`
+            );
+          }
         }
       }
     }
@@ -224,7 +294,6 @@ const ActivitiesAdd = () => {
     await axios
       .post(`${process.env.REACT_APP_SERVER_SIDE}/information`, formData)
       .then((res) => {
-        // console.log("Success", res);
         if (res.data.status === 200) {
           toast.success("Activity added successfully");
         } else {
@@ -241,7 +310,28 @@ const ActivitiesAdd = () => {
       });
   };
 
-  const addPoiRelation = () => {
+  const addCategory = () => {
+    const newCategory = {
+      category: "",
+      poi_relations: [
+        {
+          poi_info: "",
+          poi_info_owner: "",
+          poi_info_from: "",
+          poi_info_format: "",
+          poi_info_type: "",
+          poi_info_objective: "",
+          poi_info_lawbase: [],
+        },
+      ],
+    };
+    setFormData((prevState) => ({
+      ...prevState,
+      categories: [...prevState.categories, newCategory],
+    }));
+  };
+
+  const addPoiRelation = (categoryIndex) => {
     const newPoiRelation = {
       poi_info: "",
       poi_info_owner: "",
@@ -251,10 +341,14 @@ const ActivitiesAdd = () => {
       poi_info_objective: "",
       poi_info_lawbase: [],
     };
-    setFormData((prevState) => ({
-      ...prevState,
-      poi_relations: [...prevState.poi_relations, newPoiRelation],
-    }));
+    setFormData((prevState) => {
+      const updatedCategories = [...prevState.categories];
+      updatedCategories[categoryIndex].poi_relations = [
+        ...updatedCategories[categoryIndex].poi_relations,
+        newPoiRelation,
+      ];
+      return { ...prevState, categories: updatedCategories };
+    });
   };
 
   if (loading) {
@@ -291,84 +385,15 @@ const ActivitiesAdd = () => {
             </Typography>
             <Divider sx={{ mt: 2, mb: 2 }} />
             <form onSubmit={handleSubmit}>
+              {/* Department Field */}
               <Autocomplete
                 freeSolo
-                options={optionData.data.activity}
-                getOptionLabel={(option) =>
-                  // option.activity ? option.activity : ""
-                  typeof option === "string" ? option : option.activity || ""
-                } //Display option label
-                renderInput={(params) => (
-                  <TextField {...params} label="กิจกรรมงานที่บันทึกรายการ" />
-                )}
-                value={
-                  // optionData.data.activity.find(
-                  //   (option) => option.id === formData.activity
-                  // ) || null
-                  typeof formData.activity === "string"
-                    ? formData.activity
-                    : optionData.data.activity.find(
-                        (option) => option.id === formData.activity
-                      ) || ""
-                } // Handle the input value
-                onChange={(event, value) =>
-                  // handleAutocompleteChange(event, value, "activity")
-                  handleAutocompleteChange(
-                    event,
-                    typeof value === "string" ? value : value?.id || "",
-                    "activity"
-                  )
-                } // Handle change when selecting from dropdown
-                onInputChange={(event, newInputValue) => {
-                  setFormData((prevFormData) => ({
-                    ...prevFormData,
-                    activity: newInputValue,
-                  }));
-                  checkFormCompletion();
-                }} // Handle free solo input change
-                fullWidth
-                sx={{ mb: 2 }}
-                isOptionEqualToValue={(option, value) =>
-                  option.id === value.id || value === "" || option === value
-                } // Check for matching value
-              />
-
-              <Autocomplete
-                freeSolo
-                options={
-                  optionData.data.category ? optionData.data.category : []
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="ชื่อเอกสาร หรือ ชื่อไฟล์ที่จัดเก็บข้อมูล เช่น สำเนาบัตรประชาชน หรือ ใบสมัครงาน"
-                  />
-                )}
-                value={formData.category}
-                onChange={(event, value) =>
-                  handleAutocompleteChange(event, value, "category")
-                }
-                onInputChange={(event, newInputValue) => {
-                  setFormData((prevFormData) => ({
-                    ...prevFormData,
-                    category: newInputValue,
-                  }));
-                }}
-                fullWidth
-                sx={{ mb: 2 }}
-                isOptionEqualToValue={(option, value) =>
-                  option === value || value === ""
-                }
-              />
-
-              <Autocomplete
-                freeSolo
-                options={optionData.data.department} // Option list
+                options={optionData.data.department}
                 getOptionLabel={(option) =>
                   typeof option === "string"
                     ? option
                     : option.departmentName || ""
-                } // Display option label
+                }
                 renderInput={(params) => (
                   <TextField {...params} label="หน่วยงานที่บันทึกรายการ" />
                 )}
@@ -378,391 +403,497 @@ const ActivitiesAdd = () => {
                     : optionData.data.department.find(
                         (option) => option.id === formData.department_id
                       ) || ""
-                } // Handle the input value
+                }
                 onChange={(event, value) =>
                   handleAutocompleteChange(
                     event,
                     typeof value === "string" ? value : value?.id || "",
                     "department_id"
                   )
-                } // Handle change when selecting from dropdown
+                }
                 onInputChange={(event, newInputValue) => {
                   setFormData((prevFormData) => ({
                     ...prevFormData,
                     department_id: newInputValue,
                   }));
                   checkFormCompletion();
-                }} // Handle free solo input change
+                }}
                 fullWidth
                 sx={{ mb: 2 }}
                 isOptionEqualToValue={(option, value) =>
                   option.id === value.id || value === "" || option === value
-                } // Check for matching value
+                }
               />
 
-              {formData.poi_relations.map((relation, index) => (
-                <Box key={index} sx={{ mb: 2 }}>
-                  <Typography variant="h6" sx={{ mb: 1.2 }}>
-                    ข้อมูลส่วนบุคคลที่เก็บ ที่ {index + 1}
-                  </Typography>
+              {/* Activity Field */}
+              <Autocomplete
+                freeSolo
+                options={optionData.data.activity}
+                getOptionLabel={(option) =>
+                  typeof option === "string" ? option : option.activity || ""
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="กิจกรรมงานที่บันทึกรายการ" />
+                )}
+                value={
+                  typeof formData.activity === "string"
+                    ? formData.activity
+                    : optionData.data.activity.find(
+                        (option) => option.id === formData.activity
+                      ) || ""
+                }
+                onChange={(event, value) =>
+                  handleAutocompleteChange(
+                    event,
+                    typeof value === "string" ? value : value?.id || "",
+                    "activity"
+                  )
+                }
+                onInputChange={(event, newInputValue) => {
+                  setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    activity: newInputValue,
+                  }));
+                  checkFormCompletion();
+                }}
+                fullWidth
+                sx={{ mb: 2 }}
+                isOptionEqualToValue={(option, value) =>
+                  option.id === value.id || value === "" || option === value
+                }
+              />
 
-                  <Box sx={{ ml: 3 }}>
-                    <Autocomplete
-                      freeSolo
-                      options={optionData.data.poi_info}
-                      getOptionLabel={(option) =>
-                        typeof option === "string" ? option : option.info_ || ""
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="ข้อมูล เช่น ชื่อ-นามสกุล"
-                        />
-                      )}
-                      value={
-                        typeof relation.poi_info === "string"
-                          ? relation.poi_info
-                          : optionData.data.poi_info.find(
-                              (opt) => opt.id === relation.poi_info
-                            ) || ""
-                      }
-                      onChange={(event, value) =>
-                        handleNestedAutocompleteChange(
-                          event,
-                          typeof value === "string" ? value : value?.id || "",
-                          "poi_relations",
-                          index,
-                          "poi_info"
-                        )
-                      }
-                      onInputChange={(event, newInputValue) => {
-                        setFormData((prevFormData) => {
-                          const updatedRelations = [
-                            ...prevFormData.poi_relations,
-                          ];
-                          updatedRelations[index].poi_info = newInputValue;
-                          return {
-                            ...prevFormData,
-                            poi_relations: updatedRelations,
-                          };
-                        });
-                        checkFormCompletion();
-                      }}
-                      fullWidth
-                      sx={{ mb: 2 }}
-                      isOptionEqualToValue={(option, value) =>
-                        option.id === value.id ||
-                        value === "" ||
-                        option === value
-                      }
-                    />
+              {/* Categories and POI Relations */}
+              {formData.categories.map((categoryItem, categoryIndex) => (
+                <Box key={categoryIndex} sx={{ mb: 2 }}>
+                  {/* Category Field */}
+                  <Autocomplete
+                    freeSolo
+                    options={
+                      optionData.data.category ? optionData.data.category : []
+                    }
+                    getOptionLabel={(option) =>
+                      typeof option === "string"
+                        ? option
+                        : option.category || ""
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="ชื่อเอกสาร หรือ ชื่อไฟล์ที่จัดเก็บข้อมูล เช่น สำเนาบัตรประชาชน หรือ ใบสมัครงาน"
+                      />
+                    )}
+                    value={
+                      typeof categoryItem.category === "string"
+                        ? categoryItem.category
+                        : optionData.data.category.find(
+                            (option) => option.id === categoryItem.category
+                          ) || ""
+                    }
+                    onChange={(event, value) =>
+                      handleCategoryChange(event, value, categoryIndex)
+                    }
+                    onInputChange={(event, newInputValue) =>
+                      handleCategoryInputChange(
+                        event,
+                        newInputValue,
+                        categoryIndex
+                      )
+                    }
+                    fullWidth
+                    sx={{ mb: 2 }}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id || value === "" || option === value
+                    }
+                  />
 
-                    <Autocomplete
-                      freeSolo
-                      options={optionData.data.poi_info_owner}
-                      getOptionLabel={(option) =>
-                        typeof option === "string"
-                          ? option
-                          : option.owner_ || ""
-                      }
-                      renderInput={(params) => (
-                        <TextField {...params} label="เจ้าของข้อมูลส่วนบุคคล" />
-                      )}
-                      value={
-                        typeof relation.poi_info_owner === "string"
-                          ? relation.poi_info_owner
-                          : optionData.data.poi_info_owner.find(
-                              (opt) => opt.id === relation.poi_info_owner
-                            ) || ""
-                      }
-                      onChange={(event, value) =>
-                        handleNestedAutocompleteChange(
-                          event,
-                          typeof value === "string" ? value : value?.id || "",
-                          "poi_relations",
-                          index,
-                          "poi_info_owner"
-                        )
-                      }
-                      onInputChange={(event, newInputValue) => {
-                        setFormData((prevFormData) => {
-                          const updatedRelations = [
-                            ...prevFormData.poi_relations,
-                          ];
-                          updatedRelations[index].poi_info_owner =
-                            newInputValue;
-                          return {
-                            ...prevFormData,
-                            poi_relations: updatedRelations,
-                          };
-                        });
-                        checkFormCompletion();
-                      }}
-                      fullWidth
-                      sx={{ mb: 2 }}
-                    />
+                  {/* POI Relations */}
+                  {categoryItem.poi_relations.map((relation, index) => (
+                    <Box key={index} sx={{ mb: 2 }}>
+                      <Typography variant="h6" sx={{ mb: 1.2 }}>
+                        ข้อมูลส่วนบุคคลที่เก็บ ที่ {index + 1}
+                      </Typography>
 
-                    <Autocomplete
-                      freeSolo
-                      options={optionData.data.poi_info_from}
-                      getOptionLabel={(option) =>
-                        typeof option === "string" ? option : option.from_ || ""
-                      }
-                      renderInput={(params) => (
-                        <TextField {...params} label="ได้รับข้อมูลจาก" />
-                      )}
-                      value={
-                        typeof relation.poi_info_from === "string"
-                          ? relation.poi_info_from
-                          : optionData.data.poi_info_from.find(
-                              (opt) => opt.id === relation.poi_info_from
-                            ) || ""
-                      }
-                      onChange={(event, value) =>
-                        handleNestedAutocompleteChange(
-                          event,
-                          typeof value === "string" ? value : value?.id || "",
-                          "poi_relations",
-                          index,
-                          "poi_info_from"
-                        )
-                      }
-                      onInputChange={(event, newInputValue) => {
-                        setFormData((prevFormData) => {
-                          const updatedRelations = [
-                            ...prevFormData.poi_relations,
-                          ];
-                          updatedRelations[index].poi_info_from = newInputValue;
-                          return {
-                            ...prevFormData,
-                            poi_relations: updatedRelations,
-                          };
-                        });
-                        checkFormCompletion();
-                      }}
-                      fullWidth
-                      sx={{ mb: 2 }}
-                    />
-
-                    <Autocomplete
-                      freeSolo
-                      options={optionData.data.poi_info_format}
-                      getOptionLabel={(option) =>
-                        typeof option === "string"
-                          ? option
-                          : option.format_ || ""
-                      }
-                      renderInput={(params) => (
-                        <TextField {...params} label="รูปแบบของข้อมูล" />
-                      )}
-                      value={
-                        typeof relation.poi_info_format === "string"
-                          ? relation.poi_info_format
-                          : optionData.data.poi_info_format.find(
-                              (opt) => opt.id === relation.poi_info_format
-                            ) || ""
-                      }
-                      onChange={(event, value) =>
-                        handleNestedAutocompleteChange(
-                          event,
-                          typeof value === "string" ? value : value?.id || "",
-                          "poi_relations",
-                          index,
-                          "poi_info_format"
-                        )
-                      }
-                      onInputChange={(event, newInputValue) => {
-                        setFormData((prevFormData) => {
-                          const updatedRelations = [
-                            ...prevFormData.poi_relations,
-                          ];
-                          updatedRelations[index].poi_info_format =
-                            newInputValue;
-                          return {
-                            ...prevFormData,
-                            poi_relations: updatedRelations,
-                          };
-                        });
-                        checkFormCompletion();
-                      }}
-                      fullWidth
-                      sx={{ mb: 2 }}
-                    />
-
-                    <Autocomplete
-                      freeSolo
-                      options={optionData.data.poi_info_type}
-                      getOptionLabel={(option) =>
-                        typeof option === "string" ? option : option.type_ || ""
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="ประเภทของข้อมูลส่วนบุคคล"
-                        />
-                      )}
-                      value={
-                        typeof relation.poi_info_type === "string"
-                          ? relation.poi_info_type
-                          : optionData.data.poi_info_type.find(
-                              (opt) => opt.id === relation.poi_info_type
-                            ) || ""
-                      }
-                      onChange={(event, value) =>
-                        handleNestedAutocompleteChange(
-                          event,
-                          typeof value === "string" ? value : value?.id || "",
-                          "poi_relations",
-                          index,
-                          "poi_info_type"
-                        )
-                      }
-                      onInputChange={(event, newInputValue) => {
-                        setFormData((prevFormData) => {
-                          const updatedRelations = [
-                            ...prevFormData.poi_relations,
-                          ];
-                          updatedRelations[index].poi_info_type = newInputValue;
-                          return {
-                            ...prevFormData,
-                            poi_relations: updatedRelations,
-                          };
-                        });
-                        checkFormCompletion();
-                      }}
-                      fullWidth
-                      sx={{ mb: 2 }}
-                    />
-
-                    <Autocomplete
-                      freeSolo
-                      options={optionData.data.poi_info_objective}
-                      getOptionLabel={(option) =>
-                        typeof option === "string"
-                          ? option
-                          : option.objective_ || ""
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="วัตถุประสงค์ของการเก็บข้อมูล"
-                        />
-                      )}
-                      value={
-                        typeof relation.poi_info_objective === "string"
-                          ? relation.poi_info_objective
-                          : optionData.data.poi_info_objective.find(
-                              (opt) => opt.id === relation.poi_info_objective
-                            ) || ""
-                      }
-                      onChange={(event, value) => {
-                        handleNestedAutocompleteChange(
-                          event,
-                          typeof value === "string" ? value : value?.id || "",
-                          "poi_relations",
-                          index,
-                          "poi_info_objective"
-                        );
-                        checkFormCompletion(); // Ensure form completion is checked after change
-                      }}
-                      onInputChange={(event, newInputValue) => {
-                        setFormData((prevFormData) => {
-                          const updatedRelations = [
-                            ...prevFormData.poi_relations,
-                          ];
-                          updatedRelations[index].poi_info_objective =
-                            newInputValue;
-                          return {
-                            ...prevFormData,
-                            poi_relations: updatedRelations,
-                          };
-                        });
-                        checkFormCompletion(); // Ensure form completion is checked after input
-                      }}
-                      fullWidth
-                      sx={{ mb: 2 }}
-                      isOptionEqualToValue={(option, value) =>
-                        option.id === value.id ||
-                        value === "" ||
-                        option === value
-                      }
-                    />
-
-                    <Autocomplete
-                      freeSolo
-                      multiple
-                      options={optionData.data.poi_info_lawbase}
-                      getOptionLabel={(option) =>
-                        typeof option === "string"
-                          ? option
-                          : option.lawBase_ || ""
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="ฐานทางกฏหมายสำหรับการประมวลผลข้อมูลส่วนบุคคล"
-                          onKeyDown={(event) => {
-                            if (
-                              event.key === "Enter" &&
-                              event.target.value.trim() !== ""
-                            ) {
-                              event.preventDefault();
-                              setFormData((prevFormData) => {
-                                const updatedRelations = [
-                                  ...prevFormData.poi_relations,
-                                ];
-                                const currentRelation = updatedRelations[index];
-                                currentRelation.poi_info_lawbase = [
-                                  ...currentRelation.poi_info_lawbase,
-                                  event.target.value,
-                                ];
-                                return {
-                                  ...prevFormData,
-                                  poi_relations: updatedRelations,
-                                };
-                              });
-                              checkFormCompletion();
-                            }
+                      <Box sx={{ ml: 3 }}>
+                        {/* poi_info */}
+                        <Autocomplete
+                          freeSolo
+                          options={optionData.data.poi_info}
+                          getOptionLabel={(option) =>
+                            typeof option === "string"
+                              ? option
+                              : option.info_ || ""
+                          }
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="ข้อมูล เช่น ชื่อ-นามสกุล"
+                            />
+                          )}
+                          value={
+                            typeof relation.poi_info === "string"
+                              ? relation.poi_info
+                              : optionData.data.poi_info.find(
+                                  (opt) => opt.id === relation.poi_info
+                                ) || ""
+                          }
+                          onChange={(event, value) =>
+                            handleNestedAutocompleteChange(
+                              event,
+                              typeof value === "string"
+                                ? value
+                                : value?.id || "",
+                              categoryIndex,
+                              index,
+                              "poi_info"
+                            )
+                          }
+                          onInputChange={(event, newInputValue) => {
+                            handleNestedInputChange(
+                              event,
+                              newInputValue,
+                              categoryIndex,
+                              index,
+                              "poi_info"
+                            );
                           }}
+                          fullWidth
+                          sx={{ mb: 2 }}
+                          isOptionEqualToValue={(option, value) =>
+                            option.id === value.id ||
+                            value === "" ||
+                            option === value
+                          }
                         />
-                      )}
-                      value={
-                        relation.poi_info_lawbase
-                          ? optionData.data.poi_info_lawbase
-                              .filter((opt) =>
-                                relation.poi_info_lawbase.includes(opt.id)
-                              )
-                              .concat(
-                                relation.poi_info_lawbase.filter(
-                                  (item) => typeof item === "string"
-                                )
-                              )
-                          : []
-                      }
-                      onChange={(event, value) => {
-                        const updatedValues = value.map((v) =>
-                          typeof v === "string" ? v : v.id
-                        );
-                        handleNestedAutocompleteChange(
-                          event,
-                          updatedValues,
-                          "poi_relations",
-                          index,
-                          "poi_info_lawbase"
-                        );
-                        checkFormCompletion();
+
+                        {/* poi_info_owner */}
+                        <Autocomplete
+                          freeSolo
+                          options={optionData.data.poi_info_owner}
+                          getOptionLabel={(option) =>
+                            typeof option === "string"
+                              ? option
+                              : option.owner_ || ""
+                          }
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="เจ้าของข้อมูลส่วนบุคคล"
+                            />
+                          )}
+                          value={
+                            typeof relation.poi_info_owner === "string"
+                              ? relation.poi_info_owner
+                              : optionData.data.poi_info_owner.find(
+                                  (opt) => opt.id === relation.poi_info_owner
+                                ) || ""
+                          }
+                          onChange={(event, value) =>
+                            handleNestedAutocompleteChange(
+                              event,
+                              typeof value === "string"
+                                ? value
+                                : value?.id || "",
+                              categoryIndex,
+                              index,
+                              "poi_info_owner"
+                            )
+                          }
+                          onInputChange={(event, newInputValue) => {
+                            handleNestedInputChange(
+                              event,
+                              newInputValue,
+                              categoryIndex,
+                              index,
+                              "poi_info_owner"
+                            );
+                          }}
+                          fullWidth
+                          sx={{ mb: 2 }}
+                        />
+
+                        {/* poi_info_from */}
+                        <Autocomplete
+                          freeSolo
+                          options={optionData.data.poi_info_from}
+                          getOptionLabel={(option) =>
+                            typeof option === "string"
+                              ? option
+                              : option.from_ || ""
+                          }
+                          renderInput={(params) => (
+                            <TextField {...params} label="ได้รับข้อมูลจาก" />
+                          )}
+                          value={
+                            typeof relation.poi_info_from === "string"
+                              ? relation.poi_info_from
+                              : optionData.data.poi_info_from.find(
+                                  (opt) => opt.id === relation.poi_info_from
+                                ) || ""
+                          }
+                          onChange={(event, value) =>
+                            handleNestedAutocompleteChange(
+                              event,
+                              typeof value === "string"
+                                ? value
+                                : value?.id || "",
+                              categoryIndex,
+                              index,
+                              "poi_info_from"
+                            )
+                          }
+                          onInputChange={(event, newInputValue) => {
+                            handleNestedInputChange(
+                              event,
+                              newInputValue,
+                              categoryIndex,
+                              index,
+                              "poi_info_from"
+                            );
+                          }}
+                          fullWidth
+                          sx={{ mb: 2 }}
+                        />
+
+                        {/* poi_info_format */}
+                        <Autocomplete
+                          freeSolo
+                          options={optionData.data.poi_info_format}
+                          getOptionLabel={(option) =>
+                            typeof option === "string"
+                              ? option
+                              : option.format_ || ""
+                          }
+                          renderInput={(params) => (
+                            <TextField {...params} label="รูปแบบของข้อมูล" />
+                          )}
+                          value={
+                            typeof relation.poi_info_format === "string"
+                              ? relation.poi_info_format
+                              : optionData.data.poi_info_format.find(
+                                  (opt) => opt.id === relation.poi_info_format
+                                ) || ""
+                          }
+                          onChange={(event, value) =>
+                            handleNestedAutocompleteChange(
+                              event,
+                              typeof value === "string"
+                                ? value
+                                : value?.id || "",
+                              categoryIndex,
+                              index,
+                              "poi_info_format"
+                            )
+                          }
+                          onInputChange={(event, newInputValue) => {
+                            handleNestedInputChange(
+                              event,
+                              newInputValue,
+                              categoryIndex,
+                              index,
+                              "poi_info_format"
+                            );
+                          }}
+                          fullWidth
+                          sx={{ mb: 2 }}
+                        />
+
+                        {/* poi_info_type */}
+                        <Autocomplete
+                          freeSolo
+                          options={optionData.data.poi_info_type}
+                          getOptionLabel={(option) =>
+                            typeof option === "string"
+                              ? option
+                              : option.type_ || ""
+                          }
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="ประเภทของข้อมูลส่วนบุคคล"
+                            />
+                          )}
+                          value={
+                            typeof relation.poi_info_type === "string"
+                              ? relation.poi_info_type
+                              : optionData.data.poi_info_type.find(
+                                  (opt) => opt.id === relation.poi_info_type
+                                ) || ""
+                          }
+                          onChange={(event, value) =>
+                            handleNestedAutocompleteChange(
+                              event,
+                              typeof value === "string"
+                                ? value
+                                : value?.id || "",
+                              categoryIndex,
+                              index,
+                              "poi_info_type"
+                            )
+                          }
+                          onInputChange={(event, newInputValue) => {
+                            handleNestedInputChange(
+                              event,
+                              newInputValue,
+                              categoryIndex,
+                              index,
+                              "poi_info_type"
+                            );
+                          }}
+                          fullWidth
+                          sx={{ mb: 2 }}
+                        />
+
+                        {/* poi_info_objective */}
+                        <Autocomplete
+                          freeSolo
+                          options={optionData.data.poi_info_objective}
+                          getOptionLabel={(option) =>
+                            typeof option === "string"
+                              ? option
+                              : option.objective_ || ""
+                          }
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="วัตถุประสงค์ของการเก็บข้อมูล"
+                            />
+                          )}
+                          value={
+                            typeof relation.poi_info_objective === "string"
+                              ? relation.poi_info_objective
+                              : optionData.data.poi_info_objective.find(
+                                  (opt) =>
+                                    opt.id === relation.poi_info_objective
+                                ) || ""
+                          }
+                          onChange={(event, value) => {
+                            handleNestedAutocompleteChange(
+                              event,
+                              typeof value === "string"
+                                ? value
+                                : value?.id || "",
+                              categoryIndex,
+                              index,
+                              "poi_info_objective"
+                            );
+                            checkFormCompletion();
+                          }}
+                          onInputChange={(event, newInputValue) => {
+                            handleNestedInputChange(
+                              event,
+                              newInputValue,
+                              categoryIndex,
+                              index,
+                              "poi_info_objective"
+                            );
+                            checkFormCompletion();
+                          }}
+                          fullWidth
+                          sx={{ mb: 2 }}
+                          isOptionEqualToValue={(option, value) =>
+                            option.id === value.id ||
+                            value === "" ||
+                            option === value
+                          }
+                        />
+
+                        {/* poi_info_lawbase */}
+                        <Autocomplete
+                          freeSolo
+                          multiple
+                          options={optionData.data.poi_info_lawbase}
+                          getOptionLabel={(option) =>
+                            typeof option === "string"
+                              ? option
+                              : option.lawBase_ || ""
+                          }
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="ฐานทางกฏหมายสำหรับการประมวลผลข้อมูลส่วนบุคคล"
+                              onKeyDown={(event) => {
+                                if (
+                                  event.key === "Enter" &&
+                                  event.target.value.trim() !== ""
+                                ) {
+                                  event.preventDefault();
+                                  handleNestedAutocompleteChange(
+                                    event,
+                                    [
+                                      ...(relation.poi_info_lawbase || []),
+                                      event.target.value,
+                                    ],
+                                    categoryIndex,
+                                    index,
+                                    "poi_info_lawbase"
+                                  );
+                                  checkFormCompletion();
+                                }
+                              }}
+                            />
+                          )}
+                          value={
+                            relation.poi_info_lawbase
+                              ? optionData.data.poi_info_lawbase
+                                  .filter((opt) =>
+                                    relation.poi_info_lawbase.includes(opt.id)
+                                  )
+                                  .concat(
+                                    relation.poi_info_lawbase.filter(
+                                      (item) => typeof item === "string"
+                                    )
+                                  )
+                              : []
+                          }
+                          onChange={(event, value) => {
+                            const updatedValues = value.map((v) =>
+                              typeof v === "string" ? v : v.id
+                            );
+                            handleNestedAutocompleteChange(
+                              event,
+                              updatedValues,
+                              categoryIndex,
+                              index,
+                              "poi_info_lawbase"
+                            );
+                            checkFormCompletion();
+                          }}
+                          fullWidth
+                          sx={{ mb: 2 }}
+                        />
+                      </Box>
+                    </Box>
+                  ))}
+
+                  {/* Add POI Relation Button */}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => addPoiRelation(categoryIndex)}
+                    sx={{ mb: 2, fontSize: "1rem" }}
+                  >
+                    <PlusOneOutlinedIcon
+                      sx={{
+                        mr: 1,
+                        mb: {
+                          xs: 1,
+                          sm: 0,
+                          lg: 0,
+                        },
+                        fontSize: "1.5rem",
                       }}
-                      fullWidth
-                      sx={{ mb: 2 }}
                     />
-                  </Box>
+                    เพิ่มข้อมูลส่วนบุคคลที่เก็บ
+                  </Button>
                 </Box>
               ))}
 
+              {/* Add Category Button */}
               <Button
                 variant="contained"
                 color="primary"
-                onClick={addPoiRelation}
+                onClick={addCategory}
                 sx={{ mb: 2, fontSize: "1rem" }}
               >
                 <PlusOneOutlinedIcon
@@ -776,9 +907,12 @@ const ActivitiesAdd = () => {
                     fontSize: "1.5rem",
                   }}
                 />
-                เพิ่มข้อมูลส่วนบุคคลที่เก็บ
+                เพิ่มเอกสาร
               </Button>
 
+              {/* Rest of the Form Fields */}
+
+              {/* info_stored_period */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -816,6 +950,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* info_placed */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -848,6 +983,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* info_allowed_ps */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -882,6 +1018,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* info_allowed_ps_condition */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -921,6 +1058,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* info_access */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -956,6 +1094,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* info_access_condition */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -992,6 +1131,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* info_ps_usedbyrole_inside */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -1031,6 +1171,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* info_ps_sendto_outside */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -1068,6 +1209,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* info_ps_destroying */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -1102,6 +1244,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* info_ps_destroyer */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -1139,6 +1282,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* m_organization */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -1175,6 +1319,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* m_technical */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -1207,6 +1352,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* m_physical */}
               <Autocomplete
                 multiple
                 freeSolo
@@ -1239,6 +1385,7 @@ const ActivitiesAdd = () => {
                 sx={{ mb: 2 }}
               />
 
+              {/* Submit Button */}
               <Button
                 type="submit"
                 variant="contained"
@@ -1246,7 +1393,7 @@ const ActivitiesAdd = () => {
                 sx={{
                   fontSize: "1.1rem",
                 }}
-                disabled={!isFormComplete} // Disable button if form is not complete
+                disabled={!isFormComplete}
               >
                 <NoteAddOutlinedIcon
                   sx={{

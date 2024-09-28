@@ -12,9 +12,8 @@ export const createInformation = async (req, res) => {
     status = "pending",
     createBy,
     company_id,
-    category,
     department_id,
-    poi_relations,
+    categories,
     info_stored_period,
     info_placed,
     info_allowed_ps,
@@ -30,196 +29,256 @@ export const createInformation = async (req, res) => {
     m_physical,
   } = req.body;
 
-  const handleField = async (item, modelName, fieldName) => {
+  const handleField = async (
+    item,
+    modelName,
+    fieldName,
+    additionalData = {}
+  ) => {
+    if (Array.isArray(item)) {
+      const ids = [];
+      for (const singleItem of item) {
+        const id = await handleField(
+          singleItem,
+          modelName,
+          fieldName,
+          additionalData
+        );
+        ids.push(id);
+      }
+      return ids;
+    }
+
     if (typeof item === "string" && isNaN(parseInt(item))) {
-      // Handle string case
+      const data = { [fieldName]: item, ...additionalData };
+      const where = { [fieldName]: item };
+
+      const modelsWithCompanyId = [
+        "activity",
+        "category",
+        "department",
+        "info",
+        "info_owner",
+        "info_from",
+        "info_format",
+        "info_type",
+        "info_objective",
+        "info_lawbase",
+        "info_stored_period",
+        "info_placed",
+        "info_allowed_ps",
+        "info_allowed_ps_condition",
+        "info_access",
+        "info_access_condition",
+        "info_ps_usedbyrole_inside",
+        "info_ps_sendto_outside",
+        "info_ps_destroying",
+        "info_ps_destroyer",
+        "m_organization",
+        "m_technical",
+        "m_physical",
+      ];
+
+      if (modelsWithCompanyId.includes(modelName)) {
+        data.company_id = company_id;
+        where.company_id = company_id;
+      }
+
       const existingRecord = await prisma[modelName].findFirst({
-        where: { [fieldName]: item, company_id },
+        where: where,
       });
 
-      return existingRecord
-        ? existingRecord.id
-        : (
-            await prisma[modelName].create({
-              data: { [fieldName]: item, company_id },
-            })
-          ).id;
+      if (existingRecord) {
+        return existingRecord.id;
+      } else {
+        return (await prisma[modelName].create({ data })).id;
+      }
     } else {
-      // Assume item is the id
       const id = parseInt(item);
       return id;
     }
   };
 
   try {
-    // Handle department
     const departmentId = await handleField(
       department_id,
       "department",
       "departmentName"
     );
 
-    // Handle activity
     const activityId = await handleField(activity, "activity", "activity");
 
-    // Handle poi_relations
-    const poiIds = await Promise.all(
-      poi_relations.map(async (item) => {
+    const categoryInformationEntries = [];
+    const poiInformationEntries = [];
+
+    for (const categoryItem of categories) {
+      const categoryId = await handleField(
+        categoryItem.category,
+        "category",
+        "category",
+        { department_id: departmentId }
+      );
+
+      for (const poiItem of categoryItem.poi_relations) {
         const ownerIdToUse = await handleField(
-          item.poi_info_owner,
+          poiItem.poi_info_owner,
           "info_owner",
           "owner_"
         );
 
-        const infoIdToUse = await handleField(item.poi_info, "info", "info_");
+        const infoIdToUse = await handleField(
+          poiItem.poi_info,
+          "info",
+          "info_"
+        );
 
         const infoFromIdToUse = await handleField(
-          item.poi_info_from,
+          poiItem.poi_info_from,
           "info_from",
           "from_"
         );
 
         const infoFormatIdToUse = await handleField(
-          item.poi_info_format,
+          poiItem.poi_info_format,
           "info_format",
           "format_"
         );
 
         const infoTypeIdToUse = await handleField(
-          item.poi_info_type,
+          poiItem.poi_info_type,
           "info_type",
           "type_"
         );
 
         const infoObjectiveIdToUse = await handleField(
-          item.poi_info_objective,
+          poiItem.poi_info_objective,
           "info_objective",
           "objective_"
         );
 
-        // Handle poi_info_lawbase
-        const lawbaseIds = await Promise.all(
-          item.poi_info_lawbase.map((lawbase) =>
-            handleField(lawbase, "info_lawbase", "lawBase_")
-          )
+        const lawbaseIds = await handleField(
+          poiItem.poi_info_lawbase,
+          "info_lawbase",
+          "lawBase_"
         );
 
-        return {
-          poi_relation: {
-            create: {
-              poi_info: {
-                create: [
-                  {
-                    info_id: infoIdToUse,
-                  },
-                ],
-              },
-              poi_info_owner: {
-                create: [
-                  {
-                    info_owner_id: ownerIdToUse,
-                  },
-                ],
-              },
-              poi_info_from: {
-                create: {
-                  info_from_relation: {
-                    connect: { id: infoFromIdToUse },
-                  },
+        const pieceOfInfo = await prisma.piece_of_info.create({
+          data: {
+            category: { connect: { id: categoryId } },
+            poi_info: {
+              create: [
+                {
+                  info_id: infoIdToUse,
                 },
-              },
-              poi_info_format: {
-                create: [
-                  {
-                    info_format_id: infoFormatIdToUse,
-                  },
-                ],
-              },
-              poi_info_type: {
-                create: [
-                  {
-                    info_type_id: infoTypeIdToUse,
-                  },
-                ],
-              },
-              poi_info_objective: {
-                create: [
-                  {
-                    info_objective_id: infoObjectiveIdToUse,
-                  },
-                ],
-              },
-              poi_info_lawbase: {
-                create: lawbaseIds.map((lawbaseId) => ({
-                  info_lawbase_id: lawbaseId,
-                })),
-              },
+              ],
+            },
+            poi_info_owner: {
+              create: [
+                {
+                  info_owner_id: ownerIdToUse,
+                },
+              ],
+            },
+            poi_info_from: {
+              create: [
+                {
+                  info_from_id: infoFromIdToUse,
+                },
+              ],
+            },
+            poi_info_format: {
+              create: [
+                {
+                  info_format_id: infoFormatIdToUse,
+                },
+              ],
+            },
+            poi_info_type: {
+              create: [
+                {
+                  info_type_id: infoTypeIdToUse,
+                },
+              ],
+            },
+            poi_info_objective: {
+              create: [
+                {
+                  info_objective_id: infoObjectiveIdToUse,
+                },
+              ],
+            },
+            poi_info_lawbase: {
+              create: lawbaseIds.map((lawbaseId) => ({
+                info_lawbase_id: lawbaseId,
+              })),
             },
           },
-        };
-      })
-    );
+        });
 
-    // Handle other fields with correct field names
-    const storedPeriodIds = await Promise.all(
-      info_stored_period.map((item) =>
-        handleField(item, "info_stored_period", "period_")
-      )
-    );
-    const placedIds = await Promise.all(
-      info_placed.map((item) => handleField(item, "info_placed", "placed_"))
-    );
-    const allowedPsIds = await Promise.all(
-      info_allowed_ps.map((item) =>
-        handleField(item, "info_allowed_ps", "allowed_ps_")
-      )
-    );
-    const allowedPsConditionIds = await Promise.all(
-      info_allowed_ps_condition.map((item) =>
-        handleField(item, "info_allowed_ps_condition", "allowed_ps_condition_")
-      )
-    );
-    const accessIds = await Promise.all(
-      info_access.map((item) => handleField(item, "info_access", "access_"))
-    );
-    const accessConditionIds = await Promise.all(
-      info_access_condition.map((item) =>
-        handleField(item, "info_access_condition", "access_condition_")
-      )
-    );
-    const psUsedByRoleInsideIds = await Promise.all(
-      info_ps_usedbyrole_inside.map((item) =>
-        handleField(item, "info_ps_usedbyrole_inside", "use_by_role_")
-      )
-    );
-    const psSendToOutsideIds = await Promise.all(
-      info_ps_sendto_outside.map((item) =>
-        handleField(item, "info_ps_sendto_outside", "sendto_")
-      )
-    );
-    const psDestroyingIds = await Promise.all(
-      info_ps_destroying.map((item) =>
-        handleField(item, "info_ps_destroying", "destroying_")
-      )
-    );
-    const psDestroyerIds = await Promise.all(
-      info_ps_destroyer.map((item) =>
-        handleField(item, "info_ps_destroyer", "destroyer_")
-      )
-    );
-    const organizationIds = await Promise.all(
-      m_organization.map((item) =>
-        handleField(item, "m_organization", "organization")
-      )
-    );
-    const technicalIds = await Promise.all(
-      m_technical.map((item) => handleField(item, "m_technical", "technical"))
-    );
-    const physicalIds = await Promise.all(
-      m_physical.map((item) => handleField(item, "m_physical", "physical"))
-    );
+        poiInformationEntries.push({
+          poi_relation: { connect: { id: pieceOfInfo.id } },
+        });
+      }
 
-    // Create the information record
+      categoryInformationEntries.push({
+        category_relation: { connect: { id: categoryId } },
+      });
+    }
+
+    const storedPeriodIds = await handleField(
+      info_stored_period,
+      "info_stored_period",
+      "period_"
+    );
+    const placedIds = await handleField(info_placed, "info_placed", "placed_");
+    const allowedPsIds = await handleField(
+      info_allowed_ps,
+      "info_allowed_ps",
+      "allowed_ps_"
+    );
+    const allowedPsConditionIds = await handleField(
+      info_allowed_ps_condition,
+      "info_allowed_ps_condition",
+      "allowed_ps_condition_"
+    );
+    const accessIds = await handleField(info_access, "info_access", "access_");
+    const accessConditionIds = await handleField(
+      info_access_condition,
+      "info_access_condition",
+      "access_condition_"
+    );
+    const psUsedByRoleInsideIds = await handleField(
+      info_ps_usedbyrole_inside,
+      "info_ps_usedbyrole_inside",
+      "use_by_role_"
+    );
+    const psSendToOutsideIds = await handleField(
+      info_ps_sendto_outside,
+      "info_ps_sendto_outside",
+      "sendto_"
+    );
+    const psDestroyingIds = await handleField(
+      info_ps_destroying,
+      "info_ps_destroying",
+      "destroying_"
+    );
+    const psDestroyerIds = await handleField(
+      info_ps_destroyer,
+      "info_ps_destroyer",
+      "destroyer_"
+    );
+    const organizationIds = await handleField(
+      m_organization,
+      "m_organization",
+      "organization"
+    );
+    const technicalIds = await handleField(
+      m_technical,
+      "m_technical",
+      "technical"
+    );
+    const physicalIds = await handleField(m_physical, "m_physical", "physical");
+
     const newInformation = await prisma.information.create({
       data: {
         activity_relation: { connect: { id: activityId } },
@@ -228,15 +287,9 @@ export const createInformation = async (req, res) => {
         company_relation: { connect: { id: company_id } },
         department_relation: { connect: { id: departmentId } },
         category_information: {
-          create: [
-            {
-              category_relation: {
-                create: { category, department_id: departmentId },
-              },
-            },
-          ],
+          create: categoryInformationEntries,
         },
-        poi_information: { create: poiIds },
+        poi_information: { create: poiInformationEntries },
         information_info_stored_period: {
           create: storedPeriodIds.map((id) => ({ info_stored_period_id: id })),
         },
@@ -323,6 +376,9 @@ export const getInformation = async (req, res) => {
               select: {
                 category: true,
                 department_relation: true,
+                // piece_of_infos: true,
+                // category_information: true,
+                // poi_relation: true,
               },
             },
           },

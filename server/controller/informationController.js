@@ -1,5 +1,4 @@
 import prisma from "../db/db.config.js";
-
 import fs from "fs";
 import path from "path";
 import ExcelJS from "exceljs";
@@ -29,6 +28,7 @@ export const createInformation = async (req, res) => {
     m_physical,
   } = req.body;
 
+  // Helper function to fetch field values and handle errors
   const handleField = async (
     item,
     modelName,
@@ -91,7 +91,8 @@ export const createInformation = async (req, res) => {
       if (existingRecord) {
         return existingRecord.id;
       } else {
-        return (await prisma[modelName].create({ data })).id;
+        const createdRecord = await prisma[modelName].create({ data });
+        return createdRecord.id;
       }
     } else {
       const id = parseInt(item);
@@ -100,14 +101,15 @@ export const createInformation = async (req, res) => {
   };
 
   try {
+    // Ensure department and activity are retrieved properly
     const departmentId = await handleField(
       department_id,
       "department",
       "departmentName"
     );
-
     const activityId = await handleField(activity, "activity", "activity");
 
+    // Category and POI entries
     const categoryInformationEntries = [];
     const poiInformationEntries = [];
 
@@ -116,8 +118,16 @@ export const createInformation = async (req, res) => {
         categoryItem.category,
         "category",
         "category",
-        { department_id: departmentId }
+        {
+          department_id: departmentId,
+        }
       );
+
+      if (!categoryId) {
+        throw new Error(
+          `Category ID not found for category: ${categoryItem.category}`
+        );
+      }
 
       for (const poiItem of categoryItem.poi_relations) {
         const ownerIdToUse = await handleField(
@@ -125,37 +135,31 @@ export const createInformation = async (req, res) => {
           "info_owner",
           "owner_"
         );
-
         const infoIdToUse = await handleField(
           poiItem.poi_info,
           "info",
           "info_"
         );
-
         const infoFromIdToUse = await handleField(
           poiItem.poi_info_from,
           "info_from",
           "from_"
         );
-
         const infoFormatIdToUse = await handleField(
           poiItem.poi_info_format,
           "info_format",
           "format_"
         );
-
         const infoTypeIdToUse = await handleField(
           poiItem.poi_info_type,
           "info_type",
           "type_"
         );
-
         const infoObjectiveIdToUse = await handleField(
           poiItem.poi_info_objective,
           "info_objective",
           "objective_"
         );
-
         const lawbaseIds = await handleField(
           poiItem.poi_info_lawbase,
           "info_lawbase",
@@ -164,7 +168,11 @@ export const createInformation = async (req, res) => {
 
         const pieceOfInfo = await prisma.piece_of_info.create({
           data: {
-            category: { connect: { id: categoryId } },
+            category_piece_of_info: {
+              create: {
+                categoryId: categoryId, // Ensure correct usage of categoryId
+              },
+            },
             poi_info: {
               create: [
                 {
@@ -215,16 +223,23 @@ export const createInformation = async (req, res) => {
           },
         });
 
+        if (!pieceOfInfo.id) {
+          throw new Error(
+            `POI creation failed for category: ${categoryItem.category}`
+          );
+        }
+
         poiInformationEntries.push({
           poi_relation: { connect: { id: pieceOfInfo.id } },
         });
       }
 
       categoryInformationEntries.push({
-        category_relation: { connect: { id: categoryId } },
+        category_id: categoryId, // Ensure category_id is used correctly
       });
     }
 
+    // Store remaining IDs as done before
     const storedPeriodIds = await handleField(
       info_stored_period,
       "info_stored_period",
@@ -279,6 +294,7 @@ export const createInformation = async (req, res) => {
     );
     const physicalIds = await handleField(m_physical, "m_physical", "physical");
 
+    // Create new information entry with all data
     const newInformation = await prisma.information.create({
       data: {
         activity_relation: { connect: { id: activityId } },
@@ -347,9 +363,11 @@ export const createInformation = async (req, res) => {
     return res.json({ status: 200, message: newInformation });
   } catch (error) {
     console.error("Error creating information: ", error);
-    return res
-      .status(500)
-      .json({ status: 500, message: "Error creating information" });
+    return res.status(500).json({
+      status: 500,
+      message: "Error creating information",
+      error: error.message,
+    });
   }
 };
 
@@ -374,79 +392,77 @@ export const getInformation = async (req, res) => {
           select: {
             category_relation: {
               select: {
+                id: true,
                 category: true,
                 department_relation: true,
-                // piece_of_infos: true,
-                // category_information: true,
-                // poi_relation: true,
-              },
-            },
-          },
-        },
-        poi_information: {
-          select: {
-            poi_relation: {
-              select: {
-                // info: true,
-                poi_info: {
+                category_piece_of_info: {
                   select: {
-                    info_relation: {
+                    piece_of_info: {
                       select: {
-                        info_: true,
-                      },
-                    },
-                  },
-                },
-                poi_info_owner: {
-                  select: {
-                    info_owner_relation: {
-                      select: {
-                        owner_: true,
-                      },
-                    },
-                  },
-                },
-                poi_info_from: {
-                  select: {
-                    info_from_relation: {
-                      select: {
-                        from_: true,
-                      },
-                    },
-                  },
-                },
-                poi_info_format: {
-                  select: {
-                    info_format_relation: {
-                      select: {
-                        format_: true,
-                      },
-                    },
-                  },
-                },
-                poi_info_type: {
-                  select: {
-                    info_type_relation: {
-                      select: {
-                        type_: true,
-                      },
-                    },
-                  },
-                },
-                poi_info_objective: {
-                  select: {
-                    info_objective_relation: {
-                      select: {
-                        objective_: true,
-                      },
-                    },
-                  },
-                },
-                poi_info_lawbase: {
-                  select: {
-                    info_lawbase_relation: {
-                      select: {
-                        lawBase_: true,
+                        id: true,
+                        poi_info: {
+                          select: {
+                            info_relation: {
+                              select: {
+                                info_: true,
+                              },
+                            },
+                          },
+                        },
+                        poi_info_owner: {
+                          select: {
+                            info_owner_relation: {
+                              select: {
+                                owner_: true,
+                              },
+                            },
+                          },
+                        },
+                        poi_info_from: {
+                          select: {
+                            info_from_relation: {
+                              select: {
+                                from_: true,
+                              },
+                            },
+                          },
+                        },
+                        poi_info_format: {
+                          select: {
+                            info_format_relation: {
+                              select: {
+                                format_: true,
+                              },
+                            },
+                          },
+                        },
+                        poi_info_type: {
+                          select: {
+                            info_type_relation: {
+                              select: {
+                                type_: true,
+                              },
+                            },
+                          },
+                        },
+                        poi_info_objective: {
+                          select: {
+                            info_objective_relation: {
+                              select: {
+                                objective_: true,
+                              },
+                            },
+                          },
+                        },
+                        poi_info_lawbase: {
+                          select: {
+                            info_lawbase_relation: {
+                              select: {
+                                lawBase_: true,
+                              },
+                            },
+                          },
+                        },
                       },
                     },
                   },
@@ -577,7 +593,7 @@ export const getInformation = async (req, res) => {
 
     return res.json({ status: 200, message: information });
   } catch (error) {
-    console.error("Error retrieving information:", error); // Log any error
+    console.error("Error retrieving information:", error);
     return res
       .status(500)
       .json({ status: 500, message: "Internal Server Error" });
@@ -602,7 +618,6 @@ export const deleteInformation = async (req, res) => {
 
 export const updateInformationApproval = async (req, res) => {
   const id = req.params.id;
-  // const { status } = req.body;
   const status = "success";
 
   try {
@@ -622,10 +637,7 @@ export const updateInformationApproval = async (req, res) => {
 };
 
 export const excelProcess = async (req, res) => {
-  // console.log("Received request for /api/information/download-excel");
   const item = req.body;
-
-  console.log(item);
 
   try {
     const filePath = path.resolve(__dirname + `/assets/template_ropa.xlsx`);
@@ -637,74 +649,62 @@ export const excelProcess = async (req, res) => {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(filePath);
 
-    const worksheet = workbook.getWorksheet(1); // เลือก worksheet แรก
+    const worksheet = workbook.getWorksheet(1);
 
-    worksheet.getCell("B2").value = item.user_account_relation.fullname; //ชื่อผู้ควบคุมข้อมูล หรือ ผู้แทน
-    worksheet.getCell("B3").value = item.company_relation.address; //ที่ตั้งของสถานที่ติดต่อ
-    worksheet.getCell("B4").value = item.company_relation.email; //อีเมล์แอดเดรส
-    worksheet.getCell("B5").value = item.company_relation.phone_number; //เบอร์โทรศัพท์
-    worksheet.getCell("B6").value = item.user_account_relation.fullname; //ชื่อของผู้บันทึกรายการ
-
-    // worksheet.getCell("B7").value = item.category_information.map((item) => {
-    //   return item.category_relation.department_relation.departmentName;
-    // }); //หน่วยงานที่บันทึกรายการ
-
+    worksheet.getCell("B2").value = item.user_account_relation.fullname;
+    worksheet.getCell("B3").value = item.company_relation.address;
+    worksheet.getCell("B4").value = item.company_relation.email;
+    worksheet.getCell("B5").value = item.company_relation.phone_number;
+    worksheet.getCell("B6").value = item.user_account_relation.fullname;
     worksheet.getCell("B7").value =
-      item.category_information[0].category_relation.department_relation.departmentName; //หน่วยงานที่บันทึกรายการ
-    worksheet.getCell("B8").value = item.activity_relation.activity; //กิจกรรมงานที่บันทึกรายการ
-
-    worksheet.getCell("K2").value = item.company_relation.dpo; //ชื่อเจ้าหน้าที่คุ้มครองข้อมูลส่วนบุคคล
-    worksheet.getCell("K3").value = item.company_relation.address; //ที่ตั้งของสถานที่ติดต่อ
-    worksheet.getCell("K4").value = item.company_relation.email; //อีเมล์แอดเดรส
-    worksheet.getCell("K5").value = item.company_relation.phone_number; //หมายเลขโทรศัพท์
-    worksheet.getCell("K6").value = item.company_relation.dpo; //ชื่อของผู้ตรวจสอบบันทึกรายการ
+      item.category_information[0].category_relation.department_relation.departmentName;
+    worksheet.getCell("B8").value = item.activity_relation.activity;
+    worksheet.getCell("K2").value = item.company_relation.dpo;
+    worksheet.getCell("K3").value = item.company_relation.address;
+    worksheet.getCell("K4").value = item.company_relation.email;
+    worksheet.getCell("K5").value = item.company_relation.phone_number;
+    worksheet.getCell("K6").value = item.company_relation.dpo;
 
     const organizations = item.information_m_organization;
-    let row_organizations = 15; // Starting row for the first organization
+    let row_organizations = 15;
 
     organizations.forEach((org, index) => {
       worksheet.getCell(`A${row_organizations}`).value = `(${index + 1}) ${
         org.m_organization_relation.organization
       }`;
-      row_organizations++; // Move to the next row for the next organization
+      row_organizations++;
     });
 
     const technicals = item.information_m_technical;
-    let row_technicals = 15; // Starting row for the first technical
+    let row_technicals = 15;
 
     technicals.forEach((tech, index) => {
       worksheet.getCell(`F${row_technicals}`).value = `(${index + 1}) ${
         tech.m_technical_relation.technical
       }`;
-      row_technicals++; // Move to the next row for the next technical
+      row_technicals++;
     });
 
     const physicals = item.information_m_physical;
-    let row_physicals = 15; // Starting row for the first physical
+    let row_physicals = 15;
 
     physicals.forEach((phy, index) => {
       worksheet.getCell(`L${row_physicals}`).value = `(${index + 1}) ${
         phy.m_physical_relation.physical
       }`;
-      row_physicals++; // Move to the next row for the next physical
+      row_physicals++;
     });
-
-    // workbook.getCell("A11").value = item.poi_information.map((item) => {
-    //   return item.poi_relation.poi_info.info_relation.info_;
-    // });
 
     const poiRelationsCount = item.poi_information.length;
 
-    let startRow = 11; // Starting row for the first poi_relation
+    let startRow = 11;
 
-    // Duplicate the row based on the number of poi_relation items
     for (let i = 1; i < poiRelationsCount; i++) {
       worksheet.duplicateRow(startRow + i - 1, 1, true);
     }
 
     const endRow = startRow + poiRelationsCount - 1;
 
-    // Merge cells from H11 to Q11
     worksheet.mergeCells(`H${startRow}:H${endRow}`);
     worksheet.mergeCells(`I${startRow}:I${endRow}`);
     worksheet.mergeCells(`J${startRow}:J${endRow}`);
@@ -716,7 +716,6 @@ export const excelProcess = async (req, res) => {
     worksheet.mergeCells(`P${startRow}:P${endRow}`);
     worksheet.mergeCells(`Q${startRow}:Q${endRow}`);
 
-    // Set values for the merged cells
     worksheet.getCell(`H${startRow}`).value =
       item.information_info_stored_period
         .map(
@@ -810,7 +809,7 @@ export const excelProcess = async (req, res) => {
     };
 
     item.poi_information.forEach((poiInfo) => {
-      worksheet.getRow(startRow).height = 40; // Set the height of the row
+      worksheet.getRow(startRow).height = 40;
 
       const relations = Array.isArray(poiInfo.poi_relation)
         ? poiInfo.poi_relation
@@ -889,10 +888,8 @@ export const excelProcess = async (req, res) => {
       });
     });
 
-    //Get the file data as a buffer
     const buffer = await workbook.xlsx.writeBuffer();
 
-    // Set the appropriate headers and send the buffer as a response
     res.setHeader(
       "Content-Disposition",
       `attachment; filename=Excel_Activity_${item.id}.xlsx`
@@ -902,22 +899,6 @@ export const excelProcess = async (req, res) => {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
     res.send(buffer);
-
-    // const outputDir = path.resolve(__dirname + `/assets`);
-    // // console.log(outputDir);
-    // const outputFilePath = path.join(
-    //   outputDir,
-    //   `excel_Activity_${item.id}.xlsx`
-    // );
-
-    // // Check if the directory exists, if not, create it
-    // if (!fs.existsSync(outputDir)) {
-    //   fs.mkdirSync(outputDir, { recursive: true });
-    // }
-
-    // await workbook.xlsx.writeFile(outputFilePath);
-
-    // res.download(outputFilePath, `Excel_Activity_${item.id}.xlsx`);
   } catch (error) {
     console.error("Error excelProcess : ", error);
     res.status(500).json({ error: "Internal Server Error" });

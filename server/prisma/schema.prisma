@@ -182,23 +182,33 @@ model information_m_physical {
 }
 
 model category {
-  id                   Int                    @id @default(autoincrement())
-  category             String
-  department_id        Int
-  department_relation  department             @relation(fields: [department_id], references: [id])
-  company_id           Int                    @default(0)
-  company              company                @relation(fields: [company_id], references: [id])
+  id                     Int                      @id @default(autoincrement())
+  category               String
+  department_id          Int
+  department_relation    department               @relation(fields: [department_id], references: [id])
+  company_id             Int                      @default(0)
+  company                company                  @relation(fields: [company_id], references: [id])
   // piece_of_info        Int
   // poi_relation         piece_of_info          @relation(fields: [piece_of_info], references: [id])
-  piece_of_info        piece_of_info[]
-  category_information category_information[]
+  // piece_of_info        piece_of_info[]
+  // category_information category_information[]
+  category_piece_of_info category_piece_of_info[]
+}
+
+model category_piece_of_info {
+  categoryId      Int
+  piece_of_infoId Int
+  category        category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  piece_of_info   piece_of_info @relation(fields: [piece_of_infoId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, piece_of_infoId])
 }
 
 model category_information {
   information_id       Int
   category_id          Int
   information_relation information @relation(fields: [information_id], references: [id], onDelete: Cascade)
-  category_relation    category    @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  // category_relation    category    @relation(fields: [category_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, category_id])
 }
@@ -234,10 +244,11 @@ model piece_of_info {
   // poi_info_ps_sendto_outside    poi_info_ps_sendto_outside[]
   // poi_info_ps_destroying        poi_info_ps_destroying[]
   // poi_info_ps_destroyer         poi_info_ps_destroyer[]
-  poi_information poi_information[]
+  poi_information        poi_information[]
   // category        category[]
-  category        category?         @relation(fields: [categoryId], references: [id])
-  categoryId      Int?
+  // category        category?         @relation(fields: [categoryId], references: [id])
+  categoryId             Int?
+  category_piece_of_info category_piece_of_info[]
 }
 
 //--------------------------------------------------------------

@@ -329,6 +329,8 @@ const ActivitiesAdd = () => {
       ...prevState,
       categories: [...prevState.categories, newCategory],
     }));
+
+    
   };
 
   const addPoiRelation = (categoryIndex) => {

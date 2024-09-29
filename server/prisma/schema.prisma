@@ -191,8 +191,9 @@ model category {
   // piece_of_info        Int
   // poi_relation         piece_of_info          @relation(fields: [piece_of_info], references: [id])
   // piece_of_info        piece_of_info[]
-  // category_information category_information[]
   category_piece_of_info category_piece_of_info[]
+  category_information   category_information[]
+  poi_information        poi_information[]
 }
 
 model category_piece_of_info {
@@ -208,7 +209,7 @@ model category_information {
   information_id       Int
   category_id          Int
   information_relation information @relation(fields: [information_id], references: [id], onDelete: Cascade)
-  // category_relation    category    @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  category_relation    category    @relation(fields: [category_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, category_id])
 }
@@ -218,6 +219,9 @@ model poi_information {
   poi_id               Int
   information_relation information   @relation(fields: [information_id], references: [id], onDelete: Cascade)
   poi_relation         piece_of_info @relation(fields: [poi_id], references: [id], onDelete: Cascade)
+
+  category_id       Int
+  category_relation category @relation(fields: [category_id], references: [id], onDelete: Cascade)
 
   @@id([information_id, poi_id])
 }

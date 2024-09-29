@@ -166,76 +166,101 @@ export const createInformation = async (req, res) => {
           "lawBase_"
         );
 
-        const pieceOfInfo = await prisma.piece_of_info.create({
-          data: {
-            category_piece_of_info: {
-              create: {
-                categoryId: categoryId, // Ensure correct usage of categoryId
+        for (const lawbaseId of lawbaseIds) {
+          const existingPieceOfInfo = await prisma.piece_of_info.findFirst({
+            where: {
+              poi_info_lawbase: {
+                some: {
+                  info_lawbase_id: lawbaseId, // Query ผ่านความสัมพันธ์
+                },
+              },
+              poi_information: {
+                some: {
+                  information_id: infoIdToUse, // เปลี่ยนจาก info_id เป็น information_id
+                },
               },
             },
-            poi_info: {
-              create: [
-                {
-                  info_id: infoIdToUse,
-                },
-              ],
-            },
-            poi_info_owner: {
-              create: [
-                {
-                  info_owner_id: ownerIdToUse,
-                },
-              ],
-            },
-            poi_info_from: {
-              create: [
-                {
-                  info_from_id: infoFromIdToUse,
-                },
-              ],
-            },
-            poi_info_format: {
-              create: [
-                {
-                  info_format_id: infoFormatIdToUse,
-                },
-              ],
-            },
-            poi_info_type: {
-              create: [
-                {
-                  info_type_id: infoTypeIdToUse,
-                },
-              ],
-            },
-            poi_info_objective: {
-              create: [
-                {
-                  info_objective_id: infoObjectiveIdToUse,
-                },
-              ],
-            },
-            poi_info_lawbase: {
-              create: lawbaseIds.map((lawbaseId) => ({
-                info_lawbase_id: lawbaseId,
-              })),
-            },
-          },
-        });
+          });
 
-        if (!pieceOfInfo.id) {
-          throw new Error(
-            `POI creation failed for category: ${categoryItem.category}`
-          );
+          let pieceOfInfo;
+          if (existingPieceOfInfo) {
+            // ถ้ามีอยู่แล้ว ให้ใช้อันที่มีอยู่
+            pieceOfInfo = existingPieceOfInfo;
+          } else {
+            // ถ้าไม่มี ให้สร้างใหม่
+            pieceOfInfo = await prisma.piece_of_info.create({
+              data: {
+                category_piece_of_info: {
+                  create: {
+                    categoryId: categoryId,
+                  },
+                },
+                poi_info: {
+                  create: [
+                    {
+                      info_id: infoIdToUse, // ใช้ info_id ที่ถูกต้อง
+                    },
+                  ],
+                },
+                poi_info_owner: {
+                  create: [
+                    {
+                      info_owner_id: ownerIdToUse,
+                    },
+                  ],
+                },
+                poi_info_from: {
+                  create: [
+                    {
+                      info_from_id: infoFromIdToUse,
+                    },
+                  ],
+                },
+                poi_info_format: {
+                  create: [
+                    {
+                      info_format_id: infoFormatIdToUse,
+                    },
+                  ],
+                },
+                poi_info_type: {
+                  create: [
+                    {
+                      info_type_id: infoTypeIdToUse,
+                    },
+                  ],
+                },
+                poi_info_objective: {
+                  create: [
+                    {
+                      info_objective_id: infoObjectiveIdToUse,
+                    },
+                  ],
+                },
+                poi_info_lawbase: {
+                  create: {
+                    info_lawbase_id: lawbaseId,
+                  },
+                },
+              },
+            });
+          }
+
+          if (!pieceOfInfo.id) {
+            throw new Error(
+              `POI creation failed for category: ${categoryItem.category}`
+            );
+          }
+
+          poiInformationEntries.push({
+            poi_relation: { connect: { id: pieceOfInfo.id } },
+            category_relation: { connect: { id: categoryId } },
+          });
         }
-
-        poiInformationEntries.push({
-          poi_relation: { connect: { id: pieceOfInfo.id } },
-        });
       }
 
       categoryInformationEntries.push({
-        category_id: categoryId, // Ensure category_id is used correctly
+        category_id: categoryId,
       });
     }
 
@@ -339,14 +364,10 @@ export const createInformation = async (req, res) => {
           })),
         },
         information_info_ps_destroying: {
-          create: psDestroyingIds.map((id) => ({
-            info_ps_destroying_id: id,
-          })),
+          create: psDestroyingIds.map((id) => ({ info_ps_destroying_id: id })),
         },
         information_info_ps_destroyer: {
-          create: psDestroyerIds.map((id) => ({
-            info_ps_destroyer_id: id,
-          })),
+          create: psDestroyerIds.map((id) => ({ info_ps_destroyer_id: id })),
         },
         information_m_organization: {
           create: organizationIds.map((id) => ({ m_organization_id: id })),
@@ -383,94 +404,117 @@ export const getInformation = async (req, res) => {
       where,
       select: {
         id: true,
-        activity_relation: {},
+        activity_relation: {
+          select: {
+            activity: true,
+          },
+        },
         status: true,
         create_time: true,
-        user_account_relation: {},
-        company_relation: {},
+        user_account_relation: {
+          select: {
+            fullname: true,
+          },
+        },
+        company_relation: {
+          select: {
+            companyName: true,
+          },
+        },
         category_information: {
           select: {
+            category_id: true,
             category_relation: {
               select: {
                 id: true,
                 category: true,
-                department_relation: true,
-                category_piece_of_info: {
+                department_relation: {
                   select: {
-                    piece_of_info: {
-                      select: {
-                        id: true,
-                        poi_info: {
-                          select: {
-                            info_relation: {
-                              select: {
-                                info_: true,
-                              },
-                            },
-                          },
-                        },
-                        poi_info_owner: {
-                          select: {
-                            info_owner_relation: {
-                              select: {
-                                owner_: true,
-                              },
-                            },
-                          },
-                        },
-                        poi_info_from: {
-                          select: {
-                            info_from_relation: {
-                              select: {
-                                from_: true,
-                              },
-                            },
-                          },
-                        },
-                        poi_info_format: {
-                          select: {
-                            info_format_relation: {
-                              select: {
-                                format_: true,
-                              },
-                            },
-                          },
-                        },
-                        poi_info_type: {
-                          select: {
-                            info_type_relation: {
-                              select: {
-                                type_: true,
-                              },
-                            },
-                          },
-                        },
-                        poi_info_objective: {
-                          select: {
-                            info_objective_relation: {
-                              select: {
-                                objective_: true,
-                              },
-                            },
-                          },
-                        },
-                        poi_info_lawbase: {
-                          select: {
-                            info_lawbase_relation: {
-                              select: {
-                                lawBase_: true,
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
+                    departmentName: true,
                   },
                 },
               },
             },
           },
         },
+
+        poi_information: {
+          select: {
+            poi_relation: {
+              select: {
+                poi_info: {
+                  select: {
+                    info_relation: {
+                      select: {
+                        info_: true,
+                      },
+                    },
+                  },
+                },
+                poi_info_owner: {
+                  select: {
+                    info_owner_relation: {
+                      select: {
+                        owner_: true,
+                      },
+                    },
+                  },
+                },
+                poi_info_from: {
+                  select: {
+                    info_from_relation: {
+                      select: {
+                        from_: true,
+                      },
+                    },
+                  },
+                },
+                poi_info_format: {
+                  select: {
+                    info_format_relation: {
+                      select: {
+                        format_: true,
+                      },
+                    },
+                  },
+                },
+                poi_info_type: {
+                  select: {
+                    info_type_relation: {
+                      select: {
+                        type_: true,
+                      },
+                    },
+                  },
+                },
+                poi_info_objective: {
+                  select: {
+                    info_objective_relation: {
+                      select: {
+                        objective_: true,
+                      },
+                    },
+                  },
+                },
+                poi_info_lawbase: {
+                  select: {
+                    info_lawbase_relation: {
+                      select: {
+                        lawBase_: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            category_relation: {
+              select: {
+                category: true,
+              },
+            },
+          },
+        },
+
         information_info_stored_period: {
           select: {
             info_stored_period_relation: {

@@ -52,6 +52,7 @@ const ActivitiesAdd = () => {
         ],
       },
     ],
+    // categories: [],
     info_stored_period: [],
     info_placed: [],
     info_allowed_ps: [],
@@ -154,36 +155,52 @@ const ActivitiesAdd = () => {
   const checkFormCompletion = () => {
     if (!formData) return setIsFormComplete(false);
 
-    const isComplete =
-      requiredFields.every((field) => {
-        const value = formData[field];
-        return (
-          value &&
-          (Array.isArray(value)
-            ? value.length > 0
-            : typeof value === "string"
-            ? value.trim() !== ""
-            : true)
-        );
-      }) &&
-      formData.categories.every(
-        (categoryItem) =>
-          categoryItem.category &&
-          categoryItem.poi_relations.every((poi) =>
-            requiredPoiFields.every((field) => {
-              const poiValue = poi[field];
-              return (
-                poiValue &&
-                (Array.isArray(poiValue)
-                  ? poiValue.length > 0
-                  : typeof poiValue === "string"
-                  ? poiValue.trim() !== ""
-                  : true)
-              );
-            })
-          )
-      );
+    const requiredFieldsComplete = requiredFields.every((field) => {
+      const value = formData[field];
+      const isFilled =
+        value &&
+        (Array.isArray(value)
+          ? value.length > 0
+          : typeof value === "string"
+          ? value.trim() !== ""
+          : true);
+      if (!isFilled) {
+        console.log(`Field ${field} is incomplete.`);
+      }
+      return isFilled;
+    });
 
+    const categoriesComplete =
+      formData.categories.length > 0 &&
+      formData.categories.every((categoryItem, index) => {
+        if (!categoryItem.category) {
+          console.log(`Category ${index + 1} is incomplete.`);
+          return false;
+        }
+        return categoryItem.poi_relations.every((poi, poiIndex) => {
+          return requiredPoiFields.every((field) => {
+            const poiValue = poi[field];
+            const isFilled =
+              poiValue &&
+              (Array.isArray(poiValue)
+                ? poiValue.length > 0
+                : typeof poiValue === "string"
+                ? poiValue.trim() !== ""
+                : true);
+            if (!isFilled) {
+              console.log(
+                `POI Relation ${poiIndex + 1} in Category ${
+                  index + 1
+                } has incomplete field ${field}.`
+              );
+            }
+            return isFilled;
+          });
+        });
+      });
+
+    const isComplete = requiredFieldsComplete && categoriesComplete;
+    console.log("Form complete:", isComplete);
     setIsFormComplete(isComplete);
   };
 

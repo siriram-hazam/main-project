@@ -167,16 +167,47 @@ export const createInformation = async (req, res) => {
         );
 
         for (const lawbaseId of lawbaseIds) {
+          // Try to find existing piece_of_info with all matching criteria
           const existingPieceOfInfo = await prisma.piece_of_info.findFirst({
             where: {
-              poi_info_lawbase: {
+              poi_info: {
                 some: {
-                  info_lawbase_id: lawbaseId, // Query ผ่านความสัมพันธ์
+                  info_id: infoIdToUse,
                 },
               },
-              poi_information: {
+              poi_info_owner: {
                 some: {
-                  information_id: infoIdToUse, // เปลี่ยนจาก info_id เป็น information_id
+                  info_owner_id: ownerIdToUse,
+                },
+              },
+              poi_info_from: {
+                some: {
+                  info_from_id: infoFromIdToUse,
+                },
+              },
+              poi_info_format: {
+                some: {
+                  info_format_id: infoFormatIdToUse,
+                },
+              },
+              poi_info_type: {
+                some: {
+                  info_type_id: infoTypeIdToUse,
+                },
+              },
+              poi_info_objective: {
+                some: {
+                  info_objective_id: infoObjectiveIdToUse,
+                },
+              },
+              poi_info_lawbase: {
+                some: {
+                  info_lawbase_id: lawbaseId,
+                },
+              },
+              category_piece_of_info: {
+                some: {
+                  categoryId: categoryId,
                 },
               },
             },
@@ -198,7 +229,7 @@ export const createInformation = async (req, res) => {
                 poi_info: {
                   create: [
                     {
-                      info_id: infoIdToUse, // ใช้ info_id ที่ถูกต้อง
+                      info_id: infoIdToUse,
                     },
                   ],
                 },
@@ -238,9 +269,11 @@ export const createInformation = async (req, res) => {
                   ],
                 },
                 poi_info_lawbase: {
-                  create: {
-                    info_lawbase_id: lawbaseId,
-                  },
+                  create: [
+                    {
+                      info_lawbase_id: lawbaseId,
+                    },
+                  ],
                 },
               },
             });
@@ -330,7 +363,14 @@ export const createInformation = async (req, res) => {
         category_information: {
           create: categoryInformationEntries,
         },
-        poi_information: { create: poiInformationEntries },
+        poi_information: {
+          create: poiInformationEntries.map((entry) => ({
+            poi_relation: { connect: { id: entry.poi_relation.connect.id } },
+            category_relation: {
+              connect: { id: entry.category_relation.connect.id },
+            },
+          })),
+        },
         information_info_stored_period: {
           create: storedPeriodIds.map((id) => ({ info_stored_period_id: id })),
         },

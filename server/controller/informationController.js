@@ -675,6 +675,32 @@ export const getInformation = async (req, res) => {
       },
     });
 
+    // Consolidate poi_lawbase if same category_relation
+    information.forEach((info) => {
+      const consolidatedPoiInformation = [];
+      const categoryMap = new Map();
+
+      info.poi_information.forEach((poi) => {
+        const categoryKey = poi.category_relation.category;
+        if (!categoryMap.has(categoryKey)) {
+          categoryMap.set(categoryKey, { ...poi, consolidated_lawbase: [] });
+        }
+
+        const existingCategory = categoryMap.get(categoryKey);
+        existingCategory.consolidated_lawbase.push(
+          ...poi.poi_relation.poi_info_lawbase.map(
+            (lawbase) => lawbase.info_lawbase_relation.lawBase_
+          )
+        );
+      });
+
+      categoryMap.forEach((consolidatedPoi) => {
+        consolidatedPoiInformation.push(consolidatedPoi);
+      });
+
+      info.poi_information = consolidatedPoiInformation;
+    });
+
     return res.json({ status: 200, message: information });
   } catch (error) {
     console.error("Error retrieving information:", error);

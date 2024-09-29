@@ -1,5 +1,3 @@
-// ExTable.js
-
 import React, { useState, useEffect } from "react";
 import {
   Typography,
@@ -48,7 +46,7 @@ const ExTable = (props) => {
     if (editData && editData.poi_information) {
       const categoryMapping = {};
       editData.poi_information.forEach((poiInfo, poiIndex) => {
-        const categoryName = poiInfo.category_relation.category;
+        const categoryName = poiInfo.category_relation?.category || "Unknown";
         if (!categoryMapping[categoryName]) {
           categoryMapping[categoryName] = [];
         }
@@ -300,7 +298,10 @@ const ExTable = (props) => {
                         }}
                       >
                         {(item.category_information || [])
-                          .map((item) => item.category_relation.category)
+                          .map(
+                            (categoryItem) =>
+                              categoryItem.category_relation.category
+                          )
                           .join(", ")}
                       </Typography>
                       <Typography
@@ -309,10 +310,8 @@ const ExTable = (props) => {
                           fontSize: "13px",
                         }}
                       >
-                        {
-                          item.category_information[0].category_relation
-                            .department_relation.departmentName
-                        }
+                        {item.category_information[0]?.category_relation
+                          ?.department_relation?.departmentName || "Unknown"}
                       </Typography>
                     </Box>
                   </Box>
@@ -1016,7 +1015,7 @@ const ExTable = (props) => {
                                 />
                               </Grid>
                               {/* POI Lawbase */}
-                              <Grid item xs={12} sm={6}>
+                              {/* <Grid item xs={12} sm={6}>
                                 <TextField
                                   label={`POI Lawbase`}
                                   value={(
@@ -1071,7 +1070,37 @@ const ExTable = (props) => {
                                   fullWidth
                                   margin="normal"
                                 />
-                              </Grid>
+                              </Grid> */}
+                              {/* POI Lawbase */}
+                              {(poiInfo.consolidated_lawbase || []).map(
+                                (lawbase, index) => (
+                                  <Grid item xs={12} sm={6} key={index}>
+                                    <TextField
+                                      label={`POI Lawbase ${index + 1}`}
+                                      value={lawbase || ""}
+                                      InputProps={{
+                                        readOnly: editData.status !== "pending",
+                                      }}
+                                      onChange={(e) => {
+                                        const updatedData = { ...editData };
+                                        updatedData.poi_information = [
+                                          ...editData.poi_information,
+                                        ];
+                                        const globalIndex =
+                                          poiInfo.poiGlobalIndex;
+                                        updatedData.poi_information[
+                                          globalIndex
+                                        ].consolidated_lawbase[index] =
+                                          e.target.value;
+                                        setEditData(updatedData);
+                                      }}
+                                      variant="outlined"
+                                      fullWidth
+                                      margin="normal"
+                                    />
+                                  </Grid>
+                                )
+                              )}
                             </Grid>
                           </AccordionDetails>
                         </Accordion>

@@ -285,13 +285,17 @@ const ExTable = (props) => {
                           fontSize: "13px",
                         }}
                       >
-                        {(item.category_information || [])
+                        {/* {(item.category_information || [])
                           .map(
                             (item) =>
                               item.category_relation.department_relation
                                 .departmentName
                           )
-                          .join(", ")}
+                          .join(", ")} */}
+                        {
+                          item.category_information[0].category_relation
+                            .department_relation.departmentName
+                        }
                       </Typography>
                     </Box>
                   </Box>

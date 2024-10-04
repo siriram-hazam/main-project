@@ -166,115 +166,63 @@ export const createInformation = async (req, res) => {
           "lawBase_"
         );
 
-        // Try to find existing piece_of_info with all matching criteria
-        const existingPieceOfInfo = await prisma.piece_of_info.findFirst({
-          where: {
-            poi_info: {
-              some: {
-                info_id: infoIdToUse,
-              },
-            },
-            poi_info_owner: {
-              some: {
-                info_owner_id: ownerIdToUse,
-              },
-            },
-            poi_info_from: {
-              some: {
-                info_from_id: infoFromIdToUse,
-              },
-            },
-            poi_info_format: {
-              some: {
-                info_format_id: infoFormatIdToUse,
-              },
-            },
-            poi_info_type: {
-              some: {
-                info_type_id: infoTypeIdToUse,
-              },
-            },
-            poi_info_objective: {
-              some: {
-                info_objective_id: infoObjectiveIdToUse,
-              },
-            },
-            poi_info_lawbase: {
-              every: {
-                info_lawbase_id: {
-                  in: lawbaseIds,
-                },
-              },
-            },
+        // Create or find the piece_of_info
+        let pieceOfInfo = await prisma.piece_of_info.create({
+          data: {
             category_piece_of_info: {
-              some: {
+              create: {
                 categoryId: categoryId,
               },
             },
+            poi_info: {
+              create: [
+                {
+                  info_id: infoIdToUse,
+                },
+              ],
+            },
+            poi_info_owner: {
+              create: [
+                {
+                  info_owner_id: ownerIdToUse,
+                },
+              ],
+            },
+            poi_info_from: {
+              create: [
+                {
+                  info_from_id: infoFromIdToUse,
+                },
+              ],
+            },
+            poi_info_format: {
+              create: [
+                {
+                  info_format_id: infoFormatIdToUse,
+                },
+              ],
+            },
+            poi_info_type: {
+              create: [
+                {
+                  info_type_id: infoTypeIdToUse,
+                },
+              ],
+            },
+            poi_info_objective: {
+              create: [
+                {
+                  info_objective_id: infoObjectiveIdToUse,
+                },
+              ],
+            },
+            poi_info_lawbase: {
+              create: lawbaseIds.map((lawbaseId) => ({
+                info_lawbase_id: lawbaseId,
+              })),
+            },
           },
         });
-
-        let pieceOfInfo;
-        if (existingPieceOfInfo) {
-          pieceOfInfo = existingPieceOfInfo;
-        } else {
-          pieceOfInfo = await prisma.piece_of_info.create({
-            data: {
-              category_piece_of_info: {
-                create: {
-                  categoryId: categoryId,
-                },
-              },
-              poi_info: {
-                create: [
-                  {
-                    info_id: infoIdToUse,
-                  },
-                ],
-              },
-              poi_info_owner: {
-                create: [
-                  {
-                    info_owner_id: ownerIdToUse,
-                  },
-                ],
-              },
-              poi_info_from: {
-                create: [
-                  {
-                    info_from_id: infoFromIdToUse,
-                  },
-                ],
-              },
-              poi_info_format: {
-                create: [
-                  {
-                    info_format_id: infoFormatIdToUse,
-                  },
-                ],
-              },
-              poi_info_type: {
-                create: [
-                  {
-                    info_type_id: infoTypeIdToUse,
-                  },
-                ],
-              },
-              poi_info_objective: {
-                create: [
-                  {
-                    info_objective_id: infoObjectiveIdToUse,
-                  },
-                ],
-              },
-              poi_info_lawbase: {
-                create: lawbaseIds.map((lawbaseId) => ({
-                  info_lawbase_id: lawbaseId,
-                })),
-              },
-            },
-          });
-        }
 
         if (!pieceOfInfo.id) {
           throw new Error(
@@ -477,12 +425,10 @@ export const getInformation = async (req, res) => {
             },
           },
         },
-
         poi_information: {
           select: {
             poi_relation: {
               select: {
-                id: true,
                 poi_info: {
                   select: {
                     info_relation: {
@@ -555,7 +501,6 @@ export const getInformation = async (req, res) => {
             },
           },
         },
-
         information_info_stored_period: {
           select: {
             info_stored_period_relation: {
@@ -674,37 +619,6 @@ export const getInformation = async (req, res) => {
           },
         },
       },
-    });
-
-    // Adjusted consolidation logic
-    information.forEach((info) => {
-      const consolidatedPoiInformation = [];
-      const poiMap = new Map();
-
-      info.poi_information.forEach((poi) => {
-        const category = poi.category_relation.category;
-        const poiId = poi.poi_relation.id;
-
-        const key = `${category}_${poiId}`;
-
-        if (!poiMap.has(key)) {
-          poiMap.set(key, { ...poi, consolidated_lawbase: [] });
-        }
-
-        const existingPoi = poiMap.get(key);
-
-        existingPoi.consolidated_lawbase.push(
-          ...poi.poi_relation.poi_info_lawbase.map(
-            (lawbase) => lawbase.info_lawbase_relation.lawBase_
-          )
-        );
-      });
-
-      poiMap.forEach((consolidatedPoi) => {
-        consolidatedPoiInformation.push(consolidatedPoi);
-      });
-
-      info.poi_information = consolidatedPoiInformation;
     });
 
     return res.json({ status: 200, message: information });

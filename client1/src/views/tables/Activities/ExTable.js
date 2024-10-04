@@ -1026,7 +1026,7 @@ const ExTable = (props) => {
                               </Grid>
 
                               {/* POI Lawbase */}
-                              {(poiInfo.consolidated_lawbase || []).map(
+                              {/* {(poiInfo.consolidated_lawbase || []).map(
                                 (lawbase, index) => (
                                   <Grid item xs={12} sm={6} key={index}>
                                     <TextField
@@ -1047,7 +1047,33 @@ const ExTable = (props) => {
                                     />
                                   </Grid>
                                 )
-                              )}
+                              )} */}
+                              {/* POI Lawbase */}
+                              {(
+                                poiInfo.poi_relation.poi_info_lawbase || []
+                              ).map((lawbaseEntry, index) => (
+                                <Grid item xs={12} sm={6} key={index}>
+                                  <TextField
+                                    label={`POI Lawbase ${index + 1}`}
+                                    value={
+                                      lawbaseEntry.info_lawbase_relation
+                                        .lawBase_ || ""
+                                    }
+                                    InputProps={{
+                                      readOnly: editData.status !== "pending",
+                                    }}
+                                    onChange={(e) =>
+                                      handleInputChange(
+                                        e,
+                                        `poi_information[${poiInfo.poiGlobalIndex}].poi_relation.poi_info_lawbase[${index}].info_lawbase_relation.lawBase_`
+                                      )
+                                    }
+                                    variant="outlined"
+                                    fullWidth
+                                    margin="normal"
+                                  />
+                                </Grid>
+                              ))}
                             </Grid>
                           </AccordionDetails>
                         </Accordion>

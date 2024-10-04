@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createInformation,
   getInformation,
+  updateInformation,
   deleteInformation,
   updateInformationApproval,
   excelProcess,
@@ -12,6 +13,7 @@ const router = Router();
 
 router.post("/", auth, createInformation);
 router.get("/", auth, getInformation);
+router.put("/updateInfo/:id", auth, updateInformation);
 router.delete("/:id", auth, deleteInformation);
 router.put("/:id", auth, updateInformationApproval);
 router.post("/downloadexcel", auth, excelProcess);

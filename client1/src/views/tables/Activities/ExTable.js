@@ -41,6 +41,32 @@ const ExTable = (props) => {
   const [editData, setEditData] = useState(null);
   const [rowDialogOpen, setRowDialogOpen] = useState(false);
   const [categoryToPois, setCategoryToPois] = useState({});
+  const [isDataChanged, setIsDataChanged] = useState(false);
+
+  // State to hold category name to ID mapping
+  const [categoryMap, setCategoryMap] = useState({});
+
+  // Fetch categories on component mount
+  // useEffect(() => {
+  //   const fetchCategories = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         `${process.env.REACT_APP_SERVER_SIDE}/categories`
+  //       );
+  //       const categories = response.data.message; // Adjust based on your API response structure
+  //       const map = {};
+  //       categories.forEach((category) => {
+  //         map[category.category] = category.id;
+  //       });
+  //       setCategoryMap(map);
+  //     } catch (error) {
+  //       console.error("Error fetching categories:", error);
+  //       toast.error("Failed to fetch categories.");
+  //     }
+  //   };
+
+  //   fetchCategories();
+  // }, []);
 
   useEffect(() => {
     if (editData && editData.poi_information) {
@@ -58,6 +84,30 @@ const ExTable = (props) => {
       setCategoryToPois(categoryMapping);
     }
   }, [editData]);
+
+  // Helper function to set nested values in the editData state
+  const setNestedValue = (obj, path, value) => {
+    const keys = path
+      .replace(/\[(\w+)\]/g, ".$1") // Convert indexes to properties
+      .split(".")
+      .filter(Boolean);
+
+    let current = obj;
+    keys.slice(0, -1).forEach((key) => {
+      if (!(key in current)) {
+        // Initialize the next key if it doesn't exist
+        current[key] = isNaN(parseInt(key)) ? {} : [];
+      }
+      current = current[key];
+    });
+
+    const lastKey = keys[keys.length - 1];
+    if (Array.isArray(current)) {
+      current[parseInt(lastKey)] = value;
+    } else {
+      current[lastKey] = value;
+    }
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -134,6 +184,7 @@ const ExTable = (props) => {
   const handleRowClick = (item) => {
     setRowData(item);
     setEditData(JSON.parse(JSON.stringify(item))); // Deep copy for editing
+    setIsDataChanged(false); // Reset the change flag
     setRowDialogOpen(true);
   };
 
@@ -142,6 +193,14 @@ const ExTable = (props) => {
     setRowData(null);
     setEditData(null);
     setCategoryToPois({});
+    setIsDataChanged(false); // Reset the change flag
+  };
+
+  const handleInputChange = (e, fieldPath) => {
+    const updatedData = JSON.parse(JSON.stringify(editData)); // Deep copy to avoid mutations
+    setNestedValue(updatedData, fieldPath, e.target.value);
+    setEditData(updatedData);
+    setIsDataChanged(true); // Mark data as changed when input is modified
   };
 
   const handleDownload = async (item) => {
@@ -166,14 +225,145 @@ const ExTable = (props) => {
       a.remove();
     } catch (error) {
       console.error("Error downloading the file:", error);
+      toast.error("Download failed");
     }
   };
 
   const handleSave = async () => {
     try {
+      // Deep copy to avoid mutating the original editData
+      const dataToSend = JSON.parse(JSON.stringify(editData));
+
+      // Remove fields that should not be sent to the backend
+      delete dataToSend.id;
+      delete dataToSend.create_time;
+      delete dataToSend.user_account_relation;
+      delete dataToSend.company_relation;
+      delete dataToSend.department_relation;
+
+      // Transform activity_relation to activity_id
+      if (dataToSend.activity_relation) {
+        dataToSend.activity_id = dataToSend.activity_relation.id;
+        delete dataToSend.activity_relation;
+      }
+
+      // Transform department_relation to department_id
+      if (dataToSend.department_relation) {
+        dataToSend.department_id = dataToSend.department_relation.id;
+        delete dataToSend.department_relation;
+      }
+
+      // Transform category_information
+      if (dataToSend.category_information) {
+        dataToSend.category_information = {
+          deleteMany: {},
+          create: dataToSend.category_information.map((categoryItem) => ({
+            category_id:
+              categoryMap[categoryItem.category_relation.category] || 0, // Use the categoryMap to get the ID
+          })),
+        };
+      }
+
+      // Transform poi_information
+      if (dataToSend.poi_information) {
+        dataToSend.poi_information = {
+          deleteMany: {},
+          create: dataToSend.poi_information.map((poiItem) => ({
+            information_id: rowData.id, // Assuming informationId is the current row's id
+            poi_id: poiItem.poi_relation.id,
+            category_id: categoryMap[poiItem.category_relation.category] || 0,
+          })),
+        };
+      }
+
+      // Transform other relations similarly
+      const transformRelation = (relationArray, relationKey, map = null) => {
+        if (relationArray) {
+          return {
+            deleteMany: {},
+            create: relationArray.map((item) => ({
+              [`${relationKey}`]: {
+                connect: {
+                  id: map
+                    ? map[item[`${relationKey}_relation`]?.[relationKey]] || 0
+                    : item[`${relationKey}_relation`]?.id || 0,
+                },
+              },
+            })),
+          };
+        }
+        return undefined;
+      };
+
+      dataToSend.information_info_stored_period = transformRelation(
+        dataToSend.information_info_stored_period,
+        "info_stored_period"
+      );
+
+      dataToSend.information_info_placed = transformRelation(
+        dataToSend.information_info_placed,
+        "info_placed"
+      );
+
+      dataToSend.information_info_allowed_ps = transformRelation(
+        dataToSend.information_info_allowed_ps,
+        "info_allowed_ps"
+      );
+
+      dataToSend.information_info_allowed_ps_condition = transformRelation(
+        dataToSend.information_info_allowed_ps_condition,
+        "info_allowed_ps_condition"
+      );
+
+      dataToSend.information_info_access = transformRelation(
+        dataToSend.information_info_access,
+        "info_access"
+      );
+
+      dataToSend.information_info_access_condition = transformRelation(
+        dataToSend.information_info_access_condition,
+        "info_access_condition"
+      );
+
+      dataToSend.information_info_ps_usedbyrole_inside = transformRelation(
+        dataToSend.information_info_ps_usedbyrole_inside,
+        "info_ps_usedbyrole_inside"
+      );
+
+      dataToSend.information_info_ps_sendto_outside = transformRelation(
+        dataToSend.information_info_ps_sendto_outside,
+        "info_ps_sendto_outside"
+      );
+
+      dataToSend.information_info_ps_destroying = transformRelation(
+        dataToSend.information_info_ps_destroying,
+        "info_ps_destroying"
+      );
+
+      dataToSend.information_info_ps_destroyer = transformRelation(
+        dataToSend.information_info_ps_destroyer,
+        "info_ps_destroyer"
+      );
+
+      dataToSend.information_m_organization = transformRelation(
+        dataToSend.information_m_organization,
+        "m_organization"
+      );
+
+      dataToSend.information_m_technical = transformRelation(
+        dataToSend.information_m_technical,
+        "m_technical"
+      );
+
+      dataToSend.information_m_physical = transformRelation(
+        dataToSend.information_m_physical,
+        "m_physical"
+      );
+
+      // Send the transformed data to the backend
       const response = await axios.put(
-        `${process.env.REACT_APP_SERVER_SIDE}/information/update/${rowData.id}`,
-        editData
+        `${process.env.REACT_APP_SERVER_SIDE}/information/updateInfo/${rowData.id}`,
+        dataToSend
       );
 
       if (response.status === 200) {
@@ -223,8 +413,7 @@ const ExTable = (props) => {
               <TableCell align="center">
                 <Typography color="textSecondary" variant="h6"></Typography>
               </TableCell>
-              {props.user.data.users.role === "manager" ||
-              props.user.data.users.role === "admin" ? (
+              {["manager", "admin"].includes(props.user.data.users.role) && (
                 <>
                   <TableCell align="center">
                     <Typography color="textSecondary" variant="h6">
@@ -237,16 +426,14 @@ const ExTable = (props) => {
                     </Typography>
                   </TableCell>
                 </>
-              ) : null}
-              {props.user.data.users.role === "superadmin" ? (
-                <>
-                  <TableCell>
-                    <Typography color="textSecondary" variant="h6">
-                      Company
-                    </Typography>
-                  </TableCell>
-                </>
-              ) : null}
+              )}
+              {props.user.data.users.role === "superadmin" && (
+                <TableCell>
+                  <Typography color="textSecondary" variant="h6">
+                    Company
+                  </Typography>
+                </TableCell>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -355,7 +542,7 @@ const ExTable = (props) => {
                     <Fab
                       color="primary"
                       variant="extended"
-                      disabled={item.status === "success" ? true : false}
+                      disabled={item.status === "success"}
                       onClick={(event) => {
                         event.stopPropagation();
                         handleClickOpen(item.id);
@@ -383,8 +570,7 @@ const ExTable = (props) => {
                     </Fab>
                   </Typography>
                 </TableCell>
-                {props.user.data.users.role === "manager" ||
-                props.user.data.users.role === "admin" ? (
+                {["manager", "admin"].includes(props.user.data.users.role) && (
                   <>
                     <TableCell align="center">
                       <Typography variant="h6">
@@ -421,8 +607,8 @@ const ExTable = (props) => {
                     <TableCell align="center">
                       <Typography variant="h6">
                         <Switch
-                          checked={item.status === "success" ? true : false}
-                          disabled={item.status === "success" ? true : false}
+                          checked={item.status === "success"}
+                          disabled={item.status === "success"}
                           color="success"
                           onChange={(event) => {
                             event.stopPropagation();
@@ -432,14 +618,14 @@ const ExTable = (props) => {
                       </Typography>
                     </TableCell>
                   </>
-                ) : null}
-                {props.user.data.users.role === "superadmin" ? (
+                )}
+                {props.user.data.users.role === "superadmin" && (
                   <TableCell>
                     <Typography variant="h6">
                       {item.company_relation.companyName}
                     </Typography>
                   </TableCell>
-                ) : null}
+                )}
               </TableRow>
             ))}
           </TableBody>
@@ -581,12 +767,9 @@ const ExTable = (props) => {
                         InputProps={{
                           readOnly: editData.status !== "pending",
                         }}
-                        onChange={(e) => {
-                          const updatedData = { ...editData };
-                          updatedData.activity_relation.activity =
-                            e.target.value;
-                          setEditData(updatedData);
-                        }}
+                        onChange={(e) =>
+                          handleInputChange(e, "activity_relation.activity")
+                        }
                         variant="outlined"
                         fullWidth
                         margin="normal"
@@ -695,46 +878,18 @@ const ExTable = (props) => {
                                   InputProps={{
                                     readOnly: editData.status !== "pending",
                                   }}
-                                  onChange={(e) => {
-                                    const updatedData = { ...editData };
-                                    updatedData.poi_information = [
-                                      ...editData.poi_information,
-                                    ];
-                                    const globalIndex = poiInfo.poiGlobalIndex;
-                                    const poiRelation = {
-                                      ...updatedData.poi_information[
-                                        globalIndex
-                                      ].poi_relation,
-                                    };
-                                    poiRelation.poi_info = [
-                                      ...(poiRelation.poi_info || []),
-                                    ];
-                                    if (poiRelation.poi_info.length > 0) {
-                                      poiRelation.poi_info[0] = {
-                                        ...poiRelation.poi_info[0],
-                                        info_relation: {
-                                          ...poiRelation.poi_info[0]
-                                            .info_relation,
-                                          info_: e.target.value,
-                                        },
-                                      };
-                                    } else {
-                                      poiRelation.poi_info[0] = {
-                                        info_relation: {
-                                          info_: e.target.value,
-                                        },
-                                      };
-                                    }
-                                    updatedData.poi_information[
-                                      globalIndex
-                                    ].poi_relation = poiRelation;
-                                    setEditData(updatedData);
-                                  }}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      e,
+                                      `poi_information[${poiInfo.poiGlobalIndex}].poi_relation.poi_info[0].info_relation.info_`
+                                    )
+                                  }
                                   variant="outlined"
                                   fullWidth
                                   margin="normal"
                                 />
                               </Grid>
+
                               {/* POI Owner */}
                               <Grid item xs={12} sm={6}>
                                 <TextField
@@ -750,46 +905,18 @@ const ExTable = (props) => {
                                   InputProps={{
                                     readOnly: editData.status !== "pending",
                                   }}
-                                  onChange={(e) => {
-                                    const updatedData = { ...editData };
-                                    updatedData.poi_information = [
-                                      ...editData.poi_information,
-                                    ];
-                                    const globalIndex = poiInfo.poiGlobalIndex;
-                                    const poiRelation = {
-                                      ...updatedData.poi_information[
-                                        globalIndex
-                                      ].poi_relation,
-                                    };
-                                    poiRelation.poi_info_owner = [
-                                      ...(poiRelation.poi_info_owner || []),
-                                    ];
-                                    if (poiRelation.poi_info_owner.length > 0) {
-                                      poiRelation.poi_info_owner[0] = {
-                                        ...poiRelation.poi_info_owner[0],
-                                        info_owner_relation: {
-                                          ...poiRelation.poi_info_owner[0]
-                                            .info_owner_relation,
-                                          owner_: e.target.value,
-                                        },
-                                      };
-                                    } else {
-                                      poiRelation.poi_info_owner[0] = {
-                                        info_owner_relation: {
-                                          owner_: e.target.value,
-                                        },
-                                      };
-                                    }
-                                    updatedData.poi_information[
-                                      globalIndex
-                                    ].poi_relation = poiRelation;
-                                    setEditData(updatedData);
-                                  }}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      e,
+                                      `poi_information[${poiInfo.poiGlobalIndex}].poi_relation.poi_info_owner[0].info_owner_relation.owner_`
+                                    )
+                                  }
                                   variant="outlined"
                                   fullWidth
                                   margin="normal"
                                 />
                               </Grid>
+
                               {/* POI From */}
                               <Grid item xs={12} sm={6}>
                                 <TextField
@@ -804,46 +931,18 @@ const ExTable = (props) => {
                                   InputProps={{
                                     readOnly: editData.status !== "pending",
                                   }}
-                                  onChange={(e) => {
-                                    const updatedData = { ...editData };
-                                    updatedData.poi_information = [
-                                      ...editData.poi_information,
-                                    ];
-                                    const globalIndex = poiInfo.poiGlobalIndex;
-                                    const poiRelation = {
-                                      ...updatedData.poi_information[
-                                        globalIndex
-                                      ].poi_relation,
-                                    };
-                                    poiRelation.poi_info_from = [
-                                      ...(poiRelation.poi_info_from || []),
-                                    ];
-                                    if (poiRelation.poi_info_from.length > 0) {
-                                      poiRelation.poi_info_from[0] = {
-                                        ...poiRelation.poi_info_from[0],
-                                        info_from_relation: {
-                                          ...poiRelation.poi_info_from[0]
-                                            .info_from_relation,
-                                          from_: e.target.value,
-                                        },
-                                      };
-                                    } else {
-                                      poiRelation.poi_info_from[0] = {
-                                        info_from_relation: {
-                                          from_: e.target.value,
-                                        },
-                                      };
-                                    }
-                                    updatedData.poi_information[
-                                      globalIndex
-                                    ].poi_relation = poiRelation;
-                                    setEditData(updatedData);
-                                  }}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      e,
+                                      `poi_information[${poiInfo.poiGlobalIndex}].poi_relation.poi_info_from[0].info_from_relation.from_`
+                                    )
+                                  }
                                   variant="outlined"
                                   fullWidth
                                   margin="normal"
                                 />
                               </Grid>
+
                               {/* POI Format */}
                               <Grid item xs={12} sm={6}>
                                 <TextField
@@ -859,48 +958,18 @@ const ExTable = (props) => {
                                   InputProps={{
                                     readOnly: editData.status !== "pending",
                                   }}
-                                  onChange={(e) => {
-                                    const updatedData = { ...editData };
-                                    updatedData.poi_information = [
-                                      ...editData.poi_information,
-                                    ];
-                                    const globalIndex = poiInfo.poiGlobalIndex;
-                                    const poiRelation = {
-                                      ...updatedData.poi_information[
-                                        globalIndex
-                                      ].poi_relation,
-                                    };
-                                    poiRelation.poi_info_format = [
-                                      ...(poiRelation.poi_info_format || []),
-                                    ];
-                                    if (
-                                      poiRelation.poi_info_format.length > 0
-                                    ) {
-                                      poiRelation.poi_info_format[0] = {
-                                        ...poiRelation.poi_info_format[0],
-                                        info_format_relation: {
-                                          ...poiRelation.poi_info_format[0]
-                                            .info_format_relation,
-                                          format_: e.target.value,
-                                        },
-                                      };
-                                    } else {
-                                      poiRelation.poi_info_format[0] = {
-                                        info_format_relation: {
-                                          format_: e.target.value,
-                                        },
-                                      };
-                                    }
-                                    updatedData.poi_information[
-                                      globalIndex
-                                    ].poi_relation = poiRelation;
-                                    setEditData(updatedData);
-                                  }}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      e,
+                                      `poi_information[${poiInfo.poiGlobalIndex}].poi_relation.poi_info_format[0].info_format_relation.format_`
+                                    )
+                                  }
                                   variant="outlined"
                                   fullWidth
                                   margin="normal"
                                 />
                               </Grid>
+
                               {/* POI Type */}
                               <Grid item xs={12} sm={6}>
                                 <TextField
@@ -915,46 +984,18 @@ const ExTable = (props) => {
                                   InputProps={{
                                     readOnly: editData.status !== "pending",
                                   }}
-                                  onChange={(e) => {
-                                    const updatedData = { ...editData };
-                                    updatedData.poi_information = [
-                                      ...editData.poi_information,
-                                    ];
-                                    const globalIndex = poiInfo.poiGlobalIndex;
-                                    const poiRelation = {
-                                      ...updatedData.poi_information[
-                                        globalIndex
-                                      ].poi_relation,
-                                    };
-                                    poiRelation.poi_info_type = [
-                                      ...(poiRelation.poi_info_type || []),
-                                    ];
-                                    if (poiRelation.poi_info_type.length > 0) {
-                                      poiRelation.poi_info_type[0] = {
-                                        ...poiRelation.poi_info_type[0],
-                                        info_type_relation: {
-                                          ...poiRelation.poi_info_type[0]
-                                            .info_type_relation,
-                                          type_: e.target.value,
-                                        },
-                                      };
-                                    } else {
-                                      poiRelation.poi_info_type[0] = {
-                                        info_type_relation: {
-                                          type_: e.target.value,
-                                        },
-                                      };
-                                    }
-                                    updatedData.poi_information[
-                                      globalIndex
-                                    ].poi_relation = poiRelation;
-                                    setEditData(updatedData);
-                                  }}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      e,
+                                      `poi_information[${poiInfo.poiGlobalIndex}].poi_relation.poi_info_type[0].info_type_relation.type_`
+                                    )
+                                  }
                                   variant="outlined"
                                   fullWidth
                                   margin="normal"
                                 />
                               </Grid>
+
                               {/* POI Objective */}
                               <Grid item xs={12} sm={6}>
                                 <TextField
@@ -972,105 +1013,18 @@ const ExTable = (props) => {
                                   InputProps={{
                                     readOnly: editData.status !== "pending",
                                   }}
-                                  onChange={(e) => {
-                                    const updatedData = { ...editData };
-                                    updatedData.poi_information = [
-                                      ...editData.poi_information,
-                                    ];
-                                    const globalIndex = poiInfo.poiGlobalIndex;
-                                    const poiRelation = {
-                                      ...updatedData.poi_information[
-                                        globalIndex
-                                      ].poi_relation,
-                                    };
-                                    poiRelation.poi_info_objective = [
-                                      ...(poiRelation.poi_info_objective || []),
-                                    ];
-                                    if (
-                                      poiRelation.poi_info_objective.length > 0
-                                    ) {
-                                      poiRelation.poi_info_objective[0] = {
-                                        ...poiRelation.poi_info_objective[0],
-                                        info_objective_relation: {
-                                          ...poiRelation.poi_info_objective[0]
-                                            .info_objective_relation,
-                                          objective_: e.target.value,
-                                        },
-                                      };
-                                    } else {
-                                      poiRelation.poi_info_objective[0] = {
-                                        info_objective_relation: {
-                                          objective_: e.target.value,
-                                        },
-                                      };
-                                    }
-                                    updatedData.poi_information[
-                                      globalIndex
-                                    ].poi_relation = poiRelation;
-                                    setEditData(updatedData);
-                                  }}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      e,
+                                      `poi_information[${poiInfo.poiGlobalIndex}].poi_relation.poi_info_objective[0].info_objective_relation.objective_`
+                                    )
+                                  }
                                   variant="outlined"
                                   fullWidth
                                   margin="normal"
                                 />
                               </Grid>
-                              {/* POI Lawbase */}
-                              {/* <Grid item xs={12} sm={6}>
-                                <TextField
-                                  label={`POI Lawbase`}
-                                  value={(
-                                    poiInfo.poi_relation.poi_info_lawbase || []
-                                  )
-                                    .map(
-                                      (lawbase) =>
-                                        lawbase.info_lawbase_relation.lawBase_
-                                    )
-                                    .join(", ")}
-                                  InputProps={{
-                                    readOnly: editData.status !== "pending",
-                                  }}
-                                  onChange={(e) => {
-                                    const updatedData = { ...editData };
-                                    updatedData.poi_information = [
-                                      ...editData.poi_information,
-                                    ];
-                                    const globalIndex = poiInfo.poiGlobalIndex;
-                                    const poiRelation = {
-                                      ...updatedData.poi_information[
-                                        globalIndex
-                                      ].poi_relation,
-                                    };
-                                    poiRelation.poi_info_lawbase = [
-                                      ...(poiRelation.poi_info_lawbase || []),
-                                    ];
-                                    if (
-                                      poiRelation.poi_info_lawbase.length > 0
-                                    ) {
-                                      poiRelation.poi_info_lawbase[0] = {
-                                        ...poiRelation.poi_info_lawbase[0],
-                                        info_lawbase_relation: {
-                                          ...poiRelation.poi_info_lawbase[0]
-                                            .info_lawbase_relation,
-                                          lawBase_: e.target.value,
-                                        },
-                                      };
-                                    } else {
-                                      poiRelation.poi_info_lawbase[0] = {
-                                        info_lawbase_relation: {
-                                          lawBase_: e.target.value,
-                                        },
-                                      };
-                                    }
-                                    updatedData.poi_information[
-                                      globalIndex
-                                    ].poi_relation = poiRelation;
-                                    setEditData(updatedData);
-                                  }}
-                                  variant="outlined"
-                                  fullWidth
-                                  margin="normal"
-                                />
-                              </Grid> */}
+
                               {/* POI Lawbase */}
                               {(poiInfo.consolidated_lawbase || []).map(
                                 (lawbase, index) => (
@@ -1081,19 +1035,12 @@ const ExTable = (props) => {
                                       InputProps={{
                                         readOnly: editData.status !== "pending",
                                       }}
-                                      onChange={(e) => {
-                                        const updatedData = { ...editData };
-                                        updatedData.poi_information = [
-                                          ...editData.poi_information,
-                                        ];
-                                        const globalIndex =
-                                          poiInfo.poiGlobalIndex;
-                                        updatedData.poi_information[
-                                          globalIndex
-                                        ].consolidated_lawbase[index] =
-                                          e.target.value;
-                                        setEditData(updatedData);
-                                      }}
+                                      onChange={(e) =>
+                                        handleInputChange(
+                                          e,
+                                          `poi_information[${poiInfo.poiGlobalIndex}].consolidated_lawbase[${index}]`
+                                        )
+                                      }
                                       variant="outlined"
                                       fullWidth
                                       margin="normal"
@@ -1131,14 +1078,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_info_stored_period[
-                                index
-                              ].info_stored_period_relation.period_ =
-                                e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_info_stored_period[${index}].info_stored_period_relation.period_`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1146,6 +1091,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Info Placed */}
                     {(editData.information_info_placed || []).map(
                       (placed, index) => (
@@ -1156,13 +1102,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_info_placed[
-                                index
-                              ].info_placed_relation.placed_ = e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_info_placed[${index}].info_placed_relation.placed_`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1170,6 +1115,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Allowed PS */}
                     {(editData.information_info_allowed_ps || []).map(
                       (allowedPs, index) => (
@@ -1182,14 +1128,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_info_allowed_ps[
-                                index
-                              ].info_allowed_ps_relation.allowed_ps_ =
-                                e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_info_allowed_ps[${index}].info_allowed_ps_relation.allowed_ps_`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1197,6 +1141,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Allowed PS Condition */}
                     {(editData.information_info_allowed_ps_condition || []).map(
                       (condition, index) => (
@@ -1210,14 +1155,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_info_allowed_ps_condition[
-                                index
-                              ].info_allowed_ps_condition_relation.allowed_ps_condition_ =
-                                e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_info_allowed_ps_condition[${index}].info_allowed_ps_condition_relation.allowed_ps_condition_`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1225,6 +1168,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Info Access */}
                     {(editData.information_info_access || []).map(
                       (access, index) => (
@@ -1235,13 +1179,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_info_access[
-                                index
-                              ].info_access_relation.access_ = e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_info_access[${index}].info_access_relation.access_`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1249,6 +1192,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Access Condition */}
                     {(editData.information_info_access_condition || []).map(
                       (accessCondition, index) => (
@@ -1262,14 +1206,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_info_access_condition[
-                                index
-                              ].info_access_condition_relation.access_condition_ =
-                                e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_info_access_condition[${index}].info_access_condition_relation.access_condition_`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1277,6 +1219,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Used by Role Inside */}
                     {(editData.information_info_ps_usedbyrole_inside || []).map(
                       (usedByRole, index) => (
@@ -1290,14 +1233,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_info_ps_usedbyrole_inside[
-                                index
-                              ].info_ps_usedbyrole_inside_relation.use_by_role_ =
-                                e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_info_ps_usedbyrole_inside[${index}].info_ps_usedbyrole_inside_relation.use_by_role_`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1305,6 +1246,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Send to Outside */}
                     {(editData.information_info_ps_sendto_outside || []).map(
                       (sendToOutside, index) => (
@@ -1318,14 +1260,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_info_ps_sendto_outside[
-                                index
-                              ].info_ps_sendto_outside_relation.sendto_ =
-                                e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_info_ps_sendto_outside[${index}].info_ps_sendto_outside_relation.sendto_`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1333,6 +1273,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Destroying */}
                     {(editData.information_info_ps_destroying || []).map(
                       (destroying, index) => (
@@ -1345,14 +1286,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_info_ps_destroying[
-                                index
-                              ].info_ps_destroying_relation.destroying_ =
-                                e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_info_ps_destroying[${index}].info_ps_destroying_relation.destroying_`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1360,6 +1299,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Destroyer */}
                     {(editData.information_info_ps_destroyer || []).map(
                       (destroyer, index) => (
@@ -1372,14 +1312,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_info_ps_destroyer[
-                                index
-                              ].info_ps_destroyer_relation.destroyer_ =
-                                e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_info_ps_destroyer[${index}].info_ps_destroyer_relation.destroyer_`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1387,6 +1325,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Organization Measures */}
                     {(editData.information_m_organization || []).map(
                       (organization, index) => (
@@ -1399,14 +1338,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_m_organization[
-                                index
-                              ].m_organization_relation.organization =
-                                e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_m_organization[${index}].m_organization_relation.organization`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1414,6 +1351,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Technical Measures */}
                     {(editData.information_m_technical || []).map(
                       (technical, index) => (
@@ -1424,13 +1362,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_m_technical[
-                                index
-                              ].m_technical_relation.technical = e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_m_technical[${index}].m_technical_relation.technical`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1438,6 +1375,7 @@ const ExTable = (props) => {
                         </Grid>
                       )
                     )}
+
                     {/* Physical Measures */}
                     {(editData.information_m_physical || []).map(
                       (physical, index) => (
@@ -1448,13 +1386,12 @@ const ExTable = (props) => {
                             InputProps={{
                               readOnly: editData.status !== "pending",
                             }}
-                            onChange={(e) => {
-                              const updatedData = { ...editData };
-                              updatedData.information_m_physical[
-                                index
-                              ].m_physical_relation.physical = e.target.value;
-                              setEditData(updatedData);
-                            }}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                `information_m_physical[${index}].m_physical_relation.physical`
+                              )
+                            }
                             variant="outlined"
                             fullWidth
                             margin="normal"
@@ -1474,8 +1411,9 @@ const ExTable = (props) => {
               onClick={handleSave}
               color="primary"
               sx={{ fontSize: "1rem" }}
+              disabled={!isDataChanged} // Disable button if no changes made
             >
-              Save
+              Update
             </Button>
           )}
           <Button

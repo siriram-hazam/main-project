@@ -1,30 +1,23 @@
 import React, { useState, useEffect } from "react";
-
 import { Card, CardContent, Box, Typography, Fab } from "@mui/material";
-
 import ExTable from "../../tables/Activities/ExTable";
-
 import AllInboxOutlinedIcon from "@mui/icons-material/AllInboxOutlined";
 import AddToPhotosOutlinedIcon from "@mui/icons-material/AddToPhotosOutlined";
-
 import authUtils from "../../../hooks/useAuth";
-
 import infoUtils from "../../../hooks/useInfo";
 
 const BasicTable = () => {
   const [user, setUser] = useState(null);
   const [checkUser, setCheckUser] = useState(null);
-
   const [info, setInfo] = useState(null);
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkUser = async () => {
       try {
+        setLoading(true);
         const user = await authUtils.checkUser();
         setCheckUser(user);
-        // console.log(user);
       } catch (error) {
         console.error("Error ActivitiesTable checkUser : ", error);
       } finally {
@@ -36,9 +29,9 @@ const BasicTable = () => {
 
     const loadUser = async () => {
       try {
+        setLoading(true);
         const user = await authUtils.userProfile();
         setUser(user);
-        // console.log(user);
       } catch (error) {
         console.error("Error ActivitiesTable loadUser : ", error);
       } finally {
@@ -47,14 +40,12 @@ const BasicTable = () => {
     };
 
     loadUser();
-  }, []);
 
-  useEffect(() => {
     const getInfo = async () => {
       try {
+        setLoading(true);
         const res = await infoUtils.infoActivities();
         setInfo(res);
-        // console.log("Activities Info : ", res);
       } catch (error) {
         console.error("Error BasicTable getInfo : ", error);
       } finally {
@@ -73,8 +64,29 @@ const BasicTable = () => {
     return <div>Failed to load user data</div>;
   }
 
-  if (!info) {
-    return <div>Failed to load info data</div>;
+  if (!info || info.length === 0) {
+    return (
+      <Box>
+        <Card variant="outlined">
+          <CardContent>
+            <Typography variant="h5" color="textSecondary">
+              No activity information available.
+            </Typography>
+            <Fab
+              color="primary"
+              href={"/activities/add"}
+              variant="extended"
+              sx={{ mt: 2 }}
+            >
+              <AddToPhotosOutlinedIcon sx={{ fontSize: "1.3rem" }} />
+              <Typography sx={{ ml: 1, textTransform: "capitalize" }}>
+                Add Activity
+              </Typography>
+            </Fab>
+          </CardContent>
+        </Card>
+      </Box>
+    );
   }
 
   return (

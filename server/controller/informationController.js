@@ -377,7 +377,555 @@ export const createInformation = async (req, res) => {
 };
 
 export const updateInformation = async (req, res) => {
-  const id = req.params.id;
+  const id = parseInt(req.params.id);
+  const updateData = req.body;
+
+  // Remove ID from update data
+  delete updateData.id;
+
+  try {
+    const updatedInformation = await prisma.information.update({
+      where: { id },
+      data: {
+        activity_relation: { connect: { id: updateData.activity_relation.id } },
+        status: updateData.status,
+        create_time: new Date(updateData.create_time),
+        user_account_relation: {
+          connect: { id: updateData.user_account_relation.id },
+        },
+        company_relation: { connect: { id: updateData.company_relation.id } },
+        department_relation: {
+          connect: { id: updateData.department_relation.id },
+        },
+        category_information: {
+          upsert: updateData.category_information.map((category) => ({
+            where: {
+              information_id_category_id: {
+                information_id: id,
+                category_id: category.category_id,
+              },
+            },
+            update: {
+              category_relation: {
+                connectOrCreate: {
+                  where: { id: category.category_relation.id },
+                  create: {
+                    category: category.category_relation.category,
+                    department_relation: {
+                      connect: {
+                        id: category.category_relation.department_relation.id,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            create: {
+              category_relation: {
+                connectOrCreate: {
+                  where: { id: category.category_relation.id },
+                  create: {
+                    category: category.category_relation.category,
+                    department_relation: {
+                      connect: {
+                        id: category.category_relation.department_relation.id,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          })),
+        },
+        poi_information: {
+          upsert: updateData.poi_information.map((poi) => ({
+            where: {
+              information_id_poi_id: {
+                information_id: id,
+                poi_id: poi.poi_relation.id,
+              },
+            },
+            update: {
+              poi_relation: {
+                connectOrCreate: {
+                  where: { id: poi.poi_relation.id },
+                  create: {
+                    // name: poi.poi_relation.name || "Default Name",
+                    poi_info: poi.poi_relation.poi_info.map((info) => ({
+                      info_relation: {
+                        connectOrCreate: {
+                          where: { id: info.info_relation.id },
+                          create: { info_: info.info_relation.info_ },
+                        },
+                      },
+                    })),
+                    poi_info_owner: poi.poi_relation.poi_info_owner.map(
+                      (owner) => ({
+                        info_owner_relation: {
+                          connectOrCreate: {
+                            where: { id: owner.info_owner_relation.id },
+                            create: {
+                              owner_: owner.info_owner_relation.owner_,
+                            },
+                          },
+                        },
+                      })
+                    ),
+                    poi_info_from: poi.poi_relation.poi_info_from.map(
+                      (from) => ({
+                        info_from_relation: {
+                          connectOrCreate: {
+                            where: { id: from.info_from_relation.id },
+                            create: { from_: from.info_from_relation.from_ },
+                          },
+                        },
+                      })
+                    ),
+                    poi_info_format: poi.poi_relation.poi_info_format.map(
+                      (format) => ({
+                        info_format_relation: {
+                          connectOrCreate: {
+                            where: { id: format.info_format_relation.id },
+                            create: {
+                              format_: format.info_format_relation.format_,
+                            },
+                          },
+                        },
+                      })
+                    ),
+                    poi_info_type: poi.poi_relation.poi_info_type.map(
+                      (type) => ({
+                        info_type_relation: {
+                          connectOrCreate: {
+                            where: { id: type.info_type_relation.id },
+                            create: { type_: type.info_type_relation.type_ },
+                          },
+                        },
+                      })
+                    ),
+                    poi_info_objective: poi.poi_relation.poi_info_objective.map(
+                      (objective) => ({
+                        info_objective_relation: {
+                          connectOrCreate: {
+                            where: { id: objective.info_objective_relation.id },
+                            create: {
+                              objective_:
+                                objective.info_objective_relation.objective_,
+                            },
+                          },
+                        },
+                      })
+                    ),
+                    poi_info_lawbase: poi.poi_relation.poi_info_lawbase.map(
+                      (lawbase) => ({
+                        info_lawbase_relation: {
+                          connectOrCreate: {
+                            where: { id: lawbase.info_lawbase_relation.id },
+                            create: {
+                              lawBase_: lawbase.info_lawbase_relation.lawBase_,
+                            },
+                          },
+                        },
+                      })
+                    ),
+                  },
+                },
+              },
+            },
+            create: {
+              poi_relation: {
+                connectOrCreate: {
+                  where: { id: poi.poi_relation.id },
+                  create: {
+                    name: poi.poi_relation.name || "Default Name",
+                    poi_info: poi.poi_relation.poi_info.map((info) => ({
+                      info_relation: {
+                        connectOrCreate: {
+                          where: { id: info.info_relation.id },
+                          create: { info_: info.info_relation.info_ },
+                        },
+                      },
+                    })),
+                    poi_info_owner: poi.poi_relation.poi_info_owner.map(
+                      (owner) => ({
+                        info_owner_relation: {
+                          connectOrCreate: {
+                            where: { id: owner.info_owner_relation.id },
+                            create: {
+                              owner_: owner.info_owner_relation.owner_,
+                            },
+                          },
+                        },
+                      })
+                    ),
+                    poi_info_from: poi.poi_relation.poi_info_from.map(
+                      (from) => ({
+                        info_from_relation: {
+                          connectOrCreate: {
+                            where: { id: from.info_from_relation.id },
+                            create: { from_: from.info_from_relation.from_ },
+                          },
+                        },
+                      })
+                    ),
+                    poi_info_format: poi.poi_relation.poi_info_format.map(
+                      (format) => ({
+                        info_format_relation: {
+                          connectOrCreate: {
+                            where: { id: format.info_format_relation.id },
+                            create: {
+                              format_: format.info_format_relation.format_,
+                            },
+                          },
+                        },
+                      })
+                    ),
+                    poi_info_type: poi.poi_relation.poi_info_type.map(
+                      (type) => ({
+                        info_type_relation: {
+                          connectOrCreate: {
+                            where: { id: type.info_type_relation.id },
+                            create: { type_: type.info_type_relation.type_ },
+                          },
+                        },
+                      })
+                    ),
+                    poi_info_objective: poi.poi_relation.poi_info_objective.map(
+                      (objective) => ({
+                        info_objective_relation: {
+                          connectOrCreate: {
+                            where: { id: objective.info_objective_relation.id },
+                            create: {
+                              objective_:
+                                objective.info_objective_relation.objective_,
+                            },
+                          },
+                        },
+                      })
+                    ),
+                    poi_info_lawbase: poi.poi_relation.poi_info_lawbase.map(
+                      (lawbase) => ({
+                        info_lawbase_relation: {
+                          connectOrCreate: {
+                            where: { id: lawbase.info_lawbase_relation.id },
+                            create: {
+                              lawBase_: lawbase.info_lawbase_relation.lawBase_,
+                            },
+                          },
+                        },
+                      })
+                    ),
+                  },
+                },
+              },
+            },
+          })),
+        },
+        information_info_stored_period: {
+          upsert: updateData.information_info_stored_period.map((period) => ({
+            where: {
+              information_id_info_stored_period_id: {
+                information_id: id,
+                info_stored_period_id: period.info_stored_period_relation.id,
+              },
+            },
+            update: {
+              info_stored_period_relation: {
+                connect: { id: period.info_stored_period_relation.id },
+              },
+            },
+            create: {
+              info_stored_period_relation: {
+                connect: { id: period.info_stored_period_relation.id },
+              },
+            },
+          })),
+        },
+        information_info_placed: {
+          upsert: updateData.information_info_placed.map((placed) => ({
+            where: {
+              information_id_info_placed_id: {
+                information_id: id,
+                info_placed_id: placed.info_placed_relation.id,
+              },
+            },
+            update: {
+              info_placed_relation: {
+                connect: { id: placed.info_placed_relation.id },
+              },
+            },
+            create: {
+              info_placed_relation: {
+                connect: { id: placed.info_placed_relation.id },
+              },
+            },
+          })),
+        },
+        information_info_allowed_ps: {
+          upsert: updateData.information_info_allowed_ps.map((allowedPs) => ({
+            where: {
+              information_id_info_allowed_ps_id: {
+                information_id: id,
+                info_allowed_ps_id: allowedPs.info_allowed_ps_relation.id,
+              },
+            },
+            update: {
+              info_allowed_ps_relation: {
+                connect: { id: allowedPs.info_allowed_ps_relation.id },
+              },
+            },
+            create: {
+              info_allowed_ps_relation: {
+                connect: { id: allowedPs.info_allowed_ps_relation.id },
+              },
+            },
+          })),
+        },
+        information_info_allowed_ps_condition: {
+          upsert: updateData.information_info_allowed_ps_condition.map(
+            (allowedPsCondition) => ({
+              where: {
+                information_id_info_allowed_ps_condition_id: {
+                  information_id: id,
+                  info_allowed_ps_condition_id:
+                    allowedPsCondition.info_allowed_ps_condition_relation.id,
+                },
+              },
+              update: {
+                info_allowed_ps_condition_relation: {
+                  connect: {
+                    id: allowedPsCondition.info_allowed_ps_condition_relation
+                      .id,
+                  },
+                },
+              },
+              create: {
+                info_allowed_ps_condition_relation: {
+                  connect: {
+                    id: allowedPsCondition.info_allowed_ps_condition_relation
+                      .id,
+                  },
+                },
+              },
+            })
+          ),
+        },
+        information_info_access: {
+          upsert: updateData.information_info_access.map((access) => ({
+            where: {
+              information_id_info_access_id: {
+                information_id: id,
+                info_access_id: access.info_access_relation.id,
+              },
+            },
+            update: {
+              info_access_relation: {
+                connect: { id: access.info_access_relation.id },
+              },
+            },
+            create: {
+              info_access_relation: {
+                connect: { id: access.info_access_relation.id },
+              },
+            },
+          })),
+        },
+        information_info_access_condition: {
+          upsert: updateData.information_info_access_condition.map(
+            (accessCondition) => ({
+              where: {
+                information_id_info_access_condition_id: {
+                  information_id: id,
+                  info_access_condition_id:
+                    accessCondition.info_access_condition_relation.id,
+                },
+              },
+              update: {
+                info_access_condition_relation: {
+                  connect: {
+                    id: accessCondition.info_access_condition_relation.id,
+                  },
+                },
+              },
+              create: {
+                info_access_condition_relation: {
+                  connect: {
+                    id: accessCondition.info_access_condition_relation.id,
+                  },
+                },
+              },
+            })
+          ),
+        },
+        information_info_ps_usedbyrole_inside: {
+          upsert: updateData.information_info_ps_usedbyrole_inside.map(
+            (usedByRoleInside) => ({
+              where: {
+                information_id_info_ps_usedbyrole_inside_id: {
+                  information_id: id,
+                  info_ps_usedbyrole_inside_id:
+                    usedByRoleInside.info_ps_usedbyrole_inside_relation.id,
+                },
+              },
+              update: {
+                info_ps_usedbyrole_inside_relation: {
+                  connect: {
+                    id: usedByRoleInside.info_ps_usedbyrole_inside_relation.id,
+                  },
+                },
+              },
+              create: {
+                info_ps_usedbyrole_inside_relation: {
+                  connect: {
+                    id: usedByRoleInside.info_ps_usedbyrole_inside_relation.id,
+                  },
+                },
+              },
+            })
+          ),
+        },
+        information_info_ps_sendto_outside: {
+          upsert: updateData.information_info_ps_sendto_outside.map(
+            (sendToOutside) => ({
+              where: {
+                information_id_info_ps_sendto_outside_id: {
+                  information_id: id,
+                  info_ps_sendto_outside_id:
+                    sendToOutside.info_ps_sendto_outside_relation.id,
+                },
+              },
+              update: {
+                info_ps_sendto_outside_relation: {
+                  connect: {
+                    id: sendToOutside.info_ps_sendto_outside_relation.id,
+                  },
+                },
+              },
+              create: {
+                info_ps_sendto_outside_relation: {
+                  connect: {
+                    id: sendToOutside.info_ps_sendto_outside_relation.id,
+                  },
+                },
+              },
+            })
+          ),
+        },
+        information_info_ps_destroying: {
+          upsert: updateData.information_info_ps_destroying.map(
+            (destroying) => ({
+              where: {
+                information_id_info_ps_destroying_id: {
+                  information_id: id,
+                  info_ps_destroying_id:
+                    destroying.info_ps_destroying_relation.id,
+                },
+              },
+              update: {
+                info_ps_destroying_relation: {
+                  connect: { id: destroying.info_ps_destroying_relation.id },
+                },
+              },
+              create: {
+                info_ps_destroying_relation: {
+                  connect: { id: destroying.info_ps_destroying_relation.id },
+                },
+              },
+            })
+          ),
+        },
+        information_info_ps_destroyer: {
+          upsert: updateData.information_info_ps_destroyer.map((destroyer) => ({
+            where: {
+              information_id_info_ps_destroyer_id: {
+                information_id: id,
+                info_ps_destroyer_id: destroyer.info_ps_destroyer_relation.id,
+              },
+            },
+            update: {
+              info_ps_destroyer_relation: {
+                connect: { id: destroyer.info_ps_destroyer_relation.id },
+              },
+            },
+            create: {
+              info_ps_destroyer_relation: {
+                connect: { id: destroyer.info_ps_destroyer_relation.id },
+              },
+            },
+          })),
+        },
+        information_m_organization: {
+          upsert: updateData.information_m_organization.map((organization) => ({
+            where: {
+              information_id_m_organization_id: {
+                information_id: id,
+                m_organization_id: organization.m_organization_relation.id,
+              },
+            },
+            update: {
+              m_organization_relation: {
+                connect: { id: organization.m_organization_relation.id },
+              },
+            },
+            create: {
+              m_organization_relation: {
+                connect: { id: organization.m_organization_relation.id },
+              },
+            },
+          })),
+        },
+        information_m_technical: {
+          upsert: updateData.information_m_technical.map((technical) => ({
+            where: {
+              information_id_m_technical_id: {
+                information_id: id,
+                m_technical_id: technical.m_technical_relation.id,
+              },
+            },
+            update: {
+              m_technical_relation: {
+                connect: { id: technical.m_technical_relation.id },
+              },
+            },
+            create: {
+              m_technical_relation: {
+                connect: { id: technical.m_technical_relation.id },
+              },
+            },
+          })),
+        },
+        information_m_physical: {
+          upsert: updateData.information_m_physical.map((physical) => ({
+            where: {
+              information_id_m_physical_id: {
+                information_id: id,
+                m_physical_id: physical.m_physical_relation.id,
+              },
+            },
+            update: {
+              m_physical_relation: {
+                connect: { id: physical.m_physical_relation.id },
+              },
+            },
+            create: {
+              m_physical_relation: {
+                connect: { id: physical.m_physical_relation.id },
+              },
+            },
+          })),
+        },
+      },
+    });
+
+    return res.json({ status: 200, message: updatedInformation });
+  } catch (error) {
+    console.error("Error updating information:", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Error updating information",
+      error: error.message,
+    });
+  }
 };
 
 export const getInformation = async (req, res) => {
@@ -394,6 +942,7 @@ export const getInformation = async (req, res) => {
         id: true,
         activity_relation: {
           select: {
+            id: true, // Include ID
             activity: true,
           },
         },
@@ -401,12 +950,20 @@ export const getInformation = async (req, res) => {
         create_time: true,
         user_account_relation: {
           select: {
+            id: true, // Include ID
             fullname: true,
           },
         },
         company_relation: {
           select: {
+            id: true, // Include ID
             companyName: true,
+          },
+        },
+        department_relation: {
+          select: {
+            id: true, // Include ID
+            departmentName: true,
           },
         },
         category_information: {
@@ -414,10 +971,11 @@ export const getInformation = async (req, res) => {
             category_id: true,
             category_relation: {
               select: {
-                id: true,
+                id: true, // Include ID
                 category: true,
                 department_relation: {
                   select: {
+                    id: true, // Include ID if needed
                     departmentName: true,
                   },
                 },
@@ -429,10 +987,12 @@ export const getInformation = async (req, res) => {
           select: {
             poi_relation: {
               select: {
+                id: true, // Include POI ID
                 poi_info: {
                   select: {
                     info_relation: {
                       select: {
+                        id: true, // Include Info ID
                         info_: true,
                       },
                     },
@@ -442,6 +1002,7 @@ export const getInformation = async (req, res) => {
                   select: {
                     info_owner_relation: {
                       select: {
+                        id: true, // Include Owner ID
                         owner_: true,
                       },
                     },
@@ -451,6 +1012,7 @@ export const getInformation = async (req, res) => {
                   select: {
                     info_from_relation: {
                       select: {
+                        id: true, // Include From ID
                         from_: true,
                       },
                     },
@@ -460,6 +1022,7 @@ export const getInformation = async (req, res) => {
                   select: {
                     info_format_relation: {
                       select: {
+                        id: true, // Include Format ID
                         format_: true,
                       },
                     },
@@ -469,6 +1032,7 @@ export const getInformation = async (req, res) => {
                   select: {
                     info_type_relation: {
                       select: {
+                        id: true, // Include Type ID
                         type_: true,
                       },
                     },
@@ -478,6 +1042,7 @@ export const getInformation = async (req, res) => {
                   select: {
                     info_objective_relation: {
                       select: {
+                        id: true, // Include Objective ID
                         objective_: true,
                       },
                     },
@@ -487,6 +1052,7 @@ export const getInformation = async (req, res) => {
                   select: {
                     info_lawbase_relation: {
                       select: {
+                        id: true, // Include Lawbase ID
                         lawBase_: true,
                       },
                     },
@@ -496,6 +1062,7 @@ export const getInformation = async (req, res) => {
             },
             category_relation: {
               select: {
+                id: true, // Include Category ID
                 category: true,
               },
             },
@@ -505,6 +1072,7 @@ export const getInformation = async (req, res) => {
           select: {
             info_stored_period_relation: {
               select: {
+                id: true, // Include Stored Period ID
                 period_: true,
               },
             },
@@ -514,6 +1082,7 @@ export const getInformation = async (req, res) => {
           select: {
             info_placed_relation: {
               select: {
+                id: true, // Include Placed ID
                 placed_: true,
               },
             },
@@ -523,6 +1092,7 @@ export const getInformation = async (req, res) => {
           select: {
             info_allowed_ps_relation: {
               select: {
+                id: true, // Include Allowed PS ID
                 allowed_ps_: true,
               },
             },
@@ -532,6 +1102,7 @@ export const getInformation = async (req, res) => {
           select: {
             info_allowed_ps_condition_relation: {
               select: {
+                id: true, // Include Allowed PS Condition ID
                 allowed_ps_condition_: true,
               },
             },
@@ -541,6 +1112,7 @@ export const getInformation = async (req, res) => {
           select: {
             info_access_relation: {
               select: {
+                id: true, // Include Access ID
                 access_: true,
               },
             },
@@ -550,6 +1122,7 @@ export const getInformation = async (req, res) => {
           select: {
             info_access_condition_relation: {
               select: {
+                id: true, // Include Access Condition ID
                 access_condition_: true,
               },
             },
@@ -559,6 +1132,7 @@ export const getInformation = async (req, res) => {
           select: {
             info_ps_usedbyrole_inside_relation: {
               select: {
+                id: true, // Include Used by Role Inside ID
                 use_by_role_: true,
               },
             },
@@ -568,6 +1142,7 @@ export const getInformation = async (req, res) => {
           select: {
             info_ps_sendto_outside_relation: {
               select: {
+                id: true, // Include Send to Outside ID
                 sendto_: true,
               },
             },
@@ -577,6 +1152,7 @@ export const getInformation = async (req, res) => {
           select: {
             info_ps_destroying_relation: {
               select: {
+                id: true, // Include Destroying ID
                 destroying_: true,
               },
             },
@@ -586,6 +1162,7 @@ export const getInformation = async (req, res) => {
           select: {
             info_ps_destroyer_relation: {
               select: {
+                id: true, // Include Destroyer ID
                 destroyer_: true,
               },
             },
@@ -595,6 +1172,7 @@ export const getInformation = async (req, res) => {
           select: {
             m_organization_relation: {
               select: {
+                id: true, // Include Organization Measure ID
                 organization: true,
               },
             },
@@ -604,6 +1182,7 @@ export const getInformation = async (req, res) => {
           select: {
             m_technical_relation: {
               select: {
+                id: true, // Include Technical Measure ID
                 technical: true,
               },
             },
@@ -613,6 +1192,7 @@ export const getInformation = async (req, res) => {
           select: {
             m_physical_relation: {
               select: {
+                id: true, // Include Physical Measure ID
                 physical: true,
               },
             },
@@ -933,4 +1513,18 @@ export const excelProcess = async (req, res) => {
     console.error("Error excelProcess : ", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
+};
+
+export const testInformation = async (req, res) => {
+  async function testActivityId() {
+    const info = await prisma.information.findUnique({
+      where: { id: 1 },
+      select: { activity_id: true },
+    });
+
+    return info;
+  }
+
+  const info = await testActivityId();
+  return res.json({ info });
 };

@@ -1,3 +1,5 @@
+// ExTable.jsx
+
 import React, { useState, useEffect } from "react";
 import {
   Typography,
@@ -34,69 +36,50 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 
 const ExTable = (props) => {
-  const [open, setOpen] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-  const [alertOpen, setAlertOpen] = useState(false);
+  const [openApproveDialog, setOpenApproveDialog] = useState(false);
   const [rowData, setRowData] = useState(null);
   const [editData, setEditData] = useState(null);
-  const [rowDialogOpen, setRowDialogOpen] = useState(false);
+  const [openRowDialog, setOpenRowDialog] = useState(false);
   const [categoryToPois, setCategoryToPois] = useState({});
   const [isDataChanged, setIsDataChanged] = useState(false);
 
-  // State to hold category name to ID mapping
-  const [categoryMap, setCategoryMap] = useState({});
-
-  // Fetch categories on component mount
-  // useEffect(() => {
-  //   const fetchCategories = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         `${process.env.REACT_APP_SERVER_SIDE}/categories`
-  //       );
-  //       const categories = response.data.message; // Adjust based on your API response structure
-  //       const map = {};
-  //       categories.forEach((category) => {
-  //         map[category.category] = category.id;
-  //       });
-  //       setCategoryMap(map);
-  //     } catch (error) {
-  //       console.error("Error fetching categories:", error);
-  //       toast.error("Failed to fetch categories.");
-  //     }
-  //   };
-
-  //   fetchCategories();
-  // }, []);
-
+  // Map categories to their POI relations for display
   useEffect(() => {
     if (editData && editData.poi_information) {
-      const categoryMapping = {};
+      const mapping = {};
       editData.poi_information.forEach((poiInfo, poiIndex) => {
         const categoryName = poiInfo.category_relation?.category || "Unknown";
-        if (!categoryMapping[categoryName]) {
-          categoryMapping[categoryName] = [];
+        if (!mapping[categoryName]) {
+          mapping[categoryName] = [];
         }
-        categoryMapping[categoryName].push({
+        mapping[categoryName].push({
           ...poiInfo,
           poiGlobalIndex: poiIndex,
         });
       });
-      setCategoryToPois(categoryMapping);
+      setCategoryToPois(mapping);
     }
   }, [editData]);
 
-  // Helper function to set nested values in the editData state
+  // Helper function to set nested values immutably
   const setNestedValue = (obj, path, value) => {
     const keys = path
       .replace(/\[(\w+)\]/g, ".$1") // Convert indexes to properties
       .split(".")
       .filter(Boolean);
 
-    let current = obj;
+    const updatedObj = { ...obj };
+    let current = updatedObj;
+
     keys.slice(0, -1).forEach((key) => {
-      if (!(key in current)) {
-        // Initialize the next key if it doesn't exist
+      if (!current[key]) {
         current[key] = isNaN(parseInt(key)) ? {} : [];
+      } else {
+        current[key] = Array.isArray(current[key])
+          ? [...current[key]]
+          : { ...current[key] };
       }
       current = current[key];
     });
@@ -107,107 +90,116 @@ const ExTable = (props) => {
     } else {
       current[lastKey] = value;
     }
+
+    return updatedObj;
   };
 
+  // Delete an activity
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
-        `${process.env.REACT_APP_SERVER_SIDE}/information/` + id
+        `${process.env.REACT_APP_SERVER_SIDE}/information/${id}`
       );
 
       if (response.status === 200) {
-        toast.success("Delete success");
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        toast.success("Delete successful.");
+        // Refresh data or remove the deleted item from state
+        props.refreshData(); // Assume a prop function to refresh data
       } else {
-        toast.error("Delete failed");
+        toast.error("Delete failed.");
       }
     } catch (error) {
-      toast.error("Delete failed");
-      console.error("Error handleDelete : ", error);
+      toast.error("Delete failed.");
+      console.error("Error in handleDelete:", error);
     }
   };
 
+  // Approve an activity
   const handleApprove = async (id) => {
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_SERVER_SIDE}/information/` + id
+        `${process.env.REACT_APP_SERVER_SIDE}/information/${id}/approve` // Adjust endpoint if needed
       );
 
       if (response.status === 200) {
-        toast.success("Approve success");
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        toast.success("Approve successful.");
+        props.refreshData(); // Assume a prop function to refresh data
       } else {
-        toast.error("Approve failed");
+        toast.error("Approve failed.");
       }
     } catch (error) {
-      toast.error("Approve failed");
-      console.error("Error handleApprove : ", error);
+      toast.error("Approve failed.");
+      console.error("Error in handleApprove:", error);
     }
   };
 
-  const handleClickOpen = (id) => {
+  // Open Delete Confirmation Dialog
+  const handleOpenDeleteDialog = (id) => {
     setSelectedId(id);
-    setOpen(true);
+    setOpenDeleteDialog(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  // Close Delete Confirmation Dialog
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
     setSelectedId(null);
   };
 
+  // Confirm Delete
   const handleConfirmDelete = () => {
     handleDelete(selectedId);
-    handleClose();
+    handleCloseDeleteDialog();
   };
 
-  const handleSwitchChange = (id) => (event) => {
-    if (event.target.checked) {
-      setSelectedId(id);
-      setAlertOpen(true);
-    }
+  // Open Approve Confirmation Dialog
+  const handleOpenApproveDialog = (id) => {
+    setSelectedId(id);
+    setOpenApproveDialog(true);
   };
 
-  const handleAlertClose = () => {
-    setAlertOpen(false);
+  // Close Approve Confirmation Dialog
+  const handleCloseApproveDialog = () => {
+    setOpenApproveDialog(false);
     setSelectedId(null);
   };
 
-  const handleConfirmSwitch = () => {
+  // Confirm Approve
+  const handleConfirmApprove = () => {
     handleApprove(selectedId);
-    handleAlertClose();
+    handleCloseApproveDialog();
   };
 
+  // Open Row Dialog for Details
   const handleRowClick = (item) => {
     setRowData(item);
     setEditData(JSON.parse(JSON.stringify(item))); // Deep copy for editing
-    setIsDataChanged(false); // Reset the change flag
-    setRowDialogOpen(true);
+    setIsDataChanged(false);
+    setOpenRowDialog(true);
   };
 
-  const handleRowDialogClose = () => {
-    setRowDialogOpen(false);
+  // Close Row Dialog
+  const handleCloseRowDialog = () => {
+    setOpenRowDialog(false);
     setRowData(null);
     setEditData(null);
     setCategoryToPois({});
-    setIsDataChanged(false); // Reset the change flag
+    setIsDataChanged(false);
   };
 
+  // Handle Input Changes in Dialog
   const handleInputChange = (e, fieldPath) => {
-    const updatedData = JSON.parse(JSON.stringify(editData)); // Deep copy to avoid mutations
-    setNestedValue(updatedData, fieldPath, e.target.value);
+    const value = e.target.value;
+    const updatedData = setNestedValue(editData, fieldPath, value);
     setEditData(updatedData);
-    setIsDataChanged(true); // Mark data as changed when input is modified
+    setIsDataChanged(true);
   };
 
+  // Download Excel File
   const handleDownload = async (item) => {
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER_SIDE}/information/downloadexcel`,
-        item,
+        { id: item.id }, // Send only the necessary data
         {
           responseType: "blob",
           headers: {
@@ -216,6 +208,7 @@ const ExTable = (props) => {
         }
       );
 
+      // Create a URL for the blob and trigger download
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const a = document.createElement("a");
       a.href = url;
@@ -223,159 +216,142 @@ const ExTable = (props) => {
       document.body.appendChild(a);
       a.click();
       a.remove();
+      window.URL.revokeObjectURL(url); // Clean up the URL object
+      toast.success("Download started.");
     } catch (error) {
       console.error("Error downloading the file:", error);
-      toast.error("Download failed");
+      toast.error("Download failed.");
     }
   };
 
   const handleSave = async () => {
     try {
-      // Deep copy to avoid mutating the original editData
-      const dataToSend = JSON.parse(JSON.stringify(editData));
-
-      // Remove fields that should not be sent to the backend
-      delete dataToSend.id;
-      delete dataToSend.create_time;
-      delete dataToSend.user_account_relation;
-      delete dataToSend.company_relation;
-      delete dataToSend.department_relation;
-
-      // Transform activity_relation to activity_id
-      if (dataToSend.activity_relation) {
-        dataToSend.activity_id = dataToSend.activity_relation.id;
-        delete dataToSend.activity_relation;
-      }
-
-      // Transform department_relation to department_id
-      if (dataToSend.department_relation) {
-        dataToSend.department_id = dataToSend.department_relation.id;
-        delete dataToSend.department_relation;
-      }
-
-      // Transform category_information
-      if (dataToSend.category_information) {
-        dataToSend.category_information = {
-          deleteMany: {},
-          create: dataToSend.category_information.map((categoryItem) => ({
-            category_id:
-              categoryMap[categoryItem.category_relation.category] || 0, // Use the categoryMap to get the ID
-          })),
-        };
-      }
-
-      // Transform poi_information
-      if (dataToSend.poi_information) {
-        dataToSend.poi_information = {
-          deleteMany: {},
-          create: dataToSend.poi_information.map((poiItem) => ({
-            information_id: rowData.id, // Assuming informationId is the current row's id
-            poi_id: poiItem.poi_relation.id,
-            category_id: categoryMap[poiItem.category_relation.category] || 0,
-          })),
-        };
-      }
-
-      // Transform other relations similarly
-      const transformRelation = (relationArray, relationKey, map = null) => {
-        if (relationArray) {
-          return {
-            deleteMany: {},
-            create: relationArray.map((item) => ({
-              [`${relationKey}`]: {
-                connect: {
-                  id: map
-                    ? map[item[`${relationKey}_relation`]?.[relationKey]] || 0
-                    : item[`${relationKey}_relation`]?.id || 0,
-                },
-              },
-            })),
-          };
-        }
-        return undefined;
-      };
-
-      dataToSend.information_info_stored_period = transformRelation(
-        dataToSend.information_info_stored_period,
-        "info_stored_period"
-      );
-
-      dataToSend.information_info_placed = transformRelation(
-        dataToSend.information_info_placed,
-        "info_placed"
-      );
-
-      dataToSend.information_info_allowed_ps = transformRelation(
-        dataToSend.information_info_allowed_ps,
-        "info_allowed_ps"
-      );
-
-      dataToSend.information_info_allowed_ps_condition = transformRelation(
-        dataToSend.information_info_allowed_ps_condition,
-        "info_allowed_ps_condition"
-      );
-
-      dataToSend.information_info_access = transformRelation(
-        dataToSend.information_info_access,
-        "info_access"
-      );
-
-      dataToSend.information_info_access_condition = transformRelation(
-        dataToSend.information_info_access_condition,
-        "info_access_condition"
-      );
-
-      dataToSend.information_info_ps_usedbyrole_inside = transformRelation(
-        dataToSend.information_info_ps_usedbyrole_inside,
-        "info_ps_usedbyrole_inside"
-      );
-
-      dataToSend.information_info_ps_sendto_outside = transformRelation(
-        dataToSend.information_info_ps_sendto_outside,
-        "info_ps_sendto_outside"
-      );
-
-      dataToSend.information_info_ps_destroying = transformRelation(
-        dataToSend.information_info_ps_destroying,
-        "info_ps_destroying"
-      );
-
-      dataToSend.information_info_ps_destroyer = transformRelation(
-        dataToSend.information_info_ps_destroyer,
-        "info_ps_destroyer"
-      );
-
-      dataToSend.information_m_organization = transformRelation(
-        dataToSend.information_m_organization,
-        "m_organization"
-      );
-
-      dataToSend.information_m_technical = transformRelation(
-        dataToSend.information_m_technical,
-        "m_technical"
-      );
-
-      dataToSend.information_m_physical = transformRelation(
-        dataToSend.information_m_physical,
-        "m_physical"
-      );
-
-      // Send the transformed data to the backend
+      console.log("Updating information with data:", editData);
       const response = await axios.put(
-        `${process.env.REACT_APP_SERVER_SIDE}/information/updateInfo/${rowData.id}`,
-        dataToSend
+        `${process.env.REACT_APP_SERVER_SIDE}/information/updateInfo/${editData.id}`,
+        {
+          ...editData,
+          // category_information: editData.category_information.map(
+          //   (category) => ({
+          //     where: {
+          //       information_id_category_id: {
+          //         information_id: editData.id,
+          //         category_id: category.category_id,
+          //       },
+          //     },
+          //     create: {
+          //       category_relation: {
+          //         connectOrCreate: {
+          //           where: { id: category.category_relation.id },
+          //           create: {
+          //             category: category.category_relation.category,
+          //             department_relation: {
+          //               connect: {
+          //                 id: category.category_relation.department_relation.id,
+          //               },
+          //             },
+          //           },
+          //         },
+          //       },
+          //     },
+          //   })
+          // ),
+          // poi_information: editData.poi_information.map((poi) => ({
+          //   poi_relation: {
+          //     connectOrCreate: {
+          //       where: { id: poi.poi_relation.id },
+          //       create: {
+          //         name: poi.poi_relation.name || "Default Name",
+          //         poi_info: poi.poi_relation.poi_info.map((info) => ({
+          //           info_relation: {
+          //             connectOrCreate: {
+          //               where: { id: info.info_relation.id },
+          //               create: { info_: info.info_relation.info_ },
+          //             },
+          //           },
+          //         })),
+          //         poi_info_owner: poi.poi_relation.poi_info_owner.map(
+          //           (owner) => ({
+          //             info_owner_relation: {
+          //               connectOrCreate: {
+          //                 where: { id: owner.info_owner_relation.id },
+          //                 create: { owner_: owner.info_owner_relation.owner_ },
+          //               },
+          //             },
+          //           })
+          //         ),
+          //         poi_info_from: poi.poi_relation.poi_info_from.map((from) => ({
+          //           info_from_relation: {
+          //             connectOrCreate: {
+          //               where: { id: from.info_from_relation.id },
+          //               create: { from_: from.info_from_relation.from_ },
+          //             },
+          //           },
+          //         })),
+          //         poi_info_format: poi.poi_relation.poi_info_format.map(
+          //           (format) => ({
+          //             info_format_relation: {
+          //               connectOrCreate: {
+          //                 where: { id: format.info_format_relation.id },
+          //                 create: {
+          //                   format_: format.info_format_relation.format_,
+          //                 },
+          //               },
+          //             },
+          //           })
+          //         ),
+          //         poi_info_type: poi.poi_relation.poi_info_type.map((type) => ({
+          //           info_type_relation: {
+          //             connectOrCreate: {
+          //               where: { id: type.info_type_relation.id },
+          //               create: { type_: type.info_type_relation.type_ },
+          //             },
+          //           },
+          //         })),
+          //         poi_info_objective: poi.poi_relation.poi_info_objective.map(
+          //           (objective) => ({
+          //             info_objective_relation: {
+          //               connectOrCreate: {
+          //                 where: { id: objective.info_objective_relation.id },
+          //                 create: {
+          //                   objective_:
+          //                     objective.info_objective_relation.objective_,
+          //                 },
+          //               },
+          //             },
+          //           })
+          //         ),
+          //         poi_info_lawbase: poi.poi_relation.poi_info_lawbase.map(
+          //           (lawbase) => ({
+          //             info_lawbase_relation: {
+          //               connectOrCreate: {
+          //                 where: { id: lawbase.info_lawbase_relation.id },
+          //                 create: {
+          //                   lawBase_: lawbase.info_lawbase_relation.lawBase_,
+          //                 },
+          //               },
+          //             },
+          //           })
+          //         ),
+          //       },
+          //     },
+          //   },
+          // })),
+        }
       );
-
       if (response.status === 200) {
-        toast.success("Update success");
-        setRowDialogOpen(false);
-        window.location.reload();
+        setIsDataChanged(false);
+        toast.success("Data saved successfully.");
+        setTimeout(() => {
+          // window.location.reload();
+        }, 2000);
+
+        // อัปเดตข้อมูลในตารางหรือทำการแจ้งเตือนผู้ใช้
       } else {
-        toast.error("Update failed");
+        console.error("Error saving data:", response.data.message);
       }
     } catch (error) {
-      toast.error("Update failed");
-      console.error("Error updating the information:", error);
+      console.error("Error saving data:", error);
     }
   };
 
@@ -523,7 +499,7 @@ const ExTable = (props) => {
                     }}
                     size="small"
                     label={item.status}
-                  ></Chip>
+                  />
                 </TableCell>
                 <TableCell align="left">
                   <Typography variant="h6">
@@ -538,84 +514,68 @@ const ExTable = (props) => {
                   </Typography>
                 </TableCell>
                 <TableCell align="center">
-                  <Typography variant="h6">
-                    <Fab
-                      color="primary"
-                      variant="extended"
-                      disabled={item.status === "success"}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleClickOpen(item.id);
-                      }}
+                  <Fab
+                    color="primary"
+                    variant="extended"
+                    disabled={item.status === "success"}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleOpenDeleteDialog(item.id);
+                    }}
+                    sx={{
+                      mb: {
+                        xs: 1,
+                        sm: 0,
+                        lg: 0,
+                      },
+                      backgroundColor: "red",
+                      p: 1,
+                    }}
+                  >
+                    <DeleteForeverOutlinedIcon
                       sx={{
-                        mb: {
-                          xs: 1,
-                          sm: 0,
-                          lg: 0,
-                        },
-                        backgroundColor: "red",
-                        p: 1,
+                        fontSize: "1.5rem",
                       }}
-                    >
-                      <DeleteForeverOutlinedIcon
+                    />
+                  </Fab>
+                </TableCell>
+                {["manager", "admin"].includes(props.user.data.users.role) && (
+                  <>
+                    <TableCell align="center">
+                      <Fab
+                        color="success"
+                        variant="extended"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleDownload(item);
+                        }}
                         sx={{
                           mb: {
                             xs: 0,
                             sm: 0,
                             lg: 0,
                           },
-                          fontSize: "1.5rem",
+                          backgroundColor: "green",
+                          p: 1,
                         }}
-                      />
-                    </Fab>
-                  </Typography>
-                </TableCell>
-                {["manager", "admin"].includes(props.user.data.users.role) && (
-                  <>
-                    <TableCell align="center">
-                      <Typography variant="h6">
-                        <Fab
-                          color="success"
-                          variant="extended"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleDownload(item);
-                          }}
+                      >
+                        <TableChartOutlinedIcon
                           sx={{
-                            mb: {
-                              xs: 0,
-                              sm: 0,
-                              lg: 0,
-                            },
-                            backgroundColor: "green",
-                            p: 1,
-                          }}
-                        >
-                          <TableChartOutlinedIcon
-                            sx={{
-                              mb: {
-                                xs: 0,
-                                sm: 0,
-                                lg: 0,
-                              },
-                              fontSize: "1.5rem",
-                            }}
-                          />
-                        </Fab>
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="center">
-                      <Typography variant="h6">
-                        <Switch
-                          checked={item.status === "success"}
-                          disabled={item.status === "success"}
-                          color="success"
-                          onChange={(event) => {
-                            event.stopPropagation();
-                            handleSwitchChange(item.id)(event);
+                            fontSize: "1.5rem",
                           }}
                         />
-                      </Typography>
+                      </Fab>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Switch
+                        checked={item.status === "success"}
+                        disabled={item.status === "success"}
+                        color="success"
+                        onChange={(event) => {
+                          event.stopPropagation();
+                          handleOpenApproveDialog(item.id);
+                        }}
+                      />
                     </TableCell>
                   </>
                 )}
@@ -636,20 +596,20 @@ const ExTable = (props) => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+        <DialogTitle id="delete-dialog-title">{"Confirm Delete"}</DialogTitle>
         <DialogContent>
-          <Typography id="alert-dialog-description">
+          <Typography id="delete-dialog-description">
             Are you sure you want to delete this item?
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={handleClose}
+            onClick={handleCloseDeleteDialog}
             color="primary"
             sx={{
               fontSize: "0.8rem",
@@ -672,20 +632,22 @@ const ExTable = (props) => {
 
       {/* Approve Confirmation Dialog */}
       <Dialog
-        open={alertOpen}
-        onClose={handleAlertClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        open={openApproveDialog}
+        onClose={handleCloseApproveDialog}
+        aria-labelledby="approve-dialog-title"
+        aria-describedby="approve-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Enable Switch"}</DialogTitle>
+        <DialogTitle id="approve-dialog-title">
+          {"Approve Activity"}
+        </DialogTitle>
         <DialogContent>
-          <Typography id="alert-dialog-description">
-            Do you want to enable this switch?
+          <Typography id="approve-dialog-description">
+            Do you want to approve this activity?
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={handleAlertClose}
+            onClick={handleCloseApproveDialog}
             color="primary"
             sx={{
               fontSize: "0.8rem",
@@ -694,7 +656,7 @@ const ExTable = (props) => {
             Cancel
           </Button>
           <Button
-            onClick={handleConfirmSwitch}
+            onClick={handleConfirmApprove}
             color="primary"
             autoFocus
             sx={{
@@ -708,8 +670,8 @@ const ExTable = (props) => {
 
       {/* Activity Details Dialog */}
       <Dialog
-        open={rowDialogOpen}
-        onClose={handleRowDialogClose}
+        open={openRowDialog}
+        onClose={handleCloseRowDialog}
         aria-labelledby="row-dialog-title"
         aria-describedby="row-dialog-description"
         maxWidth="md"
@@ -723,11 +685,6 @@ const ExTable = (props) => {
           <FileOpenOutlinedIcon
             sx={{
               mr: 1,
-              mb: {
-                xs: 1,
-                sm: 0,
-                lg: 0,
-              },
               fontSize: "2.7rem",
             }}
           />
@@ -748,6 +705,7 @@ const ExTable = (props) => {
                 </AccordionSummary>
                 <AccordionDetails>
                   <Grid container spacing={2}>
+                    {/* Id */}
                     <Grid item xs={12} sm={6}>
                       <TextField
                         label="Id"
@@ -760,6 +718,7 @@ const ExTable = (props) => {
                         margin="normal"
                       />
                     </Grid>
+                    {/* Activity */}
                     <Grid item xs={12} sm={6}>
                       <TextField
                         label="Activity"
@@ -775,6 +734,7 @@ const ExTable = (props) => {
                         margin="normal"
                       />
                     </Grid>
+                    {/* Status */}
                     <Grid item xs={12} sm={6}>
                       <TextField
                         label="Status"
@@ -787,6 +747,7 @@ const ExTable = (props) => {
                         margin="normal"
                       />
                     </Grid>
+                    {/* Create Time */}
                     <Grid item xs={12} sm={6}>
                       <TextField
                         label="Create Time"
@@ -809,6 +770,7 @@ const ExTable = (props) => {
                         margin="normal"
                       />
                     </Grid>
+                    {/* Created By */}
                     <Grid item xs={12} sm={6}>
                       <TextField
                         label="Created By"
@@ -821,6 +783,7 @@ const ExTable = (props) => {
                         margin="normal"
                       />
                     </Grid>
+                    {/* Company */}
                     <Grid item xs={12} sm={6}>
                       <TextField
                         label="Company"
@@ -1026,29 +989,6 @@ const ExTable = (props) => {
                               </Grid>
 
                               {/* POI Lawbase */}
-                              {/* {(poiInfo.consolidated_lawbase || []).map(
-                                (lawbase, index) => (
-                                  <Grid item xs={12} sm={6} key={index}>
-                                    <TextField
-                                      label={`POI Lawbase ${index + 1}`}
-                                      value={lawbase || ""}
-                                      InputProps={{
-                                        readOnly: editData.status !== "pending",
-                                      }}
-                                      onChange={(e) =>
-                                        handleInputChange(
-                                          e,
-                                          `poi_information[${poiInfo.poiGlobalIndex}].consolidated_lawbase[${index}]`
-                                        )
-                                      }
-                                      variant="outlined"
-                                      fullWidth
-                                      margin="normal"
-                                    />
-                                  </Grid>
-                                )
-                              )} */}
-                              {/* POI Lawbase */}
                               {(
                                 poiInfo.poi_relation.poi_info_lawbase || []
                               ).map((lawbaseEntry, index) => (
@@ -1083,7 +1023,7 @@ const ExTable = (props) => {
                 )
               )}
 
-              {/* Other Information Sections */}
+              {/* Additional Information Sections */}
               <Accordion defaultExpanded>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
@@ -1443,7 +1383,7 @@ const ExTable = (props) => {
             </Button>
           )}
           <Button
-            onClick={handleRowDialogClose}
+            onClick={handleCloseRowDialog}
             color="primary"
             sx={{ fontSize: "1rem" }}
           >

@@ -1257,6 +1257,66 @@ const getExcelAlpha = (col) => {
   return letter;
 };
 
+// ฟังก์ชันสำหรับ merge cells แบบปลอดภัยโดยไม่ใช้ getMergedCells
+const mergeCellsSafely = (worksheet, cellRange) => {
+  try {
+    // ทำการ unmerge เซลล์ก่อนเพื่อป้องกันการ merge ซ้อนกัน
+    worksheet.unMergeCells(cellRange);
+    console.log(`Successfully unmerged cells for range: ${cellRange}`);
+  } catch (e) {
+    // หากเซลล์ไม่ได้ถูก merge อยู่แล้ว ก็สามารถข้ามได้
+    console.log(`No existing merge to unmerge for range: ${cellRange}`);
+  }
+
+  try {
+    // ทำการ merge เซลล์
+    worksheet.mergeCells(cellRange);
+    console.log(`Successfully merged cells for range: ${cellRange}`);
+  } catch (e) {
+    console.error(`Error merging cells for range ${cellRange}: `, e);
+  }
+};
+
+// ฟังก์ชันสำหรับ unmerge เซลล์ทั้งหมดในคอลัมน์ H-Q ก่อนการประมวลผล
+const unmergeColumnsHtoQ = (worksheet) => {
+  worksheet.eachRow({ includeEmpty: true }, (row) => {
+    for (let col = 8; col <= 17; col++) {
+      // H=8 ถึง Q=17
+      const cell = row.getCell(col);
+      if (cell.isMerged) {
+        worksheet.unMergeCells(cell.address);
+        console.log(`Unmerged cell at ${cell.address}`);
+      }
+    }
+  });
+};
+
+// ฟังก์ชันสำหรับคัดลอกแถวต้นแบบและแทรกแถวใหม่ที่ตำแหน่งที่ต้องการ
+const duplicateRow = (worksheet, sourceRowNumber, insertAt) => {
+  const sourceRow = worksheet.getRow(sourceRowNumber);
+  // แทรกแถวใหม่ก่อนแถวที่ต้องการ โดยไม่ใช้การจัดรูปแบบ
+  const newRow = worksheet.insertRow(insertAt, [], { insertBefore: true });
+
+  // คัดลอกค่าจากแถวต้นแบบ (ไม่คัดลอกสไตล์)
+  sourceRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+    const newCell = newRow.getCell(colNumber);
+    newCell.value = cell.value;
+  });
+
+  // ปรับความสูงของแถวใหม่ให้เหมือนต้นแบบ
+  newRow.height = sourceRow.height;
+
+  // Unmerge เซลล์ทั้งหมดในแถวใหม่
+  newRow.eachCell({ includeEmpty: true }, (cell) => {
+    if (cell.isMerged) {
+      worksheet.unMergeCells(cell.address);
+      console.log(`Unmerged cell at ${cell.address} in new row ${insertAt}`);
+    }
+  });
+
+  return newRow;
+};
+
 export const excelProcess = async (req, res) => {
   let item1 = req.body;
   const item = item1.item;
@@ -1274,6 +1334,9 @@ export const excelProcess = async (req, res) => {
     await workbook.xlsx.readFile(filePath);
 
     const worksheet = workbook.getWorksheet(1);
+
+    // ทำการ unmerge เซลล์ทั้งหมดในคอลัมน์ H-Q ก่อนการประมวลผล
+    unmergeColumnsHtoQ(worksheet);
 
     // กรอกข้อมูลพื้นฐาน
     worksheet.getCell("B2").value = item.user_account_relation.fullname;
@@ -1328,60 +1391,19 @@ export const excelProcess = async (req, res) => {
       return acc;
     }, {});
 
-    // ฟังก์ชันสำหรับ merge cells แบบปลอดภัย
-    const mergeCellsSafely = (cellRange) => {
-      try {
-        // ทำการ unmerge เซลล์ก่อนเพื่อป้องกันการ merge ซ้อนกัน
-        worksheet.unMergeCells(cellRange);
-        // ทำการ merge เซลล์
-        worksheet.mergeCells(cellRange);
-        console.log(`Successfully merged cells for range: ${cellRange}`);
-      } catch (e) {
-        console.error(`Error merging cells for range ${cellRange}: `, e);
-      }
-    };
-
-    // ฟังก์ชันสำหรับคัดลอกแถวต้นแบบและแทรกแถวใหม่ที่ตำแหน่งที่ต้องการ
-    const duplicateRow = (sourceRowNumber, insertAt) => {
-      const sourceRow = worksheet.getRow(sourceRowNumber);
-      // แทรกแถวใหม่ก่อนแถวที่ต้องการ โดยไม่ใช้การจัดรูปแบบ
-      const newRow = worksheet.insertRow(insertAt, [], { insertBefore: true });
-
-      // คัดลอกค่าจากแถวต้นแบบ (ไม่คัดลอกสไตล์)
-      sourceRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-        const newCell = newRow.getCell(colNumber);
-        newCell.value = cell.value;
-      });
-
-      // ปรับความสูงของแถวใหม่ให้เหมือนต้นแบบ
-      newRow.height = sourceRow.height;
-
-      // Unmerge เซลล์ทั้งหมดในแถวใหม่
-      newRow.eachCell({ includeEmpty: true }, (cell) => {
-        if (cell.isMerged) {
-          worksheet.unMergeCells(cell.address);
-          console.log(
-            `Unmerged cell at ${cell.address} in new row ${insertAt}`
-          );
-        }
-      });
-
-      return newRow;
-    };
-
     // เริ่มต้นที่แถว 11
     let currentRow = 11;
 
     // วนลูปผ่านหมวดหมู่ที่จัดกลุ่มแล้ว
     for (const [categoryName, pois] of Object.entries(groupedPoi)) {
       // แทรกแถวใหม่สำหรับหัวข้อหมวดหมู่ที่แถว currentRow
-      duplicateRow(11, currentRow);
+      duplicateRow(worksheet, 11, currentRow);
       const categoryRow = worksheet.getRow(currentRow);
 
       // กรอกชื่อหมวดหมู่
       categoryRow.getCell("A").value = `Category: ${categoryName}`;
       // Merge เซลล์สำหรับหัวข้อหมวดหมู่ (A ถึง Q ตามความต้องการ)
-      mergeCellsSafely(`A${currentRow}:Q${currentRow}`);
+      mergeCellsSafely(worksheet, `A${currentRow}:Q${currentRow}`);
       // ตั้งค่าฟอนต์ให้หนาสำหรับหัวข้อหมวดหมู่
       categoryRow.getCell("A").font = { bold: true };
       categoryRow.commit();
@@ -1393,7 +1415,7 @@ export const excelProcess = async (req, res) => {
       // วนลูปผ่าน POI ภายในหมวดหมู่
       pois.forEach((poiInfo, index) => {
         // แทรกแถวใหม่สำหรับข้อมูล POI ที่แถว currentRow
-        duplicateRow(11, currentRow);
+        duplicateRow(worksheet, 11, currentRow);
         const poiRow = worksheet.getRow(currentRow);
 
         const relation = poiInfo.poi_relation;
@@ -1532,7 +1554,7 @@ export const excelProcess = async (req, res) => {
           const range = `${colLetter}${
             categoryStartRow + 1
           }:${colLetter}${categoryEndRow}`;
-          mergeCellsSafely(range);
+          mergeCellsSafely(worksheet, range);
         }
       }
 

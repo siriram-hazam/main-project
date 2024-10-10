@@ -199,7 +199,8 @@ const ExTable = (props) => {
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER_SIDE}/information/downloadexcel`,
-        { id: item.id }, // Send only the necessary data
+        // { id: item.id }, // Send only the necessary data
+        { item }, // Send the whole item object
         {
           responseType: "blob",
           headers: {

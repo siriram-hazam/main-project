@@ -152,6 +152,58 @@ const ActivitiesAdd = () => {
     checkFormCompletion();
   }, [formData]);
 
+  // const checkFormCompletion = () => {
+  //   if (!formData) return setIsFormComplete(false);
+
+  //   const requiredFieldsComplete = requiredFields.every((field) => {
+  //     const value = formData[field];
+  //     const isFilled =
+  //       value &&
+  //       (Array.isArray(value)
+  //         ? value.length > 0
+  //         : typeof value === "string"
+  //         ? value.trim() !== ""
+  //         : true);
+  //     if (!isFilled) {
+  //       console.log(`Field ${field} is incomplete.`);
+  //     }
+  //     return isFilled;
+  //   });
+
+  //   const categoriesComplete =
+  //     formData.categories.length > 0 &&
+  //     formData.categories.every((categoryItem, index) => {
+  //       if (!categoryItem.category) {
+  //         console.log(`Category ${index + 1} is incomplete.`);
+  //         return false;
+  //       }
+  //       return categoryItem.poi_relations.every((poi, poiIndex) => {
+  //         return requiredPoiFields.every((field) => {
+  //           const poiValue = poi[field];
+  //           const isFilled =
+  //             poiValue &&
+  //             (Array.isArray(poiValue)
+  //               ? poiValue.length > 0
+  //               : typeof poiValue === "string"
+  //               ? poiValue.trim() !== ""
+  //               : true);
+  //           if (!isFilled) {
+  //             console.log(
+  //               `POI Relation ${poiIndex + 1} in Category ${
+  //                 index + 1
+  //               } has incomplete field ${field}.`
+  //             );
+  //           }
+  //           return isFilled;
+  //         });
+  //       });
+  //     });
+
+  //   const isComplete = requiredFieldsComplete && categoriesComplete;
+  //   console.log("Form complete:", isComplete);
+  //   setIsFormComplete(isComplete);
+  // };
+
   const checkFormCompletion = () => {
     if (!formData) return setIsFormComplete(false);
 
@@ -171,37 +223,37 @@ const ActivitiesAdd = () => {
     });
 
     const categoriesComplete =
+      Array.isArray(formData.categories) &&
       formData.categories.length > 0 &&
       formData.categories.every((categoryItem, index) => {
-        if (!categoryItem.category) {
+        if (!categoryItem || !categoryItem.category) {
           console.log(`Category ${index + 1} is incomplete.`);
           return false;
         }
-        return categoryItem.poi_relations.every((poi, poiIndex) => {
-          return requiredPoiFields.every((field) => {
-            const poiValue = poi[field];
-            const isFilled =
-              poiValue &&
-              (Array.isArray(poiValue)
-                ? poiValue.length > 0
-                : typeof poiValue === "string"
-                ? poiValue.trim() !== ""
-                : true);
-            if (!isFilled) {
-              console.log(
-                `POI Relation ${poiIndex + 1} in Category ${
-                  index + 1
-                } has incomplete field ${field}.`
-              );
-            }
-            return isFilled;
-          });
-        });
+        return (
+          Array.isArray(categoryItem.poi_relations) &&
+          categoryItem.poi_relations.every((poi, poiIndex) => {
+            return requiredPoiFields.every((field) => {
+              const poiValue = poi ? poi[field] : undefined;
+              const isFilled =
+                poiValue &&
+                (Array.isArray(poiValue)
+                  ? poiValue.length > 0
+                  : typeof poiValue === "string"
+                  ? poiValue.trim() !== ""
+                  : true);
+              if (!isFilled) {
+                console.log(
+                  `POI Field ${field} in category ${index + 1} is incomplete.`
+                );
+              }
+              return isFilled;
+            });
+          })
+        );
       });
 
-    const isComplete = requiredFieldsComplete && categoriesComplete;
-    console.log("Form complete:", isComplete);
-    setIsFormComplete(isComplete);
+    setIsFormComplete(requiredFieldsComplete && categoriesComplete);
   };
 
   const handleAutocompleteChange = (event, value, field) => {
@@ -222,6 +274,33 @@ const ActivitiesAdd = () => {
     checkFormCompletion();
   };
 
+  // const handleAutocompleteChange = (event, value, field) => {
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     [field]: value && value.id ? value.id : value,
+  //   }));
+  //   checkFormCompletion();
+  // };
+
+  // const handleCategoryChange = (event, value, categoryIndex) => {
+  //   setFormData((prevFormData) => {
+  //     const updatedCategories = [...prevFormData.categories];
+  //     updatedCategories[categoryIndex].category =
+  //       value && value.id ? value.id : value;
+  //     return { ...prevFormData, categories: updatedCategories };
+  //   });
+  //   checkFormCompletion();
+  // };
+
+  // const handleCategoryInputChange = (event, newInputValue, categoryIndex) => {
+  //   setFormData((prevFormData) => {
+  //     const updatedCategories = [...prevFormData.categories];
+  //     updatedCategories[categoryIndex].category = newInputValue;
+  //     return { ...prevFormData, categories: updatedCategories };
+  //   });
+  //   checkFormCompletion();
+  // };
+
   const handleCategoryInputChange = (event, newInputValue, categoryIndex) => {
     setFormData((prevFormData) => {
       const updatedCategories = [...prevFormData.categories];
@@ -230,6 +309,31 @@ const ActivitiesAdd = () => {
     });
     checkFormCompletion();
   };
+
+  // const handleNestedAutocompleteChange = (
+  //   event,
+  //   value,
+  //   categoryIndex,
+  //   index,
+  //   field
+  // ) => {
+  //   setFormData((prevFormData) => {
+  //     const updatedCategories = [...prevFormData.categories];
+  //     const updatedRelations = [
+  //       ...updatedCategories[categoryIndex].poi_relations,
+  //     ];
+  //     updatedRelations[index] = {
+  //       ...updatedRelations[index],
+  //       [field]: value && value.id ? value.id : value,
+  //     };
+  //     updatedCategories[categoryIndex].poi_relations = updatedRelations;
+  //     return {
+  //       ...prevFormData,
+  //       categories: updatedCategories,
+  //     };
+  //   });
+  //   checkFormCompletion();
+  // };
 
   const handleNestedAutocompleteChange = (
     event,
@@ -240,18 +344,20 @@ const ActivitiesAdd = () => {
   ) => {
     setFormData((prevFormData) => {
       const updatedCategories = [...prevFormData.categories];
-      const updatedRelations = [
-        ...updatedCategories[categoryIndex].poi_relations,
-      ];
-      updatedRelations[index] = {
-        ...updatedRelations[index],
-        [field]: value && value.id ? value.id : value,
-      };
-      updatedCategories[categoryIndex].poi_relations = updatedRelations;
-      return {
-        ...prevFormData,
-        categories: updatedCategories,
-      };
+      if (
+        updatedCategories[categoryIndex] &&
+        Array.isArray(updatedCategories[categoryIndex].poi_relations)
+      ) {
+        const updatedPoiRelations = [
+          ...updatedCategories[categoryIndex].poi_relations,
+        ];
+        updatedPoiRelations[index] = {
+          ...updatedPoiRelations[index],
+          [field]: value && value.id ? value.id : value,
+        };
+        updatedCategories[categoryIndex].poi_relations = updatedPoiRelations;
+      }
+      return { ...prevFormData, categories: updatedCategories };
     });
     checkFormCompletion();
   };

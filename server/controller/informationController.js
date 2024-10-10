@@ -1246,8 +1246,22 @@ export const updateInformationApproval = async (req, res) => {
   }
 };
 
+// ฟังก์ชันสำหรับแปลงหมายเลขคอลัมน์เป็นตัวอักษร (เช่น 8 -> H)
+const getExcelAlpha = (col) => {
+  let letter = "";
+  while (col > 0) {
+    let mod = (col - 1) % 26;
+    letter = String.fromCharCode(65 + mod) + letter;
+    col = Math.floor((col - mod) / 26);
+  }
+  return letter;
+};
+
 export const excelProcess = async (req, res) => {
-  const item = req.body;
+  let item1 = req.body;
+  const item = item1.item;
+
+  console.log(item);
 
   try {
     const filePath = path.resolve(__dirname + `/assets/template_ropa.xlsx`);
@@ -1261,6 +1275,7 @@ export const excelProcess = async (req, res) => {
 
     const worksheet = workbook.getWorksheet(1);
 
+    // กรอกข้อมูลพื้นฐาน
     worksheet.getCell("B2").value = item.user_account_relation.fullname;
     worksheet.getCell("B3").value = item.company_relation.address;
     worksheet.getCell("B4").value = item.company_relation.email;
@@ -1275,9 +1290,9 @@ export const excelProcess = async (req, res) => {
     worksheet.getCell("K5").value = item.company_relation.phone_number;
     worksheet.getCell("K6").value = item.company_relation.dpo;
 
+    // กรอกข้อมูลมาตรการ
     const organizations = item.information_m_organization;
     let row_organizations = 15;
-
     organizations.forEach((org, index) => {
       worksheet.getCell(`A${row_organizations}`).value = `(${index + 1}) ${
         org.m_organization_relation.organization
@@ -1287,7 +1302,6 @@ export const excelProcess = async (req, res) => {
 
     const technicals = item.information_m_technical;
     let row_technicals = 15;
-
     technicals.forEach((tech, index) => {
       worksheet.getCell(`F${row_technicals}`).value = `(${index + 1}) ${
         tech.m_technical_relation.technical
@@ -1297,7 +1311,6 @@ export const excelProcess = async (req, res) => {
 
     const physicals = item.information_m_physical;
     let row_physicals = 15;
-
     physicals.forEach((phy, index) => {
       worksheet.getCell(`L${row_physicals}`).value = `(${index + 1}) ${
         phy.m_physical_relation.physical
@@ -1305,126 +1318,89 @@ export const excelProcess = async (req, res) => {
       row_physicals++;
     });
 
-    const poiRelationsCount = item.poi_information.length;
+    // การจัดกลุ่ม poi_information ตามหมวดหมู่
+    const groupedPoi = item.poi_information.reduce((acc, poi) => {
+      const category = poi.category_relation.category;
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(poi);
+      return acc;
+    }, {});
 
-    let startRow = 11;
-
-    for (let i = 1; i < poiRelationsCount; i++) {
-      worksheet.duplicateRow(startRow + i - 1, 1, true);
-    }
-
-    const endRow = startRow + poiRelationsCount - 1;
-
-    worksheet.mergeCells(`H${startRow}:H${endRow}`);
-    worksheet.mergeCells(`I${startRow}:I${endRow}`);
-    worksheet.mergeCells(`J${startRow}:J${endRow}`);
-    worksheet.mergeCells(`K${startRow}:K${endRow}`);
-    worksheet.mergeCells(`L${startRow}:L${endRow}`);
-    worksheet.mergeCells(`M${startRow}:M${endRow}`);
-    worksheet.mergeCells(`N${startRow}:N${endRow}`);
-    worksheet.mergeCells(`O${startRow}:O${endRow}`);
-    worksheet.mergeCells(`P${startRow}:P${endRow}`);
-    worksheet.mergeCells(`Q${startRow}:Q${endRow}`);
-
-    worksheet.getCell(`H${startRow}`).value =
-      item.information_info_stored_period
-        .map(
-          (placed, index) =>
-            `(${index + 1}) ${placed.info_stored_period_relation.period_}`
-        )
-        .join("\n");
-
-    worksheet.getCell(`I${startRow}`).value = item.information_info_placed
-      .map(
-        (placed, index) =>
-          `(${index + 1}) ${placed.info_placed_relation.placed_}`
-      )
-      .join("\n");
-
-    worksheet.getCell(`J${startRow}`).value = item.information_info_allowed_ps
-      .map(
-        (allowed, index) =>
-          `(${index + 1}) ${allowed.info_allowed_ps_relation.allowed_ps_}`
-      )
-      .join("\n");
-
-    worksheet.getCell(`K${startRow}`).value =
-      item.information_info_allowed_ps_condition
-        .map(
-          (allowed, index) =>
-            `(${index + 1}) ${
-              allowed.info_allowed_ps_condition_relation.allowed_ps_condition_
-            }`
-        )
-        .join("\n");
-
-    worksheet.getCell(`L${startRow}`).value = item.information_info_access
-      .map(
-        (access, index) =>
-          `(${index + 1}) ${access.info_access_relation.access_}`
-      )
-      .join("\n");
-
-    worksheet.getCell(`M${startRow}`).value =
-      item.information_info_access_condition
-        .map(
-          (access, index) =>
-            `(${index + 1}) ${
-              access.info_access_condition_relation.access_condition_
-            }`
-        )
-        .join("\n");
-
-    worksheet.getCell(`N${startRow}`).value =
-      item.information_info_ps_usedbyrole_inside
-        .map(
-          (used, index) =>
-            `(${index + 1}) ${
-              used.info_ps_usedbyrole_inside_relation.use_by_role_
-            }`
-        )
-        .join("\n");
-
-    worksheet.getCell(`O${startRow}`).value =
-      item.information_info_ps_sendto_outside
-        .map(
-          (send, index) =>
-            `(${index + 1}) ${send.info_ps_sendto_outside_relation.sendto_}`
-        )
-        .join("\n");
-
-    worksheet.getCell(`P${startRow}`).value =
-      item.information_info_ps_destroying
-        .map(
-          (destroy, index) =>
-            `(${index + 1}) ${destroy.info_ps_destroying_relation.destroying_}`
-        )
-        .join("\n");
-
-    worksheet.getCell(`Q${startRow}`).value = item.information_info_ps_destroyer
-      .map(
-        (destroyer, index) =>
-          `(${index + 1}) ${destroyer.info_ps_destroyer_relation.destroyer_}`
-      )
-      .join("\n");
-
-    let previousValues = {
-      info: null,
-      owner: null,
-      from: null,
-      format: null,
-      type: null,
-      objective: null,
-      lawbase: null,
+    // ฟังก์ชันสำหรับ merge cells แบบปลอดภัย
+    const mergeCellsSafely = (cellRange) => {
+      try {
+        // ทำการ unmerge เซลล์ก่อนเพื่อป้องกันการ merge ซ้อนกัน
+        worksheet.unMergeCells(cellRange);
+        // ทำการ merge เซลล์
+        worksheet.mergeCells(cellRange);
+        console.log(`Successfully merged cells for range: ${cellRange}`);
+      } catch (e) {
+        console.error(`Error merging cells for range ${cellRange}: `, e);
+      }
     };
 
-    item.poi_information.forEach((poiInfo) => {
-      worksheet.getRow(startRow).height = 40;
+    // ฟังก์ชันสำหรับคัดลอกแถวต้นแบบและแทรกแถวใหม่ที่ตำแหน่งที่ต้องการ
+    const duplicateRow = (sourceRowNumber, insertAt) => {
+      const sourceRow = worksheet.getRow(sourceRowNumber);
+      // แทรกแถวใหม่ก่อนแถวที่ต้องการ โดยไม่ใช้การจัดรูปแบบ
+      const newRow = worksheet.insertRow(insertAt, [], { insertBefore: true });
 
-      const relations = Array.isArray(poiInfo.poi_relation)
-        ? poiInfo.poi_relation
-        : [poiInfo.poi_relation];
-      relations.forEach((relation) => {
+      // คัดลอกค่าจากแถวต้นแบบ (ไม่คัดลอกสไตล์)
+      sourceRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        const newCell = newRow.getCell(colNumber);
+        newCell.value = cell.value;
+      });
+
+      // ปรับความสูงของแถวใหม่ให้เหมือนต้นแบบ
+      newRow.height = sourceRow.height;
+
+      // Unmerge เซลล์ทั้งหมดในแถวใหม่
+      newRow.eachCell({ includeEmpty: true }, (cell) => {
+        if (cell.isMerged) {
+          worksheet.unMergeCells(cell.address);
+          console.log(
+            `Unmerged cell at ${cell.address} in new row ${insertAt}`
+          );
+        }
+      });
+
+      return newRow;
+    };
+
+    // เริ่มต้นที่แถว 11
+    let currentRow = 11;
+
+    // วนลูปผ่านหมวดหมู่ที่จัดกลุ่มแล้ว
+    for (const [categoryName, pois] of Object.entries(groupedPoi)) {
+      // แทรกแถวใหม่สำหรับหัวข้อหมวดหมู่ที่แถว currentRow
+      duplicateRow(11, currentRow);
+      const categoryRow = worksheet.getRow(currentRow);
+
+      // กรอกชื่อหมวดหมู่
+      categoryRow.getCell("A").value = `Category: ${categoryName}`;
+      // Merge เซลล์สำหรับหัวข้อหมวดหมู่ (A ถึง Q ตามความต้องการ)
+      mergeCellsSafely(`A${currentRow}:Q${currentRow}`);
+      // ตั้งค่าฟอนต์ให้หนาสำหรับหัวข้อหมวดหมู่
+      categoryRow.getCell("A").font = { bold: true };
+      categoryRow.commit();
+
+      // เก็บตำแหน่งเริ่มต้นของหมวดหมู่เพื่อใช้ในการ merge คอลัมน์ H-Q
+      const categoryStartRow = currentRow;
+      currentRow++;
+
+      // วนลูปผ่าน POI ภายในหมวดหมู่
+      pois.forEach((poiInfo, index) => {
+        // แทรกแถวใหม่สำหรับข้อมูล POI ที่แถว currentRow
+        duplicateRow(11, currentRow);
+        const poiRow = worksheet.getRow(currentRow);
+
+        const relation = poiInfo.poi_relation;
+
+        // กำหนดความสูงของแถว
+        poiRow.height = 40;
+
         const infoValue = relation.poi_info
           .map((info) => info.info_relation.info_)
           .join(", ");
@@ -1445,59 +1421,138 @@ export const excelProcess = async (req, res) => {
           .join(", ");
         const lawbaseValue = relation.poi_info_lawbase
           .map(
-            (lawbase, index) =>
-              `(${index + 1}) ${lawbase.info_lawbase_relation.lawBase_}`
+            (lawbase, idx) =>
+              `(${idx + 1}) ${lawbase.info_lawbase_relation.lawBase_}`
           )
           .join("\n");
 
-        worksheet.getCell(`A${startRow}`).value = infoValue;
+        // กรอกข้อมูลในแถว POI
+        poiRow.getCell("A").value = infoValue;
+        poiRow.getCell("B").value = ownerValue;
+        poiRow.getCell("C").value = fromValue;
+        poiRow.getCell("D").value = formatValue;
+        poiRow.getCell("E").value = typeValue;
+        poiRow.getCell("F").value = objectiveValue;
+        poiRow.getCell("G").value = lawbaseValue;
 
-        if (ownerValue !== previousValues.owner) {
-          worksheet.getCell(`B${startRow}`).value = ownerValue;
-          previousValues.owner = ownerValue;
-        } else {
-          worksheet.mergeCells(`B${startRow - 1}:B${startRow}`);
+        // กรอกข้อมูลมาตรการในคอลัมน์ H ถึง Q
+        poiRow.getCell("H").value = item.information_info_stored_period
+          .map(
+            (placed, index) =>
+              `(${index + 1}) ${placed.info_stored_period_relation.period_}`
+          )
+          .join("\n");
+
+        poiRow.getCell("I").value = item.information_info_placed
+          .map(
+            (placed, index) =>
+              `(${index + 1}) ${placed.info_placed_relation.placed_}`
+          )
+          .join("\n");
+
+        poiRow.getCell("J").value = item.information_info_allowed_ps
+          .map(
+            (allowed, index) =>
+              `(${index + 1}) ${allowed.info_allowed_ps_relation.allowed_ps_}`
+          )
+          .join("\n");
+
+        poiRow.getCell("K").value = item.information_info_allowed_ps_condition
+          .map(
+            (allowed, index) =>
+              `(${index + 1}) ${
+                allowed.info_allowed_ps_condition_relation.allowed_ps_condition_
+              }`
+          )
+          .join("\n");
+
+        poiRow.getCell("L").value = item.information_info_access
+          .map(
+            (access, index) =>
+              `(${index + 1}) ${access.info_access_relation.access_}`
+          )
+          .join("\n");
+
+        poiRow.getCell("M").value = item.information_info_access_condition
+          .map(
+            (access, index) =>
+              `(${index + 1}) ${
+                access.info_access_condition_relation.access_condition_
+              }`
+          )
+          .join("\n");
+
+        poiRow.getCell("N").value = item.information_info_ps_usedbyrole_inside
+          .map(
+            (used, index) =>
+              `(${index + 1}) ${
+                used.info_ps_usedbyrole_inside_relation.use_by_role_
+              }`
+          )
+          .join("\n");
+
+        poiRow.getCell("O").value = item.information_info_ps_sendto_outside
+          .map(
+            (send, index) =>
+              `(${index + 1}) ${send.info_ps_sendto_outside_relation.sendto_}`
+          )
+          .join("\n");
+
+        poiRow.getCell("P").value = item.information_info_ps_destroying
+          .map(
+            (destroy, index) =>
+              `(${index + 1}) ${
+                destroy.info_ps_destroying_relation.destroying_
+              }`
+          )
+          .join("\n");
+
+        poiRow.getCell("Q").value = item.information_info_ps_destroyer
+          .map(
+            (destroyer, index) =>
+              `(${index + 1}) ${
+                destroyer.info_ps_destroyer_relation.destroyer_
+              }`
+          )
+          .join("\n");
+
+        poiRow.commit();
+
+        currentRow++;
+      });
+
+      // ระบุตำแหน่งสิ้นสุดของหมวดหมู่
+      const categoryEndRow = currentRow - 1;
+
+      // ทำการ merge คอลัมน์ H ถึง Q แบบแนวตั้งสำหรับหมวดหมู่นี้
+      if (categoryEndRow > categoryStartRow) {
+        for (let col = 8; col <= 17; col++) {
+          // H=8 ถึง Q=17
+          const colLetter = getExcelAlpha(col);
+          const range = `${colLetter}${
+            categoryStartRow + 1
+          }:${colLetter}${categoryEndRow}`;
+          mergeCellsSafely(range);
         }
+      }
 
-        if (fromValue !== previousValues.from) {
-          worksheet.getCell(`C${startRow}`).value = fromValue;
-          previousValues.from = fromValue;
-        } else {
-          worksheet.mergeCells(`C${startRow - 1}:C${startRow}`);
-        }
+      // เพิ่มบรรทัดว่างหลังจากแต่ละหมวดหมู่ (ถ้าต้องการ)
+      currentRow++;
+    }
 
-        if (formatValue !== previousValues.format) {
-          worksheet.getCell(`D${startRow}`).value = formatValue;
-          previousValues.format = formatValue;
-        } else {
-          worksheet.mergeCells(`D${startRow - 1}:D${startRow}`);
-        }
-
-        if (typeValue !== previousValues.type) {
-          worksheet.getCell(`E${startRow}`).value = typeValue;
-          previousValues.type = typeValue;
-        } else {
-          worksheet.mergeCells(`E${startRow - 1}:E${startRow}`);
-        }
-
-        if (objectiveValue !== previousValues.objective) {
-          worksheet.getCell(`F${startRow}`).value = objectiveValue;
-          previousValues.objective = objectiveValue;
-        } else {
-          worksheet.mergeCells(`F${startRow - 1}:F${startRow}`);
-        }
-
-        if (lawbaseValue !== previousValues.lawbase) {
-          worksheet.getCell(`G${startRow}`).value = lawbaseValue;
-          previousValues.lawbase = lawbaseValue;
-        } else {
-          worksheet.mergeCells(`G${startRow - 1}:G${startRow}`);
-        }
-
-        startRow++;
+    // เพิ่ม border ให้กับทุกเซลล์
+    worksheet.eachRow({ includeEmpty: true }, function (row, rowNumber) {
+      row.eachCell({ includeEmpty: true }, function (cell, colNumber) {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
       });
     });
 
+    // สร้างไฟล์ Excel
     const buffer = await workbook.xlsx.writeBuffer();
 
     res.setHeader(

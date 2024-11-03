@@ -220,8 +220,8 @@ const ExTable = (userList) => {
         <TableBody>
           {userList.userList.userslist
             .filter(
-              (item) => item.role !== "admin" && item.role !== "superadmin"
-              // (item) => item.role !== "superadmin"
+              // (item) => item.role !== "admin" && item.role !== "superadmin"
+              (item) => item.role !== "superadmin"
             )
             .map((item) => (
               <TableRow

@@ -103,8 +103,9 @@ const ExTable = (props) => {
 
       if (response.status === 200) {
         toast.success("Delete successful.");
-        // Refresh data or remove the deleted item from state
-        props.refreshData(); // Assume a prop function to refresh data
+        setTimeout(() => {
+          window.location.reload(); // Refresh the page or update the data
+        }, 2000);
       } else {
         toast.error("Delete failed.");
       }
@@ -118,12 +119,14 @@ const ExTable = (props) => {
   const handleApprove = async (id) => {
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_SERVER_SIDE}/information/${id}/approve` // Adjust endpoint if needed
+        `${process.env.REACT_APP_SERVER_SIDE}/information/${id}` // Adjust endpoint if needed
       );
 
       if (response.status === 200) {
         toast.success("Approve successful.");
-        props.refreshData(); // Assume a prop function to refresh data
+        setTimeout(() => {
+          window.location.reload(); // Refresh the page or update the data
+        }, 2000);
       } else {
         toast.error("Approve failed.");
       }

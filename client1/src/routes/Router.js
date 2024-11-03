@@ -27,7 +27,7 @@ import CompanyListSuper from "../views/tables/CompanyListSuper/CompanyListSuper.
 // Company User Super
 import CompanyUserSuper from "../views/tables/CompanyUserSuper/CompanyUserSuper.js";
 // Form
-import Form from "../views/form/Form.js";
+// import Form from "../views/form/Form.js";
 
 // Define routes
 const Themeroutes = [
@@ -49,10 +49,10 @@ const Themeroutes = [
         path: "activities/add",
         element: <ActivitiesAdd />,
       },
-      {
-        path: "form",
-        element: <Form />,
-      },
+      // {
+      //   path: "form",
+      //   element: <Form />,
+      // },
       // {
       //   path: "privacy-notice",
       //   element: <PrivacyNoticeTable />,

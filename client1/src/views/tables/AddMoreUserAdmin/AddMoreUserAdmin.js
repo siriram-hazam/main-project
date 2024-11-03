@@ -74,6 +74,7 @@ const EditProfileTable = () => {
       try {
         const users = await authUtils.userCompanyList();
         setUserCompanyList(users);
+        console.log("userCompanyList", users);
       } catch (error) {
         console.error("Error Activities userCompanyList : ", error);
       } finally {

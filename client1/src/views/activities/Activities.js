@@ -150,6 +150,7 @@ const ActivitiesAdd = () => {
 
   useEffect(() => {
     checkFormCompletion();
+    // console.log("Form data", formData);
   }, [formData]);
 
   // const checkFormCompletion = () => {

@@ -1354,32 +1354,32 @@ export const excelProcess = async (req, res) => {
     worksheet.getCell("K6").value = item.company_relation.dpo;
 
     // กรอกข้อมูลมาตรการ
-    const organizations = item.information_m_organization;
-    let row_organizations = 15;
-    organizations.forEach((org, index) => {
-      worksheet.getCell(`A${row_organizations}`).value = `(${index + 1}) ${
-        org.m_organization_relation.organization
-      }`;
-      row_organizations++;
-    });
+    // const organizations = item.information_m_organization;
+    // let row_organizations = 15;
+    // organizations.forEach((org, index) => {
+    //   worksheet.getCell(`A${row_organizations}`).value = `(${index + 1}) ${
+    //     org.m_organization_relation.organization
+    //   }`;
+    //   row_organizations++;
+    // });
 
-    const technicals = item.information_m_technical;
-    let row_technicals = 15;
-    technicals.forEach((tech, index) => {
-      worksheet.getCell(`F${row_technicals}`).value = `(${index + 1}) ${
-        tech.m_technical_relation.technical
-      }`;
-      row_technicals++;
-    });
+    // const technicals = item.information_m_technical;
+    // let row_technicals = 15;
+    // technicals.forEach((tech, index) => {
+    //   worksheet.getCell(`F${row_technicals}`).value = `(${index + 1}) ${
+    //     tech.m_technical_relation.technical
+    //   }`;
+    //   row_technicals++;
+    // });
 
-    const physicals = item.information_m_physical;
-    let row_physicals = 15;
-    physicals.forEach((phy, index) => {
-      worksheet.getCell(`L${row_physicals}`).value = `(${index + 1}) ${
-        phy.m_physical_relation.physical
-      }`;
-      row_physicals++;
-    });
+    // const physicals = item.information_m_physical;
+    // let row_physicals = 15;
+    // physicals.forEach((phy, index) => {
+    //   worksheet.getCell(`L${row_physicals}`).value = `(${index + 1}) ${
+    //     phy.m_physical_relation.physical
+    //   }`;
+    //   row_physicals++;
+    // });
 
     // การจัดกลุ่ม poi_information ตามหมวดหมู่
     const groupedPoi = item.poi_information.reduce((acc, poi) => {
@@ -1562,6 +1562,56 @@ export const excelProcess = async (req, res) => {
       currentRow++;
     }
 
+    // Keep track of separate rows for each column
+    let orgRow = currentRow;
+    let techRow = currentRow;
+    let phyRow = currentRow;
+
+    worksheet.getCell(
+      `A${orgRow}`
+    ).value = `มาตรการเชิงองค์กร \n (Organizational Measures)`;
+    worksheet.mergeCells(`A${orgRow}:E${orgRow}`);
+    worksheet.getCell(`A${orgRow}`).alignment = { horizontal: "center" };
+    orgRow++;
+    const organizations = item.information_m_organization;
+    organizations.forEach((org, index) => {
+      worksheet.getCell(`A${orgRow}`).value = `(${index + 1}) ${
+        org.m_organization_relation.organization
+      }`;
+      orgRow++;
+    });
+
+    worksheet.getCell(
+      `F${techRow}`
+    ).value = `มาตรการเชิงเทคนิค \n (Technical Measures)`;
+    worksheet.mergeCells(`F${techRow}:K${techRow}`);
+    worksheet.getCell(`F${techRow}`).alignment = { horizontal: "center" };
+    techRow++;
+    const technicals = item.information_m_technical;
+    technicals.forEach((tech, index) => {
+      worksheet.getCell(`F${techRow}`).value = `(${index + 1}) ${
+        tech.m_technical_relation.technical
+      }`;
+      techRow++;
+    });
+
+    worksheet.getCell(
+      `L${phyRow}`
+    ).value = `มาตรการทางกายภาพ \n (Physical Measures)`;
+    worksheet.mergeCells(`L${phyRow}:Q${phyRow}`);
+    worksheet.getCell(`L${phyRow}`).alignment = { horizontal: "center" };
+    phyRow++;
+    const physicals = item.information_m_physical;
+    physicals.forEach((phy, index) => {
+      worksheet.getCell(`L${phyRow}`).value = `(${index + 1}) ${
+        phy.m_physical_relation.physical
+      }`;
+      phyRow++;
+    });
+
+    // Update main currentRow to highest value + 2
+    currentRow = Math.max(orgRow, techRow, phyRow) + 2;
+
     // เพิ่ม border ให้กับทุกเซลล์
     worksheet.eachRow({ includeEmpty: true }, function (row, rowNumber) {
       row.eachCell({ includeEmpty: true }, function (cell, colNumber) {
@@ -1573,6 +1623,29 @@ export const excelProcess = async (req, res) => {
         };
       });
     });
+
+    worksheet.mergeCells(1, 1, 1, 17);
+    worksheet.mergeCells(2, 2, 2, 8);
+    worksheet.mergeCells(3, 2, 3, 8);
+    worksheet.mergeCells(4, 2, 4, 8);
+    worksheet.mergeCells(5, 2, 5, 8);
+    worksheet.mergeCells(6, 2, 6, 8);
+    worksheet.mergeCells(7, 2, 7, 17);
+    worksheet.mergeCells(8, 2, 8, 17);
+
+    worksheet.mergeCells(2, 10, 2, 17);
+    worksheet.mergeCells(3, 10, 3, 17);
+    worksheet.mergeCells(4, 10, 4, 17);
+    worksheet.mergeCells(5, 10, 5, 17);
+    worksheet.mergeCells(6, 10, 6, 17);
+
+    worksheet.mergeCells(9, 8, 10, 8);
+    worksheet.mergeCells(9, 9, 10, 9);
+    worksheet.mergeCells(9, 10, 9, 13);
+    worksheet.mergeCells(9, 14, 10, 14);
+    worksheet.mergeCells(9, 15, 10, 15);
+    worksheet.mergeCells(9, 16, 10, 16);
+    worksheet.mergeCells(9, 17, 10, 17);
 
     // สร้างไฟล์ Excel
     const buffer = await workbook.xlsx.writeBuffer();

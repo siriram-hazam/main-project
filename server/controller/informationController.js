@@ -2,6 +2,7 @@ import prisma from "../db/db.config.js";
 import fs from "fs";
 import path from "path";
 import ExcelJS from "exceljs";
+import { type } from "os";
 
 const __dirname = path.resolve();
 
@@ -1401,11 +1402,20 @@ export const excelProcess = async (req, res) => {
       const categoryRow = worksheet.getRow(currentRow);
 
       // กรอกชื่อหมวดหมู่
-      categoryRow.getCell("A").value = `Category: ${categoryName}`;
+      categoryRow.getCell("A").value = `${categoryName}`;
       // Merge เซลล์สำหรับหัวข้อหมวดหมู่ (A ถึง Q ตามความต้องการ)
       mergeCellsSafely(worksheet, `A${currentRow}:Q${currentRow}`);
       // ตั้งค่าฟอนต์ให้หนาสำหรับหัวข้อหมวดหมู่
-      categoryRow.getCell("A").font = { bold: true };
+      // categoryRow.getCell("A").font = {
+      //   name: "TH Sarabun New",
+      //   size: 14,
+      //   bold: true,
+      // };
+      categoryRow.getCell("A").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "ff70db70" },
+      };
       categoryRow.commit();
 
       // เก็บตำแหน่งเริ่มต้นของหมวดหมู่เพื่อใช้ในการ merge คอลัมน์ H-Q
@@ -1562,58 +1572,115 @@ export const excelProcess = async (req, res) => {
       currentRow++;
     }
 
+    const applyHeaderStyle = (worksheet, cell, mergeRange) => {
+      // Set row height
+      const rowNum = cell.match(/\d+/)[0];
+      worksheet.getRow(parseInt(rowNum)).height = 50; // Adjust height (in points)
+
+      // Set value and style for main cell
+      // worksheet.getCell(cell).fill = {
+      //   type: "pattern",
+      //   pattern: "solid",
+      //   fgColor: { argb: "ffb3d9ff" },
+      // };
+
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+        wrapText: true,
+      };
+
+      // worksheet.getCell(cell).font = {
+      //   bold: true,
+      //   size: 12,
+      // };
+
+      // Merge cells and apply style to merged range
+      worksheet.mergeCells(mergeRange);
+
+      // Apply style to all cells in merged range
+      const range = worksheet.getCell(mergeRange);
+      range.alignment = {
+        horizontal: "center",
+        vertical: "middle",
+        wrapText: true,
+      };
+    };
+
+    const applyContentStyle = (worksheet, startCol, endCol, row) => {
+      // Merge cells in the row
+      const mergeRange = `${startCol}${row}:${endCol}${row}`;
+      worksheet.mergeCells(mergeRange);
+
+      // Apply alignment to merged cell
+      worksheet.getCell(`${startCol}${row}`).alignment = {
+        vertical: "middle",
+        wrapText: true,
+      };
+    };
+
     // Keep track of separate rows for each column
     let orgRow = currentRow;
     let techRow = currentRow;
     let phyRow = currentRow;
 
+    // Organizational Measures
+    applyHeaderStyle(worksheet, `A${orgRow}`, `A${orgRow}:E${orgRow}`);
     worksheet.getCell(
       `A${orgRow}`
     ).value = `มาตรการเชิงองค์กร \n (Organizational Measures)`;
-    worksheet.mergeCells(`A${orgRow}:E${orgRow}`);
-    worksheet.getCell(`A${orgRow}`).alignment = { horizontal: "center" };
     orgRow++;
+
     const organizations = item.information_m_organization;
     organizations.forEach((org, index) => {
       worksheet.getCell(`A${orgRow}`).value = `(${index + 1}) ${
         org.m_organization_relation.organization
       }`;
+      applyContentStyle(worksheet, "A", "E", orgRow);
       orgRow++;
     });
 
+    // Technical Measures
+    applyHeaderStyle(worksheet, `F${techRow}`, `F${techRow}:K${techRow}`);
     worksheet.getCell(
       `F${techRow}`
     ).value = `มาตรการเชิงเทคนิค \n (Technical Measures)`;
-    worksheet.mergeCells(`F${techRow}:K${techRow}`);
-    worksheet.getCell(`F${techRow}`).alignment = { horizontal: "center" };
     techRow++;
+
     const technicals = item.information_m_technical;
     technicals.forEach((tech, index) => {
       worksheet.getCell(`F${techRow}`).value = `(${index + 1}) ${
         tech.m_technical_relation.technical
       }`;
+      applyContentStyle(worksheet, "F", "K", techRow);
       techRow++;
     });
 
+    // Physical Measures
+    applyHeaderStyle(worksheet, `L${phyRow}`, `L${phyRow}:Q${phyRow}`);
     worksheet.getCell(
       `L${phyRow}`
     ).value = `มาตรการทางกายภาพ \n (Physical Measures)`;
-    worksheet.mergeCells(`L${phyRow}:Q${phyRow}`);
-    worksheet.getCell(`L${phyRow}`).alignment = { horizontal: "center" };
     phyRow++;
+
     const physicals = item.information_m_physical;
     physicals.forEach((phy, index) => {
       worksheet.getCell(`L${phyRow}`).value = `(${index + 1}) ${
         phy.m_physical_relation.physical
       }`;
+      applyContentStyle(worksheet, "L", "Q", phyRow);
       phyRow++;
     });
 
     // Update main currentRow to highest value + 2
     currentRow = Math.max(orgRow, techRow, phyRow) + 2;
 
-    // เพิ่ม border ให้กับทุกเซลล์
-    worksheet.eachRow({ includeEmpty: true }, function (row, rowNumber) {
+    // Find last row with data
+    let lastRow = Math.max(orgRow, techRow, phyRow) - 1;
+
+    // Apply borders only up to last row with data
+    for (let rowNumber = 1; rowNumber <= lastRow; rowNumber++) {
+      const row = worksheet.getRow(rowNumber);
       row.eachCell({ includeEmpty: true }, function (cell, colNumber) {
         cell.border = {
           top: { style: "thin" },
@@ -1622,7 +1689,19 @@ export const excelProcess = async (req, res) => {
           right: { style: "thin" },
         };
       });
-    });
+    }
+
+    // เพิ่ม border ให้กับทุกเซลล์
+    // worksheet.eachRow({ includeEmpty: true }, function (row, rowNumber) {
+    //   row.eachCell({ includeEmpty: true }, function (cell, colNumber) {
+    //     cell.border = {
+    //       top: { style: "thin" },
+    //       left: { style: "thin" },
+    //       bottom: { style: "thin" },
+    //       right: { style: "thin" },
+    //     };
+    //   });
+    // });
 
     worksheet.mergeCells(1, 1, 1, 17);
     worksheet.mergeCells(2, 2, 2, 8);

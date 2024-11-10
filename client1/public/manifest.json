@@ -3,19 +3,24 @@
   "name": "Records of Processing Activities App",
   "icons": [
     {
-      "src": "ropa64.png",
+      "src": "64.png",
       "type": "image/png",
       "sizes": "64x64"
     },
     {
-      "src": "ropa192.png",
+      "src": "192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "ropa512.png",
+      "src": "512.png",
       "type": "image/png",
       "sizes": "512x512"
+    },
+    {
+      "src": "1024.png",
+      "type": "image/png",
+      "sizes": "1024x1024"
     }
   ],
   "start_url": ".",

@@ -452,16 +452,98 @@ export const updateInformation = async (req, res) => {
                   where: { id: poi.poi_relation.id },
                   create: {
                     // name: poi.poi_relation.name || "Default Name",
-                    poi_info: poi.poi_relation.poi_info.map((info) => ({
-                      info_relation: {
-                        connectOrCreate: {
-                          where: { id: info.info_relation.id },
-                          create: { info_: info.info_relation.info_ },
+                    // poi_info: poi.poi_relation.poi_info.map((info) => ({
+                    //   info_relation: {
+                    //     connectOrCreate: {
+                    //       where: { id: info.info_relation.id },
+                    //       create: { info_: info.info_relation.info_ },
+                    //     },
+                    //   },
+                    // })),
+                    // poi_info_owner: poi.poi_relation.poi_info_owner.map(
+                    //   (owner) => ({
+                    //     info_owner_relation: {
+                    //       connectOrCreate: {
+                    //         where: { id: owner.info_owner_relation.id },
+                    //         create: {
+                    //           owner_: owner.info_owner_relation.owner_,
+                    //         },
+                    //       },
+                    //     },
+                    //   })
+                    // ),
+                    // poi_info_from: poi.poi_relation.poi_info_from.map(
+                    //   (from) => ({
+                    //     info_from_relation: {
+                    //       connectOrCreate: {
+                    //         where: { id: from.info_from_relation.id },
+                    //         create: { from_: from.info_from_relation.from_ },
+                    //       },
+                    //     },
+                    //   })
+                    // ),
+                    // poi_info_format: poi.poi_relation.poi_info_format.map(
+                    //   (format) => ({
+                    //     info_format_relation: {
+                    //       connectOrCreate: {
+                    //         where: { id: format.info_format_relation.id },
+                    //         create: {
+                    //           format_: format.info_format_relation.format_,
+                    //         },
+                    //       },
+                    //     },
+                    //   })
+                    // ),
+                    // poi_info_type: poi.poi_relation.poi_info_type.map(
+                    //   (type) => ({
+                    //     info_type_relation: {
+                    //       connectOrCreate: {
+                    //         where: { id: type.info_type_relation.id },
+                    //         create: { type_: type.info_type_relation.type_ },
+                    //       },
+                    //     },
+                    //   })
+                    // ),
+                    // poi_info_objective: poi.poi_relation.poi_info_objective.map(
+                    //   (objective) => ({
+                    //     info_objective_relation: {
+                    //       connectOrCreate: {
+                    //         where: { id: objective.info_objective_relation.id },
+                    //         create: {
+                    //           objective_:
+                    //             objective.info_objective_relation.objective_,
+                    //         },
+                    //       },
+                    //     },
+                    //   })
+                    // ),
+                    // poi_info_lawbase: poi.poi_relation.poi_info_lawbase.map(
+                    //   (lawbase) => ({
+                    //     info_lawbase_relation: {
+                    //       connectOrCreate: {
+                    //         where: { id: lawbase.info_lawbase_relation.id },
+                    //         create: {
+                    //           lawBase_: lawbase.info_lawbase_relation.lawBase_,
+                    //         },
+                    //       },
+                    //     },
+                    //   })
+                    // ),
+                    category_relation: {
+                      connect: { id: poi.category_relation.id },
+                    },
+                    poi_info: {
+                      create: poi.poi_relation.poi_info.map((info) => ({
+                        info_relation: {
+                          connectOrCreate: {
+                            where: { id: info.info_relation.id },
+                            create: { info_: info.info_relation.info_ },
+                          },
                         },
-                      },
-                    })),
-                    poi_info_owner: poi.poi_relation.poi_info_owner.map(
-                      (owner) => ({
+                      })),
+                    },
+                    poi_info_owner: {
+                      create: poi.poi_relation.poi_info_owner.map((owner) => ({
                         info_owner_relation: {
                           connectOrCreate: {
                             where: { id: owner.info_owner_relation.id },
@@ -470,65 +552,74 @@ export const updateInformation = async (req, res) => {
                             },
                           },
                         },
-                      })
-                    ),
-                    poi_info_from: poi.poi_relation.poi_info_from.map(
-                      (from) => ({
+                      })),
+                    },
+                    poi_info_from: {
+                      create: poi.poi_relation.poi_info_from.map((from) => ({
                         info_from_relation: {
                           connectOrCreate: {
                             where: { id: from.info_from_relation.id },
                             create: { from_: from.info_from_relation.from_ },
                           },
                         },
-                      })
-                    ),
-                    poi_info_format: poi.poi_relation.poi_info_format.map(
-                      (format) => ({
-                        info_format_relation: {
-                          connectOrCreate: {
-                            where: { id: format.info_format_relation.id },
-                            create: {
-                              format_: format.info_format_relation.format_,
+                      })),
+                    },
+                    poi_info_format: {
+                      create: poi.poi_relation.poi_info_format.map(
+                        (format) => ({
+                          info_format_relation: {
+                            connectOrCreate: {
+                              where: { id: format.info_format_relation.id },
+                              create: {
+                                format_: format.info_format_relation.format_,
+                              },
                             },
                           },
-                        },
-                      })
-                    ),
-                    poi_info_type: poi.poi_relation.poi_info_type.map(
-                      (type) => ({
+                        })
+                      ),
+                    },
+                    poi_info_type: {
+                      create: poi.poi_relation.poi_info_type.map((type) => ({
                         info_type_relation: {
                           connectOrCreate: {
                             where: { id: type.info_type_relation.id },
                             create: { type_: type.info_type_relation.type_ },
                           },
                         },
-                      })
-                    ),
-                    poi_info_objective: poi.poi_relation.poi_info_objective.map(
-                      (objective) => ({
-                        info_objective_relation: {
-                          connectOrCreate: {
-                            where: { id: objective.info_objective_relation.id },
-                            create: {
-                              objective_:
-                                objective.info_objective_relation.objective_,
+                      })),
+                    },
+                    poi_info_objective: {
+                      create: poi.poi_relation.poi_info_objective.map(
+                        (objective) => ({
+                          info_objective_relation: {
+                            connectOrCreate: {
+                              where: {
+                                id: objective.info_objective_relation.id,
+                              },
+                              create: {
+                                objective_:
+                                  objective.info_objective_relation.objective_,
+                              },
                             },
                           },
-                        },
-                      })
-                    ),
-                    poi_info_lawbase: poi.poi_relation.poi_info_lawbase.map(
-                      (lawbase) => ({
-                        info_lawbase_relation: {
-                          connectOrCreate: {
-                            where: { id: lawbase.info_lawbase_relation.id },
-                            create: {
-                              lawBase_: lawbase.info_lawbase_relation.lawBase_,
+                        })
+                      ),
+                    },
+                    poi_info_lawbase: {
+                      create: poi.poi_relation.poi_info_lawbase.map(
+                        (lawbase) => ({
+                          info_lawbase_relation: {
+                            connectOrCreate: {
+                              where: { id: lawbase.info_lawbase_relation.id },
+                              create: {
+                                lawBase_:
+                                  lawbase.info_lawbase_relation.lawBase_,
+                              },
                             },
                           },
-                        },
-                      })
-                    ),
+                        })
+                      ),
+                    },
                   },
                 },
               },
@@ -538,7 +629,7 @@ export const updateInformation = async (req, res) => {
                 connectOrCreate: {
                   where: { id: poi.poi_relation.id },
                   create: {
-                    name: poi.poi_relation.name || "Default Name",
+                    // name: poi.poi_relation.name || "Default Name",
                     poi_info: poi.poi_relation.poi_info.map((info) => ({
                       info_relation: {
                         connectOrCreate: {

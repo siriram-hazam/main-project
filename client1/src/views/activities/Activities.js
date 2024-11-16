@@ -654,13 +654,11 @@ const ActivitiesAdd = () => {
                     {/* Category Field */}
                     <Autocomplete
                       freeSolo
-                      options={
-                        optionData.data.category ? optionData.data.category : []
-                      }
+                      options={optionData?.data?.category || []}
                       getOptionLabel={(option) =>
                         typeof option === "string"
                           ? option
-                          : option.category || ""
+                          : option?.category || ""
                       }
                       renderInput={(params) => (
                         <TextField
@@ -671,7 +669,7 @@ const ActivitiesAdd = () => {
                       value={
                         typeof categoryItem.category === "string"
                           ? categoryItem.category
-                          : optionData.data.category.find(
+                          : (optionData?.data?.category || []).find(
                               (option) => option.id === categoryItem.category
                             ) || ""
                       }
@@ -685,10 +683,9 @@ const ActivitiesAdd = () => {
                           categoryIndex
                         )
                       }
-                      // fullWidth
                       sx={{ mb: 2, ml: 4 }}
                       isOptionEqualToValue={(option, value) =>
-                        option.id === value.id ||
+                        option?.id === value?.id ||
                         value === "" ||
                         option === value
                       }

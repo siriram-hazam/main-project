@@ -222,48 +222,71 @@ const ActivitiesAdd = () => {
   //   setIsFormComplete(isComplete);
   // };
 
-  // Cache validation function
-  const isEmptyValue = (value) =>
-    !value ||
-    (Array.isArray(value) && !value.length) ||
-    (typeof value === "string" && !value.trim());
-
   const checkFormCompletion = () => {
-    if (!formData?.categories?.length) {
+    // Early return if no form data
+    if (!formData) {
       setIsFormComplete(false);
       return;
     }
 
-    // Cache required fields as Set for O(1) lookup
-    // const requiredFieldsSet = new Set(requiredFields);
-    const requiredPoiFieldsSet = new Set(requiredPoiFields);
+    // Check required fields first
+    for (const field of requiredFields) {
+      const value = formData[field];
+      if (
+        !value ||
+        (Array.isArray(value) && value.length === 0) ||
+        (typeof value === "string" && !value.trim())
+      ) {
+        console.log(`Field ${field} is incomplete.`);
+        setIsFormComplete(false);
+        return;
+      }
+    }
 
-    // Validate categories and POIs
-    const isValid = formData.categories.every((category, idx) => {
-      if (!category?.category || !Array.isArray(category.poi_relations)) {
-        console.log(`Category ${idx + 1} is invalid`);
-        return false;
+    // Check categories
+    const categories = formData.categories;
+    if (!Array.isArray(categories) || categories.length === 0) {
+      setIsFormComplete(false);
+      return;
+    }
+
+    // Validate each category
+    for (let i = 0; i < categories.length; i++) {
+      const category = categories[i];
+      if (!category?.category) {
+        console.log(`Category ${i + 1} is incomplete.`);
+        setIsFormComplete(false);
+        return;
       }
 
-      // Filter out empty POIs first
-      const validPois = category.poi_relations.filter(Boolean);
+      const pois = category.poi_relations;
+      if (!Array.isArray(pois)) {
+        setIsFormComplete(false);
+        return;
+      }
 
-      // Fast-fail if any POI is invalid
-      return validPois.every((poi) => {
-        // Check only required fields
-        for (const field of requiredPoiFieldsSet) {
-          if (isEmptyValue(poi[field])) {
+      // Validate POIs
+      for (const poi of pois) {
+        if (!poi) continue;
+
+        for (const field of requiredPoiFields) {
+          const value = poi[field];
+          if (
+            !value ||
+            (Array.isArray(value) && value.length === 0) ||
+            (typeof value === "string" && !value.trim())
+          ) {
             console.log(
-              `POI Field ${field} in category ${idx + 1} is incomplete`
+              `POI Field ${field} in category ${i + 1} is incomplete.`
             );
-            return false;
+            setIsFormComplete(false);
+            return;
           }
         }
-        return true;
-      });
-    });
+      }
+    }
 
-    setIsFormComplete(isValid);
+    setIsFormComplete(true);
   };
 
   const handleAutocompleteChange = (event, value, field) => {

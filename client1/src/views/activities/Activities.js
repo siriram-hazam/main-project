@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Card,
@@ -30,43 +30,60 @@ const ActivitiesAdd = () => {
   const [user, setUser] = useState(null);
   const [checkUser, setCheckUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    activity: "",
-    status: "pending",
-    createBy: "",
-    company_id: "",
-    department_id: "",
-    categories: [
-      {
-        category: "",
-        poi_relations: [
-          {
-            poi_info: "",
-            poi_info_owner: "",
-            poi_info_from: "",
-            poi_info_format: "",
-            poi_info_type: "",
-            poi_info_objective: "",
-            poi_info_lawbase: [],
-          },
-        ],
-      },
-    ],
-    // categories: [],
-    info_stored_period: [],
-    info_placed: [],
-    info_allowed_ps: [],
-    info_allowed_ps_condition: [],
-    info_access: [],
-    info_access_condition: [],
-    info_ps_usedbyrole_inside: [],
-    info_ps_sendto_outside: [],
-    info_ps_destroying: [],
-    info_ps_destroyer: [],
-    m_organization: [],
-    m_technical: [],
-    m_physical: [],
-  });
+
+  // Memoize initial form state
+  const initialFormState = useMemo(
+    () => ({
+      activity: "",
+      status: "pending",
+      createBy: "",
+      company_id: "",
+      department_id: "",
+      categories: [{ category: "", poi_relations: [] }],
+    }),
+    []
+  );
+
+  const [formData, setFormData] = useState(initialFormState);
+
+  // const [formData, setFormData] = useState({
+  //   activity: "",
+  //   status: "pending",
+  //   createBy: "",
+  //   company_id: "",
+  //   department_id: "",
+  //   categories: [
+  //     {
+  //       category: "",
+  //       poi_relations: [
+  //         {
+  //           poi_info: "",
+  //           poi_info_owner: "",
+  //           poi_info_from: "",
+  //           poi_info_format: "",
+  //           poi_info_type: "",
+  //           poi_info_objective: "",
+  //           poi_info_lawbase: [],
+  //         },
+  //       ],
+  //     },
+  //   ],
+  //   // categories: [],
+  //   info_stored_period: [],
+  //   info_placed: [],
+  //   info_allowed_ps: [],
+  //   info_allowed_ps_condition: [],
+  //   info_access: [],
+  //   info_access_condition: [],
+  //   info_ps_usedbyrole_inside: [],
+  //   info_ps_sendto_outside: [],
+  //   info_ps_destroying: [],
+  //   info_ps_destroyer: [],
+  //   m_organization: [],
+  //   m_technical: [],
+  //   m_physical: [],
+  // });
+
   const [optionData, setOptionData] = useState(null);
   const [isFormComplete, setIsFormComplete] = useState(false);
   const [expandedIndexes, setExpandedIndexes] = useState({}); // State for tracking expanded sections
@@ -205,56 +222,48 @@ const ActivitiesAdd = () => {
   //   setIsFormComplete(isComplete);
   // };
 
-  const checkFormCompletion = () => {
-    if (!formData) return setIsFormComplete(false);
+  // Cache validation function
+  const isEmptyValue = (value) =>
+    !value ||
+    (Array.isArray(value) && !value.length) ||
+    (typeof value === "string" && !value.trim());
 
-    const requiredFieldsComplete = requiredFields.every((field) => {
-      const value = formData[field];
-      const isFilled =
-        value &&
-        (Array.isArray(value)
-          ? value.length > 0
-          : typeof value === "string"
-          ? value.trim() !== ""
-          : true);
-      if (!isFilled) {
-        console.log(`Field ${field} is incomplete.`);
+  const checkFormCompletion = () => {
+    if (!formData?.categories?.length) {
+      setIsFormComplete(false);
+      return;
+    }
+
+    // Cache required fields as Set for O(1) lookup
+    // const requiredFieldsSet = new Set(requiredFields);
+    const requiredPoiFieldsSet = new Set(requiredPoiFields);
+
+    // Validate categories and POIs
+    const isValid = formData.categories.every((category, idx) => {
+      if (!category?.category || !Array.isArray(category.poi_relations)) {
+        console.log(`Category ${idx + 1} is invalid`);
+        return false;
       }
-      return isFilled;
+
+      // Filter out empty POIs first
+      const validPois = category.poi_relations.filter(Boolean);
+
+      // Fast-fail if any POI is invalid
+      return validPois.every((poi) => {
+        // Check only required fields
+        for (const field of requiredPoiFieldsSet) {
+          if (isEmptyValue(poi[field])) {
+            console.log(
+              `POI Field ${field} in category ${idx + 1} is incomplete`
+            );
+            return false;
+          }
+        }
+        return true;
+      });
     });
 
-    const categoriesComplete =
-      Array.isArray(formData.categories) &&
-      formData.categories.length > 0 &&
-      formData.categories.every((categoryItem, index) => {
-        if (!categoryItem || !categoryItem.category) {
-          console.log(`Category ${index + 1} is incomplete.`);
-          return false;
-        }
-        return (
-          Array.isArray(categoryItem.poi_relations) &&
-          categoryItem.poi_relations.every((poi, poiIndex) => {
-            return requiredPoiFields.every((field) => {
-              const poiValue = poi ? poi[field] : undefined;
-              const isFilled =
-                poiValue &&
-                (Array.isArray(poiValue)
-                  ? poiValue.length > 0
-                  : typeof poiValue === "string"
-                  ? poiValue.trim() !== ""
-                  : true);
-              if (!isFilled) {
-                console.log(
-                  `POI Field ${field} in category ${index + 1} is incomplete.`
-                );
-              }
-              return isFilled;
-            });
-          })
-        );
-      });
-
-    setIsFormComplete(requiredFieldsComplete && categoriesComplete);
+    setIsFormComplete(isValid);
   };
 
   const handleAutocompleteChange = (event, value, field) => {
@@ -1715,4 +1724,4 @@ const ActivitiesAdd = () => {
   );
 };
 
-export default ActivitiesAdd;
+export default React.memo(ActivitiesAdd);

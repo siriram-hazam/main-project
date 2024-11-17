@@ -382,236 +382,178 @@ export const updateInformation = async (req, res) => {
   const updateData = req.body;
 
   try {
-    // Update main information
-    const updatedInformation = await prisma.information.update({
-      where: { id },
-      data: {
-        activity_relation: {
-          connect: { id: updateData.activity_relation.id },
-        },
-        poi_information: {
-          // Delete existing relations and create new ones
-          deleteMany: {},
-          create: updateData.poi_information.map((poi) => ({
-            poi_relation: {
-              connect: { id: poi.poi_relation.id },
-            },
-            category_relation: {
-              connect: { id: poi.category_relation.id },
-            },
-          })),
-        },
-        category_information: {
-          // Delete existing relations and create new ones
-          deleteMany: {},
-          create: updateData.category_information.map((category) => ({
-            category_relation: {
-              connect: { id: category.category_relation.id },
-            },
-          })),
-        },
-        information_info_stored_period: {
-          deleteMany: {},
-          create: updateData.information_info_stored_period.map((period) => ({
-            info_stored_period_relation: {
-              connect: { id: period.info_stored_period_relation.id },
-            },
-          })),
-        },
-        information_info_placed: {
-          deleteMany: {},
-          create: updateData.information_info_placed.map((placed) => ({
-            info_placed_relation: {
-              connect: { id: placed.info_placed_relation.id },
-            },
-          })),
-        },
-        information_info_allowed_ps: {
-          deleteMany: {},
-          create: updateData.information_info_allowed_ps.map((allowed) => ({
-            info_allowed_ps_relation: {
-              connect: { id: allowed.info_allowed_ps_relation.id },
-            },
-          })),
-        },
-        information_info_allowed_ps_condition: {
-          deleteMany: {},
-          create: updateData.information_info_allowed_ps_condition.map(
-            (condition) => ({
-              info_allowed_ps_condition_relation: {
-                connect: {
-                  id: condition.info_allowed_ps_condition_relation.id,
-                },
-              },
-            })
-          ),
-        },
-        information_info_access: {
-          deleteMany: {},
-          create: updateData.information_info_access.map((access) => ({
-            info_access_relation: {
-              connect: { id: access.info_access_relation.id },
-            },
-          })),
-        },
-        information_info_access_condition: {
-          deleteMany: {},
-          create: updateData.information_info_access_condition.map(
-            (condition) => ({
-              info_access_condition_relation: {
-                connect: { id: condition.info_access_condition_relation.id },
-              },
-            })
-          ),
-        },
-        information_info_ps_usedbyrole_inside: {
-          deleteMany: {},
-          create: updateData.information_info_ps_usedbyrole_inside.map(
-            (role) => ({
-              info_ps_usedbyrole_inside_relation: {
-                connect: { id: role.info_ps_usedbyrole_inside_relation.id },
-              },
-            })
-          ),
-        },
-        information_info_ps_sendto_outside: {
-          deleteMany: {},
-          create: updateData.information_info_ps_sendto_outside.map(
-            (sendto) => ({
-              info_ps_sendto_outside_relation: {
-                connect: { id: sendto.info_ps_sendto_outside_relation.id },
-              },
-            })
-          ),
-        },
-        information_info_ps_destroying: {
-          deleteMany: {},
-          create: updateData.information_info_ps_destroying.map(
-            (destroying) => ({
-              info_ps_destroying_relation: {
-                connect: { id: destroying.info_ps_destroying_relation.id },
-              },
-            })
-          ),
-        },
-        information_info_ps_destroyer: {
-          deleteMany: {},
-          create: updateData.information_info_ps_destroyer.map((destroyer) => ({
-            info_ps_destroyer_relation: {
-              connect: { id: destroyer.info_ps_destroyer_relation.id },
-            },
-          })),
-        },
-        information_m_organization: {
-          deleteMany: {},
-          create: updateData.information_m_organization.map((org) => ({
-            m_organization_relation: {
-              connect: { id: org.m_organization_relation.id },
-            },
-          })),
-        },
-        information_m_technical: {
-          deleteMany: {},
-          create: updateData.information_m_technical.map((tech) => ({
-            m_technical_relation: {
-              connect: { id: tech.m_technical_relation.id },
-            },
-          })),
-        },
-        information_m_physical: {
-          deleteMany: {},
-          create: updateData.information_m_physical.map((physical) => ({
-            m_physical_relation: {
-              connect: { id: physical.m_physical_relation.id },
-            },
-          })),
-        },
-      },
-      include: {
-        activity_relation: true,
-        poi_information: {
-          include: {
-            poi_relation: true,
-            category_relation: true,
-          },
-        },
-        category_information: {
-          include: {
-            category_relation: true,
-          },
-        },
-        information_info_stored_period: {
-          include: {
-            info_stored_period_relation: true,
-          },
-        },
-        information_info_placed: {
-          include: {
-            info_placed_relation: true,
-          },
-        },
-        information_info_allowed_ps: {
-          include: {
-            info_allowed_ps_relation: true,
-          },
-        },
-        information_info_allowed_ps_condition: {
-          include: {
-            info_allowed_ps_condition_relation: true,
-          },
-        },
-        information_info_access: {
-          include: {
-            info_access_relation: true,
-          },
-        },
-        information_info_access_condition: {
-          include: {
-            info_access_condition_relation: true,
-          },
-        },
-        information_info_ps_usedbyrole_inside: {
-          include: {
-            info_ps_usedbyrole_inside_relation: true,
-          },
-        },
-        information_info_ps_sendto_outside: {
-          include: {
-            info_ps_sendto_outside_relation: true,
-          },
-        },
-        information_info_ps_destroying: {
-          include: {
-            info_ps_destroying_relation: true,
-          },
-        },
-        information_info_ps_destroyer: {
-          include: {
-            info_ps_destroyer_relation: true,
-          },
-        },
-        information_m_organization: {
-          include: {
-            m_organization_relation: true,
-          },
-        },
-        information_m_technical: {
-          include: {
-            m_technical_relation: true,
-          },
-        },
-        information_m_physical: {
-          include: {
-            m_physical_relation: true,
-          },
-        },
-      },
+    await prisma.$transaction(async (prisma) => {
+      // 1. Update main information
+      await prisma.$executeRawUnsafe(`
+        UPDATE information 
+        SET activity_id = ${updateData.activity_relation.id},
+            status = '${updateData.status}'
+        WHERE id = ${id}
+      `);
+
+      // 2. Delete existing relationships
+      const deleteQueries = [
+        `DELETE FROM poi_information WHERE information_id = ${id}`,
+        `DELETE FROM category_information WHERE information_id = ${id}`,
+        `DELETE FROM information_info_stored_period WHERE information_id = ${id}`,
+        `DELETE FROM information_info_placed WHERE information_id = ${id}`,
+        `DELETE FROM information_info_allowed_ps WHERE information_id = ${id}`,
+        `DELETE FROM information_info_allowed_ps_condition WHERE information_id = ${id}`,
+        `DELETE FROM information_info_access WHERE information_id = ${id}`,
+        `DELETE FROM information_info_access_condition WHERE information_id = ${id}`,
+        `DELETE FROM information_info_ps_usedbyrole_inside WHERE information_id = ${id}`,
+        `DELETE FROM information_info_ps_sendto_outside WHERE information_id = ${id}`,
+        `DELETE FROM information_info_ps_destroying WHERE information_id = ${id}`,
+        `DELETE FROM information_info_ps_destroyer WHERE information_id = ${id}`,
+        `DELETE FROM information_m_organization WHERE information_id = ${id}`,
+        `DELETE FROM information_m_technical WHERE information_id = ${id}`,
+        `DELETE FROM information_m_physical WHERE information_id = ${id}`,
+      ];
+
+      // Execute delete queries
+      for (const queryText of deleteQueries) {
+        await prisma.$executeRawUnsafe(queryText);
+      }
+
+      // 3. Insert new relationships
+      // POI Information
+      for (const poi of updateData.poi_information) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO poi_information (information_id, poi_id, category_id)
+          VALUES (${id}, ${poi.poi_relation.id}, ${poi.category_relation.id})
+        `);
+      }
+
+      // Category Information
+      for (const category of updateData.category_information) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO category_information (information_id, category_id)
+          VALUES (${id}, ${category.category_relation.id})
+        `);
+      }
+
+      // Stored Period
+      for (const period of updateData.information_info_stored_period) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_info_stored_period (information_id, info_stored_period_id)
+          VALUES (${id}, ${period.info_stored_period_relation.id})
+        `);
+      }
+
+      // Info Placed
+      for (const placed of updateData.information_info_placed) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_info_placed (information_id, info_placed_id)
+          VALUES (${id}, ${placed.info_placed_relation.id})
+        `);
+      }
+
+      // Info Allowed PS
+      for (const allowed of updateData.information_info_allowed_ps) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_info_allowed_ps (information_id, info_allowed_ps_id)
+          VALUES (${id}, ${allowed.info_allowed_ps_relation.id})
+        `);
+      }
+
+      // Info Allowed PS Condition
+      for (const condition of updateData.information_info_allowed_ps_condition) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_info_allowed_ps_condition (information_id, info_allowed_ps_condition_id)
+          VALUES (${id}, ${condition.info_allowed_ps_condition_relation.id})
+        `);
+      }
+
+      // Info Access
+      for (const access of updateData.information_info_access) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_info_access (information_id, info_access_id)
+          VALUES (${id}, ${access.info_access_relation.id})
+        `);
+      }
+
+      // Info Access Condition
+      for (const condition of updateData.information_info_access_condition) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_info_access_condition (information_id, info_access_condition_id)
+          VALUES (${id}, ${condition.info_access_condition_relation.id})
+        `);
+      }
+
+      // PS Used By Role Inside
+      for (const role of updateData.information_info_ps_usedbyrole_inside) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_info_ps_usedbyrole_inside (information_id, info_ps_usedbyrole_inside_id)
+          VALUES (${id}, ${role.info_ps_usedbyrole_inside_relation.id})
+        `);
+      }
+
+      // PS Send To Outside
+      for (const sendto of updateData.information_info_ps_sendto_outside) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_info_ps_sendto_outside (information_id, info_ps_sendto_outside_id)
+          VALUES (${id}, ${sendto.info_ps_sendto_outside_relation.id})
+        `);
+      }
+
+      // PS Destroying
+      for (const destroying of updateData.information_info_ps_destroying) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_info_ps_destroying (information_id, info_ps_destroying_id)
+          VALUES (${id}, ${destroying.info_ps_destroying_relation.id})
+        `);
+      }
+
+      // PS Destroyer
+      for (const destroyer of updateData.information_info_ps_destroyer) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_info_ps_destroyer (information_id, info_ps_destroyer_id)
+          VALUES (${id}, ${destroyer.info_ps_destroyer_relation.id})
+        `);
+      }
+
+      // M Organization
+      for (const org of updateData.information_m_organization) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_m_organization (information_id, m_organization_id)
+          VALUES (${id}, ${org.m_organization_relation.id})
+        `);
+      }
+
+      // M Technical
+      for (const tech of updateData.information_m_technical) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_m_technical (information_id, m_technical_id)
+          VALUES (${id}, ${tech.m_technical_relation.id})
+        `);
+      }
+
+      // M Physical
+      for (const physical of updateData.information_m_physical) {
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO information_m_physical (information_id, m_physical_id)
+          VALUES (${id}, ${physical.m_physical_relation.id})
+        `);
+      }
     });
+
+    // 4. Get updated data
+    const updatedData = await prisma.$queryRaw`
+      SELECT i.*, 
+            a.activity,
+            d."departmentName",  -- Add quotes for exact case match
+            c."companyName"      -- Add quotes for exact case match
+      FROM information i
+      LEFT JOIN activity a ON i.activity_id = a.id
+      LEFT JOIN department d ON i.department_id = d.id
+      LEFT JOIN company c ON i.company_id = c.id
+      WHERE i.id = ${id}
+      `;
 
     return res.json({
       status: 200,
       message: "Information updated successfully",
-      data: updatedInformation,
+      data: updatedData[0],
     });
   } catch (error) {
     console.error("Error updating information:", error);
@@ -1017,8 +959,10 @@ const duplicateRow = (worksheet, sourceRowNumber, insertAt) => {
 export const excelProcess = async (req, res) => {
   let item1 = req.body;
   const item = item1.item;
+  const user = item1.user;
 
   console.log(item);
+  console.log(user);
 
   try {
     const filePath = path.resolve(__dirname + `/assets/template_ropa.xlsx`);
@@ -1037,9 +981,11 @@ export const excelProcess = async (req, res) => {
 
     // กรอกข้อมูลพื้นฐาน
     worksheet.getCell("B2").value = item.user_account_relation.fullname;
-    worksheet.getCell("B3").value = item.company_relation.address;
-    worksheet.getCell("B4").value = item.company_relation.email;
-    worksheet.getCell("B5").value = item.company_relation.phone_number;
+    worksheet.getCell(
+      "B3"
+    ).value = `${item.company_relation.companyName} , ${user.company_relation.companyName}`;
+    worksheet.getCell("B4").value = user.company_relation.email;
+    worksheet.getCell("B5").value = user.company_relation.phone_number;
     worksheet.getCell("B6").value = item.user_account_relation.fullname;
     worksheet.getCell("B7").value =
       item.category_information[0].category_relation.department_relation.departmentName;
@@ -1107,16 +1053,42 @@ export const excelProcess = async (req, res) => {
       //   size: 14,
       //   bold: true,
       // };
-      categoryRow.getCell("A").fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "ff70db70" },
+      categoryRow.getCell("A").style = {
+        font: {
+          name: "TH SarabunPSK",
+          bold: true,
+          size: 14,
+          color: { argb: "000000" },
+        },
+        alignment: {
+          vertical: "middle",
+          wrapText: true,
+        },
+        fill: {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "ff70db70" },
+        },
       };
       categoryRow.commit();
 
       // เก็บตำแหน่งเริ่มต้นของหมวดหมู่เพื่อใช้ในการ merge คอลัมน์ H-Q
       const categoryStartRow = currentRow;
       currentRow++;
+
+      const applyCellStyle = (cell) => {
+        cell.style = {
+          font: {
+            name: "TH SarabunPSK",
+            size: 14,
+            color: { argb: "000000" },
+          },
+          alignment: {
+            vertical: "middle",
+            wrapText: true,
+          },
+        };
+      };
 
       // วนลูปผ่าน POI ภายในหมวดหมู่
       pois.forEach((poiInfo, index) => {
@@ -1244,6 +1216,30 @@ export const excelProcess = async (req, res) => {
           )
           .join("\n");
 
+        // Apply style to each cell after setting value
+        [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+        ].forEach((col) => {
+          const cell = poiRow.getCell(col);
+          applyCellStyle(cell);
+        });
+
         poiRow.commit();
 
         currentRow++;
@@ -1268,39 +1264,44 @@ export const excelProcess = async (req, res) => {
       currentRow++;
     }
 
-    const applyHeaderStyle = (worksheet, cell, mergeRange) => {
-      // Set row height
-      const rowNum = cell.match(/\d+/)[0];
-      worksheet.getRow(parseInt(rowNum)).height = 50; // Adjust height (in points)
-
-      // Set value and style for main cell
-      // worksheet.getCell(cell).fill = {
-      //   type: "pattern",
-      //   pattern: "solid",
-      //   fgColor: { argb: "ffb3d9ff" },
-      // };
-
-      worksheet.getCell(cell).alignment = {
-        horizontal: "center",
-        vertical: "middle",
-        wrapText: true,
-      };
-
-      // worksheet.getCell(cell).font = {
-      //   bold: true,
-      //   size: 12,
-      // };
-
-      // Merge cells and apply style to merged range
+    const applyHeaderStyle = (worksheet, cellRef, mergeRange) => {
+      // 1. First merge the cells
       worksheet.mergeCells(mergeRange);
 
-      // Apply style to all cells in merged range
-      const range = worksheet.getCell(mergeRange);
-      range.alignment = {
-        horizontal: "center",
-        vertical: "middle",
-        wrapText: true,
+      // 2. Get the merged cell reference (use first cell of merge range)
+      const mergedCell = worksheet.getCell(mergeRange.split(":")[0]);
+
+      // 3. Set complete styles on merged cell
+      mergedCell.style = {
+        font: {
+          name: "TH SarabunPSK",
+          bold: true,
+          size: 14,
+          color: { argb: "000000" },
+        },
+        alignment: {
+          horizontal: "center",
+          vertical: "middle",
+          wrapText: true,
+        },
+        border: {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        },
+        fill: {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "ffb3d9ff" },
+        },
       };
+
+      // 4. Set row height
+      const rowNum = cellRef.match(/\d+/)[0];
+      worksheet.getRow(parseInt(rowNum)).height = 50;
+
+      return mergedCell;
     };
 
     const applyContentStyle = (worksheet, startCol, endCol, row) => {
@@ -1309,9 +1310,16 @@ export const excelProcess = async (req, res) => {
       worksheet.mergeCells(mergeRange);
 
       // Apply alignment to merged cell
-      worksheet.getCell(`${startCol}${row}`).alignment = {
-        vertical: "middle",
-        wrapText: true,
+      worksheet.getCell(`${startCol}${row}`).style = {
+        font: {
+          name: "TH SarabunPSK",
+          size: 14,
+          color: { argb: "000000" },
+        },
+        alignment: {
+          vertical: "middle",
+          wrapText: true,
+        },
       };
     };
 

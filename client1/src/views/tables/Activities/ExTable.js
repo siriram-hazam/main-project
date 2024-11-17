@@ -198,12 +198,12 @@ const ExTable = (props) => {
   };
 
   // Download Excel File
-  const handleDownload = async (item) => {
+  const handleDownload = async (item, user) => {
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER_SIDE}/information/downloadexcel`,
         // { id: item.id }, // Send only the necessary data
-        { item }, // Send the whole item object
+        { item, user }, // Send the whole item object
         {
           responseType: "blob",
           headers: {
@@ -211,6 +211,9 @@ const ExTable = (props) => {
           },
         }
       );
+
+      console.log("Item:", item);
+      console.log("User:", user);
 
       // Create a URL for the blob and trigger download
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -551,7 +554,7 @@ const ExTable = (props) => {
                         variant="extended"
                         onClick={(event) => {
                           event.stopPropagation();
-                          handleDownload(item);
+                          handleDownload(item, props.user.data.users);
                         }}
                         sx={{
                           mb: {

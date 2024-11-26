@@ -378,182 +378,533 @@ export const createInformation = async (req, res) => {
 };
 
 export const updateInformation = async (req, res) => {
-  const id = parseInt(req.params.id);
   const updateData = req.body;
+  let newInformation; // ประกาศตัวแปรภายนอกฟังก์ชัน transaction
 
   try {
     await prisma.$transaction(async (prisma) => {
-      // 1. Update main information
-      await prisma.$executeRawUnsafe(`
-        UPDATE information 
-        SET activity_id = ${updateData.activity_relation.id},
-            status = '${updateData.status}'
-        WHERE id = ${id}
-      `);
+      // ดึงข้อมูลปัจจุบันโดยใช้ ID
+      const currentInfo = await prisma.information.findUnique({
+        where: { id: parseInt(req.params.id) },
+      });
 
-      // 2. Delete existing relationships
-      const deleteQueries = [
-        `DELETE FROM poi_information WHERE information_id = ${id}`,
-        `DELETE FROM category_information WHERE information_id = ${id}`,
-        `DELETE FROM information_info_stored_period WHERE information_id = ${id}`,
-        `DELETE FROM information_info_placed WHERE information_id = ${id}`,
-        `DELETE FROM information_info_allowed_ps WHERE information_id = ${id}`,
-        `DELETE FROM information_info_allowed_ps_condition WHERE information_id = ${id}`,
-        `DELETE FROM information_info_access WHERE information_id = ${id}`,
-        `DELETE FROM information_info_access_condition WHERE information_id = ${id}`,
-        `DELETE FROM information_info_ps_usedbyrole_inside WHERE information_id = ${id}`,
-        `DELETE FROM information_info_ps_sendto_outside WHERE information_id = ${id}`,
-        `DELETE FROM information_info_ps_destroying WHERE information_id = ${id}`,
-        `DELETE FROM information_info_ps_destroyer WHERE information_id = ${id}`,
-        `DELETE FROM information_m_organization WHERE information_id = ${id}`,
-        `DELETE FROM information_m_technical WHERE information_id = ${id}`,
-        `DELETE FROM information_m_physical WHERE information_id = ${id}`,
-      ];
-
-      // Execute delete queries
-      for (const queryText of deleteQueries) {
-        await prisma.$executeRawUnsafe(queryText);
+      if (!currentInfo) {
+        throw new Error("Information not found");
       }
 
-      // 3. Insert new relationships
-      // POI Information
-      for (const poi of updateData.poi_information) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO poi_information (information_id, poi_id, category_id)
-          VALUES (${id}, ${poi.poi_relation.id}, ${poi.category_relation.id})
-        `);
-      }
+      // สร้างข้อมูลใหม่โดยไม่ใช้ version
+      newInformation = await prisma.information.create({
+        data: {
+          activity_id: updateData.activity_relation.id,
+          status: updateData.status,
+          createBy: currentInfo.createBy,
+          company_id: currentInfo.company_id,
+          department_id: currentInfo.department_id,
+          create_time: new Date(),
+        },
+      });
+
+      const newInfoId = newInformation.id;
+
+      // เพิ่มความสัมพันธ์ใหม่ที่เชื่อมกับ newInfoId
 
       // Category Information
-      for (const category of updateData.category_information) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO category_information (information_id, category_id)
-          VALUES (${id}, ${category.category_relation.id})
-        `);
+      for (const categoryItem of updateData.category_information) {
+        let category = await prisma.category.findUnique({
+          where: { id: categoryItem.category_relation.id },
+        });
+
+        if (!category) {
+          category = await prisma.category.create({
+            data: {
+              category: categoryItem.category_relation.category,
+              department_id:
+                categoryItem.category_relation.department_relation.id,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.category_information.create({
+          data: {
+            information_id: newInfoId,
+            category_id: category.id,
+          },
+        });
       }
 
-      // Stored Period
-      for (const period of updateData.information_info_stored_period) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_info_stored_period (information_id, info_stored_period_id)
-          VALUES (${id}, ${period.info_stored_period_relation.id})
-        `);
+      // POI Information
+      for (const poiItem of updateData.poi_information) {
+        let poi = await prisma.piece_of_info.findUnique({
+          where: { id: poiItem.poi_relation.id },
+        });
+
+        if (!poi) {
+          poi = await prisma.piece_of_info.create({
+            data: {
+              categoryId: poiItem.category_relation.id,
+              poi_info: {
+                create: poiItem.poi_relation.poi_info.map((infoItem) => ({
+                  info_relation: {
+                    create: {
+                      info_: infoItem.info_relation.info_,
+                      company_id: updateData.company_relation.id,
+                    },
+                  },
+                })),
+              },
+              poi_info_owner: {
+                create: poiItem.poi_relation.poi_info_owner.map(
+                  (ownerItem) => ({
+                    info_owner_relation: {
+                      create: {
+                        owner_: ownerItem.info_owner_relation.owner_,
+                        company_id: updateData.company_relation.id,
+                      },
+                    },
+                  })
+                ),
+              },
+              poi_info_from: {
+                create: poiItem.poi_relation.poi_info_from.map((fromItem) => ({
+                  info_from_relation: {
+                    create: {
+                      from_: fromItem.info_from_relation.from_,
+                      company_id: updateData.company_relation.id,
+                    },
+                  },
+                })),
+              },
+              poi_info_format: {
+                create: poiItem.poi_relation.poi_info_format.map(
+                  (formatItem) => ({
+                    info_format_relation: {
+                      create: {
+                        format_: formatItem.info_format_relation.format_,
+                        company_id: updateData.company_relation.id,
+                      },
+                    },
+                  })
+                ),
+              },
+              poi_info_type: {
+                create: poiItem.poi_relation.poi_info_type.map((typeItem) => ({
+                  info_type_relation: {
+                    create: {
+                      type_: typeItem.info_type_relation.type_,
+                      company_id: updateData.company_relation.id,
+                    },
+                  },
+                })),
+              },
+              poi_info_objective: {
+                create: poiItem.poi_relation.poi_info_objective.map(
+                  (objectiveItem) => ({
+                    info_objective_relation: {
+                      create: {
+                        objective_:
+                          objectiveItem.info_objective_relation.objective_,
+                        company_id: updateData.company_relation.id,
+                      },
+                    },
+                  })
+                ),
+              },
+              poi_info_lawbase: {
+                create: poiItem.poi_relation.poi_info_lawbase.map(
+                  (lawbaseItem) => ({
+                    info_lawbase_relation: {
+                      create: {
+                        lawBase_: lawbaseItem.info_lawbase_relation.lawBase_,
+                        company_id: updateData.company_relation.id,
+                      },
+                    },
+                  })
+                ),
+              },
+            },
+          });
+        }
+
+        await prisma.poi_information.create({
+          data: {
+            information_id: newInfoId,
+            poi_id: poi.id,
+            category_id: poiItem.category_relation.id,
+          },
+        });
       }
 
-      // Info Placed
-      for (const placed of updateData.information_info_placed) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_info_placed (information_id, info_placed_id)
-          VALUES (${id}, ${placed.info_placed_relation.id})
-        `);
+      // Information Info Stored Period
+      for (const periodItem of updateData.information_info_stored_period) {
+        let period = await prisma.info_stored_period.findUnique({
+          where: { id: periodItem.info_stored_period_relation.id },
+        });
+
+        if (!period) {
+          period = await prisma.info_stored_period.create({
+            data: {
+              period_: periodItem.info_stored_period_relation.period_,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_info_stored_period.create({
+          data: {
+            information_id: newInfoId,
+            info_stored_period_id: period.id,
+          },
+        });
       }
 
-      // Info Allowed PS
-      for (const allowed of updateData.information_info_allowed_ps) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_info_allowed_ps (information_id, info_allowed_ps_id)
-          VALUES (${id}, ${allowed.info_allowed_ps_relation.id})
-        `);
+      // Information Info Placed
+      for (const placedItem of updateData.information_info_placed) {
+        let placed = await prisma.info_placed.findUnique({
+          where: { id: placedItem.info_placed_relation.id },
+        });
+
+        if (!placed) {
+          placed = await prisma.info_placed.create({
+            data: {
+              placed_: placedItem.info_placed_relation.placed_,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_info_placed.create({
+          data: {
+            information_id: newInfoId,
+            info_placed_id: placed.id,
+          },
+        });
       }
 
-      // Info Allowed PS Condition
-      for (const condition of updateData.information_info_allowed_ps_condition) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_info_allowed_ps_condition (information_id, info_allowed_ps_condition_id)
-          VALUES (${id}, ${condition.info_allowed_ps_condition_relation.id})
-        `);
+      // Information Info Allowed PS
+      for (const allowedItem of updateData.information_info_allowed_ps) {
+        let allowedPs = await prisma.info_allowed_ps.findUnique({
+          where: { id: allowedItem.info_allowed_ps_relation.id },
+        });
+
+        if (!allowedPs) {
+          allowedPs = await prisma.info_allowed_ps.create({
+            data: {
+              allowed_ps_: allowedItem.info_allowed_ps_relation.allowed_ps_,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_info_allowed_ps.create({
+          data: {
+            information_id: newInfoId,
+            info_allowed_ps_id: allowedPs.id,
+          },
+        });
       }
 
-      // Info Access
-      for (const access of updateData.information_info_access) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_info_access (information_id, info_access_id)
-          VALUES (${id}, ${access.info_access_relation.id})
-        `);
+      // Information Info Allowed PS Condition
+      for (const conditionItem of updateData.information_info_allowed_ps_condition) {
+        let condition = await prisma.info_allowed_ps_condition.findUnique({
+          where: { id: conditionItem.info_allowed_ps_condition_relation.id },
+        });
+
+        if (!condition) {
+          condition = await prisma.info_allowed_ps_condition.create({
+            data: {
+              allowed_ps_condition_:
+                conditionItem.info_allowed_ps_condition_relation
+                  .allowed_ps_condition_,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_info_allowed_ps_condition.create({
+          data: {
+            information_id: newInfoId,
+            info_allowed_ps_condition_id: condition.id,
+          },
+        });
       }
 
-      // Info Access Condition
-      for (const condition of updateData.information_info_access_condition) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_info_access_condition (information_id, info_access_condition_id)
-          VALUES (${id}, ${condition.info_access_condition_relation.id})
-        `);
+      // Information Info Access
+      for (const accessItem of updateData.information_info_access) {
+        let access = await prisma.info_access.findUnique({
+          where: { id: accessItem.info_access_relation.id },
+        });
+
+        if (!access) {
+          access = await prisma.info_access.create({
+            data: {
+              access_: accessItem.info_access_relation.access_,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_info_access.create({
+          data: {
+            information_id: newInfoId,
+            info_access_id: access.id,
+          },
+        });
       }
 
-      // PS Used By Role Inside
-      for (const role of updateData.information_info_ps_usedbyrole_inside) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_info_ps_usedbyrole_inside (information_id, info_ps_usedbyrole_inside_id)
-          VALUES (${id}, ${role.info_ps_usedbyrole_inside_relation.id})
-        `);
+      // Information Info Access Condition
+      for (const conditionItem of updateData.information_info_access_condition) {
+        let condition = await prisma.info_access_condition.findUnique({
+          where: { id: conditionItem.info_access_condition_relation.id },
+        });
+
+        if (!condition) {
+          condition = await prisma.info_access_condition.create({
+            data: {
+              access_condition_:
+                conditionItem.info_access_condition_relation.access_condition_,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_info_access_condition.create({
+          data: {
+            information_id: newInfoId,
+            info_access_condition_id: condition.id,
+          },
+        });
       }
 
-      // PS Send To Outside
-      for (const sendto of updateData.information_info_ps_sendto_outside) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_info_ps_sendto_outside (information_id, info_ps_sendto_outside_id)
-          VALUES (${id}, ${sendto.info_ps_sendto_outside_relation.id})
-        `);
+      // Information Info PS Used By Role Inside
+      for (const roleItem of updateData.information_info_ps_usedbyrole_inside) {
+        let role = await prisma.info_ps_usedbyrole_inside.findUnique({
+          where: { id: roleItem.info_ps_usedbyrole_inside_relation.id },
+        });
+
+        if (!role) {
+          role = await prisma.info_ps_usedbyrole_inside.create({
+            data: {
+              use_by_role_:
+                roleItem.info_ps_usedbyrole_inside_relation.use_by_role_,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_info_ps_usedbyrole_inside.create({
+          data: {
+            information_id: newInfoId,
+            info_ps_usedbyrole_inside_id: role.id,
+          },
+        });
       }
 
-      // PS Destroying
-      for (const destroying of updateData.information_info_ps_destroying) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_info_ps_destroying (information_id, info_ps_destroying_id)
-          VALUES (${id}, ${destroying.info_ps_destroying_relation.id})
-        `);
+      // Information Info PS Send To Outside
+      for (const sendToItem of updateData.information_info_ps_sendto_outside) {
+        let sendTo = await prisma.info_ps_sendto_outside.findUnique({
+          where: { id: sendToItem.info_ps_sendto_outside_relation.id },
+        });
+
+        if (!sendTo) {
+          sendTo = await prisma.info_ps_sendto_outside.create({
+            data: {
+              sendto_: sendToItem.info_ps_sendto_outside_relation.sendto_,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_info_ps_sendto_outside.create({
+          data: {
+            information_id: newInfoId,
+            info_ps_sendto_outside_id: sendTo.id,
+          },
+        });
       }
 
-      // PS Destroyer
-      for (const destroyer of updateData.information_info_ps_destroyer) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_info_ps_destroyer (information_id, info_ps_destroyer_id)
-          VALUES (${id}, ${destroyer.info_ps_destroyer_relation.id})
-        `);
+      // Information Info PS Destroying
+      for (const destroyingItem of updateData.information_info_ps_destroying) {
+        let destroying = await prisma.info_ps_destroying.findUnique({
+          where: { id: destroyingItem.info_ps_destroying_relation.id },
+        });
+
+        if (!destroying) {
+          destroying = await prisma.info_ps_destroying.create({
+            data: {
+              destroying_:
+                destroyingItem.info_ps_destroying_relation.destroying_,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_info_ps_destroying.create({
+          data: {
+            information_id: newInfoId,
+            info_ps_destroying_id: destroying.id,
+          },
+        });
       }
 
-      // M Organization
-      for (const org of updateData.information_m_organization) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_m_organization (information_id, m_organization_id)
-          VALUES (${id}, ${org.m_organization_relation.id})
-        `);
+      // Information Info PS Destroyer
+      for (const destroyerItem of updateData.information_info_ps_destroyer) {
+        let destroyer = await prisma.info_ps_destroyer.findUnique({
+          where: { id: destroyerItem.info_ps_destroyer_relation.id },
+        });
+
+        if (!destroyer) {
+          destroyer = await prisma.info_ps_destroyer.create({
+            data: {
+              destroyer_: destroyerItem.info_ps_destroyer_relation.destroyer_,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_info_ps_destroyer.create({
+          data: {
+            information_id: newInfoId,
+            info_ps_destroyer_id: destroyer.id,
+          },
+        });
       }
 
-      // M Technical
-      for (const tech of updateData.information_m_technical) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_m_technical (information_id, m_technical_id)
-          VALUES (${id}, ${tech.m_technical_relation.id})
-        `);
+      // Information M Organization
+      for (const orgItem of updateData.information_m_organization) {
+        let organization = await prisma.m_organization.findUnique({
+          where: { id: orgItem.m_organization_relation.id },
+        });
+
+        if (!organization) {
+          organization = await prisma.m_organization.create({
+            data: {
+              organization: orgItem.m_organization_relation.organization,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_m_organization.create({
+          data: {
+            information_id: newInfoId,
+            m_organization_id: organization.id,
+          },
+        });
       }
 
-      // M Physical
-      for (const physical of updateData.information_m_physical) {
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO information_m_physical (information_id, m_physical_id)
-          VALUES (${id}, ${physical.m_physical_relation.id})
-        `);
+      // Information M Technical
+      for (const techItem of updateData.information_m_technical) {
+        let technical = await prisma.m_technical.findUnique({
+          where: { id: techItem.m_technical_relation.id },
+        });
+
+        if (!technical) {
+          technical = await prisma.m_technical.create({
+            data: {
+              technical: techItem.m_technical_relation.technical,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_m_technical.create({
+          data: {
+            information_id: newInfoId,
+            m_technical_id: technical.id,
+          },
+        });
+      }
+
+      // Information M Physical
+      for (const physicalItem of updateData.information_m_physical) {
+        let physical = await prisma.m_physical.findUnique({
+          where: { id: physicalItem.m_physical_relation.id },
+        });
+
+        if (!physical) {
+          physical = await prisma.m_physical.create({
+            data: {
+              physical: physicalItem.m_physical_relation.physical,
+              company_id: updateData.company_relation.id,
+            },
+          });
+        }
+
+        await prisma.information_m_physical.create({
+          data: {
+            information_id: newInfoId,
+            m_physical_id: physical.id,
+          },
+        });
       }
     });
 
-    // 4. Get updated data
-    const updatedData = await prisma.$queryRaw`
-      SELECT i.*, 
-            a.activity,
-            d."departmentName",  -- Add quotes for exact case match
-            c."companyName"      -- Add quotes for exact case match
-      FROM information i
-      LEFT JOIN activity a ON i.activity_id = a.id
-      LEFT JOIN department d ON i.department_id = d.id
-      LEFT JOIN company c ON i.company_id = c.id
-      WHERE i.id = ${id}
-      `;
+    // ดึงข้อมูลที่อัปเดตแล้วเพื่อนำไปแสดงผล
+    const updatedData = await prisma.information.findUnique({
+      where: { id: newInformation.id },
+      include: {
+        activity_relation: true,
+        user_account_relation: true,
+        company_relation: true,
+        department_relation: true,
+        category_information: {
+          include: {
+            category_relation: true,
+          },
+        },
+        poi_information: {
+          include: {
+            poi_relation: {
+              include: {
+                poi_info: {
+                  include: {
+                    info_relation: true,
+                  },
+                },
+                poi_info_owner: {
+                  include: {
+                    info_owner_relation: true,
+                  },
+                },
+                poi_info_from: {
+                  include: {
+                    info_from_relation: true,
+                  },
+                },
+                poi_info_format: {
+                  include: {
+                    info_format_relation: true,
+                  },
+                },
+                poi_info_type: {
+                  include: {
+                    info_type_relation: true,
+                  },
+                },
+                poi_info_objective: {
+                  include: {
+                    info_objective_relation: true,
+                  },
+                },
+                poi_info_lawbase: {
+                  include: {
+                    info_lawbase_relation: true,
+                  },
+                },
+              },
+            },
+            category_relation: true,
+          },
+        },
+        // รวมความสัมพันธ์อื่น ๆ หากจำเป็น
+      },
+    });
 
     return res.json({
       status: 200,
       message: "Information updated successfully",
-      data: updatedData[0],
+      data: updatedData,
     });
   } catch (error) {
     console.error("Error updating information:", error);

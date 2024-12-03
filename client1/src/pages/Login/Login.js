@@ -3,6 +3,8 @@ import React, { useState } from "react";
 //Hooks
 import authUtils from "../../hooks/useAuth";
 
+import TextScramble from "../../components/TextScramble/TextScramble";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -30,18 +32,24 @@ function Login() {
 
   return (
     <>
-      <section className="bg-gradient-to-r from-cyan-500 to-blue-500 w-screen h-screen">
+      {/* <section className="bg-gradient-to-r from-cyan-500 to-blue-500 w-screen h-screen"> */}
+      <section className="bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 animate-gradient-x w-screen h-screen">
+        {/* <section className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 w-screen h-screen"> */}
         <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
           <a
             // href="#"
-            className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
+            className="flex items-center mb-6 text-3xl font-semibold text-gray-900 dark:text-white"
           >
             {/* <img
               className="w-8 h-8 mr-2"
               src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
               alt="logo"
             /> */}
-            Welcome to Record of Processing Web App
+            {/* Welcome to Record of Processing Web App */}
+            <TextScramble
+              text="Welcome to Record of Processing Web App"
+              duration={70}
+            />
           </a>
           <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -116,7 +124,7 @@ function Login() {
                 </div> */}
                 <button
                   type="submit"
-                  className="w-full text-white bg-primary-600 hover:bg-primary-700 bg-gradient-to-r from-cyan-500 to-blue-500 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                  className="w-full text-white bg-primary-600 hover:bg-primary-700 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-gradient-x focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 >
                   Sign in
                 </button>

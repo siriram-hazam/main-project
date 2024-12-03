@@ -50,7 +50,15 @@ export const createInformation = async (req, res) => {
       return ids;
     }
 
-    if (typeof item === "string" && isNaN(parseInt(item))) {
+    // Check if item is a pure number
+    if (
+      typeof item === "number" ||
+      (typeof item === "string" && /^\d+$/.test(item))
+    ) {
+      const id = parseInt(item, 10);
+      return id;
+    } else {
+      // Treat item as a string value
       const data = { [fieldName]: item, ...additionalData };
       const where = { [fieldName]: item };
 
@@ -95,9 +103,6 @@ export const createInformation = async (req, res) => {
         const createdRecord = await prisma[modelName].create({ data });
         return createdRecord.id;
       }
-    } else {
-      const id = parseInt(item);
-      return id;
     }
   };
 

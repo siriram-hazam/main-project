@@ -947,12 +947,13 @@ export const getInformation = async (req, res) => {
             fullname: true,
           },
         },
-        company_relation: {
-          select: {
-            id: true,
-            companyName: true,
-          },
-        },
+        // company_relation: {
+        //   select: {
+        //     id: true,
+        //     companyName: true,
+        //   },
+        // },
+        company_relation: true,
         department_relation: {
           select: {
             id: true,
@@ -1327,6 +1328,18 @@ export const excelProcess = async (req, res) => {
       return res.status(404).json({ error: "Template file not found" });
     }
 
+    // Function to map status strings to messages
+    const getStatusMessage = (status) => {
+      switch (status) {
+        case "pending":
+          return "รอตวรจสอบ";
+        case "success":
+          return "ผ่านการตรวจสอบ";
+        default:
+          return status;
+      }
+    };
+
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(filePath);
 
@@ -1339,46 +1352,35 @@ export const excelProcess = async (req, res) => {
     worksheet.getCell("B2").value = item.user_account_relation.fullname;
     worksheet.getCell(
       "B3"
-    ).value = `${item.company_relation.companyName} , ${user.company_relation.companyName}`;
+    ).value = `${item.company_relation.address} , ${item.company_relation.companyName}`;
     worksheet.getCell("B4").value = user.company_relation.email;
     worksheet.getCell("B5").value = user.company_relation.phone_number;
     worksheet.getCell("B6").value = item.user_account_relation.fullname;
     worksheet.getCell("B7").value =
       item.category_information[0].category_relation.department_relation.departmentName;
     worksheet.getCell("B8").value = item.activity_relation.activity;
-    worksheet.getCell("K2").value = item.company_relation.dpo;
-    worksheet.getCell("K3").value = item.company_relation.address;
-    worksheet.getCell("K4").value = item.company_relation.email;
-    worksheet.getCell("K5").value = item.company_relation.phone_number;
-    worksheet.getCell("K6").value = item.company_relation.dpo;
 
-    // กรอกข้อมูลมาตรการ
-    // const organizations = item.information_m_organization;
-    // let row_organizations = 15;
-    // organizations.forEach((org, index) => {
-    //   worksheet.getCell(`A${row_organizations}`).value = `(${index + 1}) ${
-    //     org.m_organization_relation.organization
-    //   }`;
-    //   row_organizations++;
-    // });
+    worksheet.getCell("J2").value = item.company_relation.dpo;
+    worksheet.getCell("J3").value = item.company_relation.address;
+    worksheet.getCell("J4").value = item.company_relation.email;
+    worksheet.getCell("J5").value = item.company_relation.phone_number;
+    worksheet.getCell("J6").value = item.company_relation.dpo;
+    worksheet.getCell("J7").value = getStatusMessage(item.status);
 
-    // const technicals = item.information_m_technical;
-    // let row_technicals = 15;
-    // technicals.forEach((tech, index) => {
-    //   worksheet.getCell(`F${row_technicals}`).value = `(${index + 1}) ${
-    //     tech.m_technical_relation.technical
-    //   }`;
-    //   row_technicals++;
-    // });
+    const applyCellStyle = (cell) => {
+      cell.style = {
+        font: {
+          name: "TH SarabunPSK",
+          bold: true,
+          size: 14,
+          color: { argb: "000000" },
+        },
+      };
+    };
 
-    // const physicals = item.information_m_physical;
-    // let row_physicals = 15;
-    // physicals.forEach((phy, index) => {
-    //   worksheet.getCell(`L${row_physicals}`).value = `(${index + 1}) ${
-    //     phy.m_physical_relation.physical
-    //   }`;
-    //   row_physicals++;
-    // });
+    ["J2", "J3", "J4", "J5", "J6", "J7"].forEach((cell) => {
+      applyCellStyle(worksheet.getCell(cell));
+    });
 
     // การจัดกลุ่ม poi_information ตามหมวดหมู่
     const groupedPoi = item.poi_information.reduce((acc, poi) => {
@@ -1403,12 +1405,7 @@ export const excelProcess = async (req, res) => {
       categoryRow.getCell("A").value = `${categoryName}`;
       // Merge เซลล์สำหรับหัวข้อหมวดหมู่ (A ถึง Q ตามความต้องการ)
       mergeCellsSafely(worksheet, `A${currentRow}:Q${currentRow}`);
-      // ตั้งค่าฟอนต์ให้หนาสำหรับหัวข้อหมวดหมู่
-      // categoryRow.getCell("A").font = {
-      //   name: "TH Sarabun New",
-      //   size: 14,
-      //   bold: true,
-      // };
+
       categoryRow.getCell("A").style = {
         font: {
           name: "TH SarabunPSK",
@@ -1769,7 +1766,7 @@ export const excelProcess = async (req, res) => {
     worksheet.mergeCells(4, 2, 4, 8);
     worksheet.mergeCells(5, 2, 5, 8);
     worksheet.mergeCells(6, 2, 6, 8);
-    worksheet.mergeCells(7, 2, 7, 17);
+    worksheet.mergeCells(7, 2, 7, 8);
     worksheet.mergeCells(8, 2, 8, 17);
 
     worksheet.mergeCells(2, 10, 2, 17);
@@ -1777,6 +1774,7 @@ export const excelProcess = async (req, res) => {
     worksheet.mergeCells(4, 10, 4, 17);
     worksheet.mergeCells(5, 10, 5, 17);
     worksheet.mergeCells(6, 10, 6, 17);
+    worksheet.mergeCells(7, 10, 7, 17);
 
     worksheet.mergeCells(9, 8, 10, 8);
     worksheet.mergeCells(9, 9, 10, 9);

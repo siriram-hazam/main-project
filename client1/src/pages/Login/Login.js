@@ -39,10 +39,11 @@ function Login() {
           <div className="text-3xl font-semibold text-gray-800 text-center px-8">
             {/* Welcome Back */}
             <a className="flex items-center justify-center mb-6 text-5xl font-semibold text-gray-900 dark:text-white">
-              <TextScramble
+              {/* <TextScramble
                 text="Welcome to Record of Processing"
                 duration={70}
-              />
+              /> */}
+              Welcome to Record of Processing
             </a>
           </div>
         </div>

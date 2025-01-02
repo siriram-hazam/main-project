@@ -110,15 +110,15 @@ const ExTable = (userList) => {
 
       if (response.data.status === 200) {
         // console.log("Password reset successfully:", response.data);
-        toast.success("Password reset successfully.");
+        toast.success("Password reset successfully!");
         closeResetPasswordDialog();
       } else {
-        toast.error("Error resetting password.");
+        toast.error("Failed to reset password. Please try again.");
       }
 
       // console.log(response);
     } catch (error) {
-      toast.error("Error resetting password.");
+      toast.error("Failed to reset password. Please try again.");
       console.error("Error resetting password:", error);
     }
   };
@@ -131,16 +131,16 @@ const ExTable = (userList) => {
       );
       handleClose();
       if (response.data.status === 200) {
-        toast.success("User updated successfully.");
+        toast.success("User updated successfully!");
         // console.log("User updated successfully:", response.data);
         setTimeout(() => {
           window.location.reload();
         }, 2000);
       } else {
-        toast.error("Error updating user.");
+        toast.error("Failed to update user. Please try again.");
       }
     } catch (error) {
-      toast.error("Error updating user.");
+      toast.error("Failed to update user. Please try again.");
       console.error("Error saving user data:", error);
     }
   };
@@ -151,16 +151,16 @@ const ExTable = (userList) => {
         `${process.env.REACT_APP_SERVER_SIDE}/user/${itemToDelete.id}`
       );
       if (response.status === 200) {
-        toast.success("User deleted successfully.");
+        toast.success("User deleted successfully!");
         setTimeout(() => {
           closeDeleteDialog();
           window.location.reload();
         }, 2000);
       } else {
-        toast.error("Error deleting user.");
+        toast.error("Failed to delete. Please try again.");
       }
     } catch (error) {
-      toast.error("Error deleting user.");
+      toast.error("Failed to delete. Please try again.");
       console.error("Error deleting user:", error);
     }
   };

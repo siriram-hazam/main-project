@@ -165,7 +165,7 @@ const CompanyListSuper = () => {
         `${process.env.REACT_APP_SERVER_SIDE}/company`,
         formValues
       );
-      console.log("Company added successfully:", response.data);
+      // console.log("Company added successfully:", response.data);
       if (response.data.status === 200) {
         toast.success("Company added successfully!");
         setTimeout(() => {
@@ -173,10 +173,10 @@ const CompanyListSuper = () => {
           window.location.reload();
         }, 2000);
       } else {
-        toast.error("Error adding company");
+        toast.error("Failed to add company. Please try again.");
       }
     } catch (error) {
-      toast.error("Error adding company");
+      toast.error("Failed to add company. Please try again.");
       console.error("Error adding company:", error);
     }
   };

@@ -1258,16 +1258,16 @@ const mergeCellsSafely = (worksheet, cellRange) => {
   try {
     // ทำการ unmerge เซลล์ก่อนเพื่อป้องกันการ merge ซ้อนกัน
     worksheet.unMergeCells(cellRange);
-    console.log(`Successfully unmerged cells for range: ${cellRange}`);
+    // console.log(`Successfully unmerged cells for range: ${cellRange}`);
   } catch (e) {
     // หากเซลล์ไม่ได้ถูก merge อยู่แล้ว ก็สามารถข้ามได้
-    console.log(`No existing merge to unmerge for range: ${cellRange}`);
+    // console.log(`No existing merge to unmerge for range: ${cellRange}`);
   }
 
   try {
     // ทำการ merge เซลล์
     worksheet.mergeCells(cellRange);
-    console.log(`Successfully merged cells for range: ${cellRange}`);
+    // console.log(`Successfully merged cells for range: ${cellRange}`);
   } catch (e) {
     console.error(`Error merging cells for range ${cellRange}: `, e);
   }
@@ -1281,7 +1281,7 @@ const unmergeColumnsHtoQ = (worksheet) => {
       const cell = row.getCell(col);
       if (cell.isMerged) {
         worksheet.unMergeCells(cell.address);
-        console.log(`Unmerged cell at ${cell.address}`);
+        // console.log(`Unmerged cell at ${cell.address}`);
       }
     }
   });
@@ -1306,7 +1306,7 @@ const duplicateRow = (worksheet, sourceRowNumber, insertAt) => {
   newRow.eachCell({ includeEmpty: true }, (cell) => {
     if (cell.isMerged) {
       worksheet.unMergeCells(cell.address);
-      console.log(`Unmerged cell at ${cell.address} in new row ${insertAt}`);
+      // console.log(`Unmerged cell at ${cell.address} in new row ${insertAt}`);
     }
   });
 
@@ -1318,8 +1318,8 @@ export const excelProcess = async (req, res) => {
   const item = item1.item;
   const user = item1.user;
 
-  console.log(item);
-  console.log(user);
+  // console.log(item);
+  // console.log(user);
 
   try {
     const filePath = path.resolve(__dirname + `/assets/template_ropa.xlsx`);

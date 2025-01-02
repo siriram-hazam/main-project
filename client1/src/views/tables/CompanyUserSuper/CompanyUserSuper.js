@@ -176,20 +176,20 @@ const CompanyUserSuper = () => {
         `${process.env.REACT_APP_SERVER_SIDE}/user/`,
         formValues
       );
-      console.log("User added successfully:", response.data);
+      // console.log("User added successfully:", response.data);
 
       if (response.data.status === 200) {
         // alert("User added successfully");
-        toast.success("User added successfully");
+        toast.success("User added successfully!");
         setTimeout(() => {
           handleCloseDialog();
           window.location.reload();
         }, 2000);
       } else {
-        toast.error("Error adding user");
+        toast.error("Failed to add user. Please try again.");
       }
     } catch (error) {
-      toast.error("Error adding user");
+      toast.error("Failed to add user. Please try again.");
       console.error("Error adding user:", error);
     }
   };

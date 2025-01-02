@@ -11,12 +11,12 @@ const authLogin = async (username, password) => {
       }
     );
     if (res.data.status === 200) {
-      console.log("authLogin Pass!");
+      // console.log("authLogin Pass!");
       // checkLoginStatus();
       return { success: true, message: "Login successful!" };
     } else {
-      console.log("authLogin Not Pass!");
-      return { success: false, message: "Login failed!" };
+      // console.log("authLogin Not Pass!");
+      return { success: false, message: "Login failed! Please try again." };
     }
   } catch (error) {
     console.error("Error useAuth authLogin : ", error);
@@ -29,7 +29,8 @@ const checkLoginStatus = async () => {
     checkAuthStatus().then(
       (res) => {
         if (res.data.status === "authenticated") {
-          console.log("User is authenticated");
+          // console.log("User is authenticated");
+
           // checkUser().then(
           //   (res) => {
           //     // console.log(res);
@@ -49,12 +50,12 @@ const checkLoginStatus = async () => {
 
           return true;
         } else {
-          console.log("User is not authenticated");
+          // console.log("User is not authenticated");
           return false;
         }
       },
       (error) => {
-        console.log("Error useAuth checkAuthStatus : ", error);
+        console.error("Error useAuth checkAuthStatus : ", error);
       }
     );
   } catch (error) {

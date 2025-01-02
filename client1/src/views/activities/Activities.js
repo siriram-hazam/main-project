@@ -237,7 +237,7 @@ const ActivitiesAdd = () => {
         (Array.isArray(value) && value.length === 0) ||
         (typeof value === "string" && !value.trim())
       ) {
-        console.log(`Field ${field} is incomplete.`);
+        // console.log(`Field ${field} is incomplete.`);
         setIsFormComplete(false);
         return;
       }
@@ -254,7 +254,7 @@ const ActivitiesAdd = () => {
     for (let i = 0; i < categories.length; i++) {
       const category = categories[i];
       if (!category?.category) {
-        console.log(`Category ${i + 1} is incomplete.`);
+        // console.log(`Category ${i + 1} is incomplete.`);
         setIsFormComplete(false);
         return;
       }
@@ -276,9 +276,9 @@ const ActivitiesAdd = () => {
             (Array.isArray(value) && value.length === 0) ||
             (typeof value === "string" && !value.trim())
           ) {
-            console.log(
-              `POI Field ${field} in category ${i + 1} is incomplete.`
-            );
+            // console.log(
+            //   `POI Field ${field} in category ${i + 1} is incomplete.`
+            // );
             setIsFormComplete(false);
             return;
           }
@@ -457,9 +457,9 @@ const ActivitiesAdd = () => {
       .post(`${process.env.REACT_APP_SERVER_SIDE}/information`, formData)
       .then((res) => {
         if (res.data.status === 200) {
-          toast.success("Activity added successfully");
+          toast.success("Activity added successfully!");
         } else {
-          toast.error("Failed to add activity");
+          toast.error("Failed to add activity. Please try again.");
         }
 
         setTimeout(() => {
@@ -467,7 +467,7 @@ const ActivitiesAdd = () => {
         }, 2000);
       })
       .catch((error) => {
-        toast.error("Failed to add activity");
+        toast.error("Failed to add activity. Please try again.");
         console.error("Error", error);
       });
   };

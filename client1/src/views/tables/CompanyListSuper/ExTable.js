@@ -70,16 +70,16 @@ const ExTable = (comapany) => {
         formValues
       );
       if (response.status === 200) {
-        toast.success("Company updated successfully");
+        toast.success("Company updated successfully!");
         setTimeout(() => {
           handleClose();
           window.location.reload();
         }, 2000);
       } else {
-        toast.error("Error updating company");
+        toast.error("Failed to update company. Please try again.");
       }
     } catch (error) {
-      toast.error("Error saving user data");
+      toast.error("Failed to update company. Please try again.");
       console.error("Error saving user data:", error);
     }
   };
@@ -100,16 +100,16 @@ const ExTable = (comapany) => {
         `${process.env.REACT_APP_SERVER_SIDE}/company/${itemToDelete.id}`
       );
       if (response.status === 200) {
-        toast.success("Company deleted successfully");
+        toast.success("Company deleted successfully!");
         setTimeout(() => {
           closeDeleteDialog();
           window.location.reload();
         }, 2000);
       } else {
-        toast.error("Error deleting company");
+        toast.error("Failed to delete company. Please try again.");
       }
     } catch (error) {
-      toast.error("Error deleting company");
+      toast.error("Failed to delete company. Please try again.");
       console.error("Error deleting company:", error);
     }
   };

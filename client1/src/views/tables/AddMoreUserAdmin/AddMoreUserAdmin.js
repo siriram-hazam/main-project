@@ -74,7 +74,7 @@ const EditProfileTable = () => {
       try {
         const users = await authUtils.userCompanyList();
         setUserCompanyList(users);
-        console.log("userCompanyList", users);
+        // console.log("userCompanyList", users);
       } catch (error) {
         console.error("Error Activities userCompanyList : ", error);
       } finally {
@@ -163,26 +163,26 @@ const EditProfileTable = () => {
 
   const handleSave = async () => {
     try {
-      console.log(formValues);
+      // console.log(formValues);
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER_SIDE}/user/`,
         formValues
       );
-      console.log("User added successfully:", response.data);
+      // console.log("User added successfully:", response.data);
 
       if (response.data.status === 200) {
         // alert("User added successfully");
-        toast.success("User added successfully");
+        toast.success("User added successfully!");
         setTimeout(() => {
           window.location.reload();
         }, 2000);
       } else {
-        toast.error("Error adding user");
+        toast.error("Failed to add user. Please try again.");
       }
 
       handleCloseDialog();
     } catch (error) {
-      toast.error("Error adding user");
+      toast.error("Failed to add user. Please try again.");
       console.error("Error adding user:", error);
     }
   };

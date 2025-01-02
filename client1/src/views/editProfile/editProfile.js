@@ -82,7 +82,7 @@ const EditProfile = () => {
 
   const handleSave = () => {
     // Save user data logic here
-    console.log("User data saved:", user);
+    // console.log("User data saved:", user);
     setInitialUser(user); // Update the initial user data after saving
     setIsChanged(false);
   };
@@ -102,16 +102,16 @@ const EditProfile = () => {
 
       if (response.data.status === 200) {
         // console.log("Password changed successfully");
-        toast.success("Password changed successfully");
+        toast.success("Password changed successfully!");
         setPasswordDialogOpen(false);
         resetPasswordFields();
         return;
       } else {
-        toast.error(response.data.message);
-        // console.error(
-        //   "Error editProfile handlePasswordChange : ",
-        //   response.data
-        // );
+        toast.error("Unable to save changes. Please try again.");
+        console.error(
+          "Error editProfile handlePasswordChange : ",
+          response.data
+        );
       }
     } catch (error) {
       toast.error("Error changing password");

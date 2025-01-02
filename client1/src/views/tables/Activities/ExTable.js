@@ -102,15 +102,15 @@ const ExTable = (props) => {
       );
 
       if (response.status === 200) {
-        toast.success("Delete successful.");
+        toast.success("Activity deleted successfully!");
         setTimeout(() => {
           window.location.reload(); // Refresh the page or update the data
         }, 2000);
       } else {
-        toast.error("Delete failed.");
+        toast.error("Failed to delete activity. Please try again.");
       }
     } catch (error) {
-      toast.error("Delete failed.");
+      toast.error("Failed to delete activity. Please try again.");
       console.error("Error in handleDelete:", error);
     }
   };
@@ -123,15 +123,15 @@ const ExTable = (props) => {
       );
 
       if (response.status === 200) {
-        toast.success("Approve successful.");
+        toast.success("Activity approve successfully!");
         setTimeout(() => {
           window.location.reload(); // Refresh the page or update the data
         }, 2000);
       } else {
-        toast.error("Approve failed.");
+        toast.error("Failed to delete activity. Please try again.");
       }
     } catch (error) {
-      toast.error("Approve failed.");
+      toast.error("Failed to delete activity. Please try again.");
       console.error("Error in handleApprove:", error);
     }
   };
@@ -212,8 +212,8 @@ const ExTable = (props) => {
         }
       );
 
-      console.log("Item:", item);
-      console.log("User:", user);
+      // console.log("Item:", item);
+      // console.log("User:", user);
 
       // Create a URL for the blob and trigger download
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -224,16 +224,16 @@ const ExTable = (props) => {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url); // Clean up the URL object
-      toast.success("Download started.");
+      toast.success("Your download has started.");
     } catch (error) {
+      toast.error("Failed to download file. Please try again.");
       console.error("Error downloading the file:", error);
-      toast.error("Download failed.");
     }
   };
 
   const handleSave = async () => {
     try {
-      console.log("Updating information with data:", editData);
+      // console.log("Updating information with data:", editData);
       const response = await axios.put(
         `${process.env.REACT_APP_SERVER_SIDE}/information/updateInfo/${editData.id}`,
         {
@@ -348,16 +348,18 @@ const ExTable = (props) => {
       );
       if (response.status === 200) {
         setIsDataChanged(false);
-        toast.success("Data saved successfully.");
+        toast.success("Changes to the activity have been updated.");
         setTimeout(() => {
           // window.location.reload();
         }, 2000);
 
         // อัปเดตข้อมูลในตารางหรือทำการแจ้งเตือนผู้ใช้
       } else {
+        toast.error("Failed to update the activity. Please try again.");
         console.error("Error saving data:", response.data.message);
       }
     } catch (error) {
+      toast.error("Failed to update the activity. Please try again.");
       console.error("Error saving data:", error);
     }
   };
@@ -1384,7 +1386,8 @@ const ExTable = (props) => {
               onClick={handleSave}
               color="primary"
               sx={{ fontSize: "1rem" }}
-              disabled={!isDataChanged} // Disable button if no changes made
+              disabled={true}
+              // disabled={!isDataChanged} // Disable button if no changes made
             >
               Update
             </Button>

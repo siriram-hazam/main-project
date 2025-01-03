@@ -372,27 +372,27 @@ const ExTable = (props) => {
             <TableRow>
               <TableCell>
                 <Typography color="textSecondary" variant="h6">
-                  Id
+                  เลขที่
                 </Typography>
               </TableCell>
               <TableCell>
                 <Typography color="textSecondary" variant="h6">
-                  Name & Category
+                  ชื่อ & ชื่อ-เอกสาร
                 </Typography>
               </TableCell>
               <TableCell>
                 <Typography color="textSecondary" variant="h6">
-                  Created By
+                  สร้างโดย
                 </Typography>
               </TableCell>
               <TableCell align="center">
                 <Typography color="textSecondary" variant="h6">
-                  Status
+                  สถานะ
                 </Typography>
               </TableCell>
               <TableCell align="left">
                 <Typography color="textSecondary" variant="h6">
-                  Create Time
+                  เวลาที่บันทีก
                 </Typography>
               </TableCell>
               <TableCell align="center">
@@ -407,7 +407,7 @@ const ExTable = (props) => {
                   </TableCell>
                   <TableCell align="center">
                     <Typography color="textSecondary" variant="h6">
-                      Approve
+                      {/* Approve */}
                     </Typography>
                   </TableCell>
                 </>
@@ -415,7 +415,7 @@ const ExTable = (props) => {
               {props.user.data.users.role === "superadmin" && (
                 <TableCell>
                   <Typography color="textSecondary" variant="h6">
-                    Company
+                    ชื่อบริษัท
                   </Typography>
                 </TableCell>
               )}
@@ -698,6 +698,7 @@ const ExTable = (props) => {
             }}
           />
           {"Activity Details"}
+          {/* {"รายละเอียดข้อมูลกิจกรรม"} */}
         </DialogTitle>
         <DialogContent dividers>
           <Divider sx={{ mt: 2, mb: 2 }} />
@@ -710,14 +711,16 @@ const ExTable = (props) => {
                   aria-controls="general-info-content"
                   id="general-info-header"
                 >
-                  <Typography variant="h6">General Information</Typography>
+                  <Typography variant="h6">
+                    รายละเอียดของข้อมูลกิจกรรม
+                  </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                   <Grid container spacing={2}>
                     {/* Id */}
                     <Grid item xs={12} sm={6}>
                       <TextField
-                        label="Id"
+                        label="เลขที่"
                         value={editData.id}
                         InputProps={{
                           readOnly: true,
@@ -730,7 +733,7 @@ const ExTable = (props) => {
                     {/* Activity */}
                     <Grid item xs={12} sm={6}>
                       <TextField
-                        label="Activity"
+                        label="ชื่อกิจกรรม"
                         value={editData.activity_relation.activity}
                         InputProps={{
                           readOnly: editData.status !== "pending",
@@ -746,7 +749,7 @@ const ExTable = (props) => {
                     {/* Status */}
                     <Grid item xs={12} sm={6}>
                       <TextField
-                        label="Status"
+                        label="สถานะ"
                         value={editData.status}
                         InputProps={{
                           readOnly: true,
@@ -759,7 +762,7 @@ const ExTable = (props) => {
                     {/* Create Time */}
                     <Grid item xs={12} sm={6}>
                       <TextField
-                        label="Create Time"
+                        label="เวลาที่บันทีก"
                         value={new Date(editData.create_time).toLocaleString(
                           "th-TH",
                           {
@@ -782,7 +785,7 @@ const ExTable = (props) => {
                     {/* Created By */}
                     <Grid item xs={12} sm={6}>
                       <TextField
-                        label="Created By"
+                        label="สร้างโดย"
                         value={editData.user_account_relation.fullname}
                         InputProps={{
                           readOnly: true,
@@ -795,7 +798,7 @@ const ExTable = (props) => {
                     {/* Company */}
                     <Grid item xs={12} sm={6}>
                       <TextField
-                        label="Company"
+                        label="ชื่อบริษัท"
                         value={editData.company_relation.companyName}
                         InputProps={{
                           readOnly: true,
@@ -819,7 +822,7 @@ const ExTable = (props) => {
                       id={`category-header-${categoryIndex}`}
                     >
                       <Typography variant="h6">
-                        Category: {categoryName}
+                        ชื่อ-เอกสาร: {categoryName}
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
@@ -835,7 +838,7 @@ const ExTable = (props) => {
                             id={`poi-header-${categoryIndex}-${poiIndex}`}
                           >
                             <Typography variant="subtitle1">
-                              POI Information Set {poiIndex + 1}
+                              แถวที่ {poiIndex + 1}
                             </Typography>
                           </AccordionSummary>
                           <AccordionDetails>
@@ -843,7 +846,7 @@ const ExTable = (props) => {
                               {/* POI Info */}
                               <Grid item xs={12} sm={6}>
                                 <TextField
-                                  label={`POI Info`}
+                                  label={`ข้อมูลส่วนบุคคลที่เก็บ`}
                                   value={(poiInfo.poi_relation.poi_info || [])
                                     .map((info) => info.info_relation.info_)
                                     .join(", ")}
@@ -865,7 +868,7 @@ const ExTable = (props) => {
                               {/* POI Owner */}
                               <Grid item xs={12} sm={6}>
                                 <TextField
-                                  label={`POI Owner`}
+                                  label={`เจ้าของข้อมูลส่วนบุคคล`}
                                   value={(
                                     poiInfo.poi_relation.poi_info_owner || []
                                   )
@@ -892,7 +895,7 @@ const ExTable = (props) => {
                               {/* POI From */}
                               <Grid item xs={12} sm={6}>
                                 <TextField
-                                  label={`POI From`}
+                                  label={`ได้รับข้อมูลมาจาก`}
                                   value={(
                                     poiInfo.poi_relation.poi_info_from || []
                                   )
@@ -918,7 +921,7 @@ const ExTable = (props) => {
                               {/* POI Format */}
                               <Grid item xs={12} sm={6}>
                                 <TextField
-                                  label={`POI Format`}
+                                  label={`ประเภทของข้อมูลส่วนบุคคล (ข้อมูลอ่อนไหว/ข้อมูลทั่วไป หรือ อื่นๆ)`}
                                   value={(
                                     poiInfo.poi_relation.poi_info_format || []
                                   )
@@ -945,7 +948,7 @@ const ExTable = (props) => {
                               {/* POI Type */}
                               <Grid item xs={12} sm={6}>
                                 <TextField
-                                  label={`POI Type`}
+                                  label={`รูปแบบของข้อมูลส่วนบุคคล (กลุ่มของข้อมูล)`}
                                   value={(
                                     poiInfo.poi_relation.poi_info_type || []
                                   )
@@ -971,7 +974,7 @@ const ExTable = (props) => {
                               {/* POI Objective */}
                               <Grid item xs={12} sm={6}>
                                 <TextField
-                                  label={`POI Objective`}
+                                  label={`วัตถุประสงค์ของการเก็บข้อมูล`}
                                   value={(
                                     poiInfo.poi_relation.poi_info_objective ||
                                     []
@@ -1003,7 +1006,7 @@ const ExTable = (props) => {
                               ).map((lawbaseEntry, index) => (
                                 <Grid item xs={12} sm={6} key={index}>
                                   <TextField
-                                    label={`POI Lawbase ${index + 1}`}
+                                    label={`ฐานทางกฏหมายที่ ${index + 1}`}
                                     value={
                                       lawbaseEntry.info_lawbase_relation
                                         .lawBase_ || ""
@@ -1039,7 +1042,7 @@ const ExTable = (props) => {
                   aria-controls="additional-info-content"
                   id="additional-info-header"
                 >
-                  <Typography variant="h6">Additional Information</Typography>
+                  <Typography variant="h6">ข้อมูลเพิ่มเติม</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                   <Grid container spacing={2}>
@@ -1048,7 +1051,9 @@ const ExTable = (props) => {
                       (period, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Stored Period ${index + 1}`}
+                            label={`ระยะเวลาการจัดเก็บข้อมูลส่วนบุคคลที่ ${
+                              index + 1
+                            }`}
                             value={period.info_stored_period_relation.period_}
                             InputProps={{
                               readOnly: editData.status !== "pending",
@@ -1072,7 +1077,9 @@ const ExTable = (props) => {
                       (placed, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Info Placed ${index + 1}`}
+                            label={`แหล่งจัดเก็บข้อมูลส่วนบุคคลที่ ${
+                              index + 1
+                            }`}
                             value={placed.info_placed_relation.placed_}
                             InputProps={{
                               readOnly: editData.status !== "pending",
@@ -1096,7 +1103,7 @@ const ExTable = (props) => {
                       (allowedPs, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Allowed PS ${index + 1}`}
+                            label={`บุคคลที่มีสิทธิเข้าถึงข้อมูล ${index + 1}`}
                             value={
                               allowedPs.info_allowed_ps_relation.allowed_ps_
                             }
@@ -1122,7 +1129,9 @@ const ExTable = (props) => {
                       (condition, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Allowed PS Condition ${index + 1}`}
+                            label={`เงื่อนไขเกี่ยวกับบุคคลที่มีสิทธิเข้าถึงข้อมูล ${
+                              index + 1
+                            }`}
                             value={
                               condition.info_allowed_ps_condition_relation
                                 .allowed_ps_condition_
@@ -1149,7 +1158,7 @@ const ExTable = (props) => {
                       (access, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Info Access ${index + 1}`}
+                            label={`วิธีการเข้าถึงข้อมูลส่วนบุคคล ${index + 1}`}
                             value={access.info_access_relation.access_}
                             InputProps={{
                               readOnly: editData.status !== "pending",
@@ -1173,7 +1182,7 @@ const ExTable = (props) => {
                       (accessCondition, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Access Condition ${index + 1}`}
+                            label={`เงื่อนไขในการเข้าถึงข้อมูล ${index + 1}`}
                             value={
                               accessCondition.info_access_condition_relation
                                 .access_condition_
@@ -1200,7 +1209,9 @@ const ExTable = (props) => {
                       (usedByRole, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Used by Role Inside ${index + 1}`}
+                            label={`ข้อมูลส่วนบุคคลถูกใช้โดยตำแหน่งใดบ้าง (ภายในองค์กร) ${
+                              index + 1
+                            }`}
                             value={
                               usedByRole.info_ps_usedbyrole_inside_relation
                                 .use_by_role_
@@ -1227,7 +1238,9 @@ const ExTable = (props) => {
                       (sendToOutside, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Send to Outside ${index + 1}`}
+                            label={`ข้อมูลส่วนบุคคล ถูกส่งต่อ/เปิดเผยให้ใครบ้าง (ภายนอกองค์กร) ${
+                              index + 1
+                            }`}
                             value={
                               sendToOutside.info_ps_sendto_outside_relation
                                 .sendto_
@@ -1254,7 +1267,7 @@ const ExTable = (props) => {
                       (destroying, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Destroying ${index + 1}`}
+                            label={`วิธีการทำลายข้อมูลส่วนบุคคล ${index + 1}`}
                             value={
                               destroying.info_ps_destroying_relation.destroying_
                             }
@@ -1280,7 +1293,7 @@ const ExTable = (props) => {
                       (destroyer, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Destroyer ${index + 1}`}
+                            label={`ผู้อนุมัติการทำลาย ${index + 1}`}
                             value={
                               destroyer.info_ps_destroyer_relation.destroyer_
                             }
@@ -1306,7 +1319,7 @@ const ExTable = (props) => {
                       (organization, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Organization Measure ${index + 1}`}
+                            label={`มาตรการเชิงองค์กร ${index + 1}`}
                             value={
                               organization.m_organization_relation.organization
                             }
@@ -1332,7 +1345,7 @@ const ExTable = (props) => {
                       (technical, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Technical Measure ${index + 1}`}
+                            label={`มาตรการเชิงเทคนิค ${index + 1}`}
                             value={technical.m_technical_relation.technical}
                             InputProps={{
                               readOnly: editData.status !== "pending",
@@ -1356,7 +1369,7 @@ const ExTable = (props) => {
                       (physical, index) => (
                         <Grid item xs={12} sm={6} key={index}>
                           <TextField
-                            label={`Physical Measure ${index + 1}`}
+                            label={`มาตรการเชิงกายภาพ ${index + 1}`}
                             value={physical.m_physical_relation.physical}
                             InputProps={{
                               readOnly: editData.status !== "pending",

@@ -39,30 +39,30 @@ const Themeroutes = [
       </PrivateRoute>
     ),
     children: [
-      { path: "/", element: <Navigate to="dashboards" /> },
-      { path: "dashboards", exact: true, element: <Dashboard1 /> },
+      { path: "/", element: <Navigate to="/dashboards" /> },
+      { path: "/dashboards", exact: true, element: <Dashboard1 /> },
       {
-        path: "activities",
+        path: "/activities",
         element: <ActivitiesTable />,
       },
       {
-        path: "activities/add",
+        path: "/activities/add",
         element: <ActivitiesAdd />,
       },
       // {
-      //   path: "form",
+      //   path: "/form",
       //   element: <Form />,
       // },
       // {
-      //   path: "privacy-notice",
+      //   path: "/privacy-notice",
       //   element: <PrivacyNoticeTable />,
       // },
       {
-        path: "edit-profile",
+        path: "/edit-profile",
         element: <EditProfile />,
       },
       {
-        path: "user-admin",
+        path: "/user-admin",
         element: (
           <PrivateRoute requiredRole="admin">
             <AddMoreUserAdmin />
@@ -70,7 +70,7 @@ const Themeroutes = [
         ),
       },
       {
-        path: "company-list-super",
+        path: "/company-list-super",
         element: (
           <PrivateRoute requiredRole="superadmin">
             <CompanyListSuper />
@@ -78,7 +78,7 @@ const Themeroutes = [
         ),
       },
       {
-        path: "company-user-super",
+        path: "/company-user-super",
         element: (
           <PrivateRoute requiredRole="superadmin">
             <CompanyUserSuper />

@@ -975,7 +975,7 @@ const ActivitiesAdd = () => {
                                     renderInput={(params) => (
                                       <TextField
                                         {...params}
-                                        label="ประเภทของข้อมูลส่วนบุคคล"
+                                        label="วัตถุประสงค์ของการเก็บข้อมูล"
                                       />
                                     )}
                                     value={
@@ -1022,7 +1022,7 @@ const ActivitiesAdd = () => {
                                     renderInput={(params) => (
                                       <TextField
                                         {...params}
-                                        label="วัตถุประสงค์ของการเก็บข้อมูล"
+                                        label="ประเภทของข้อมูลส่วนบุคคล"
                                       />
                                     )}
                                     value={

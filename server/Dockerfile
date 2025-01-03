@@ -1,0 +1,31 @@
+FROM node:18
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Remove any existing node_modules
+RUN rm -rf node_modules
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies and rebuild bcrypt
+RUN npm ci
+RUN npm rebuild bcrypt --build-from-source
+
+# Copy the rest of the files so prisma/schema.prisma is available
+COPY . .
+
+# Generate the Prisma client
+RUN npx prisma generate
+
+# Run migrations and start app
+CMD ["sh", "-c", "npx prisma migrate deploy && node scripts/seed.js && node index.js"]
+
+EXPOSE 3001

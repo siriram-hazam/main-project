@@ -1,0 +1,44 @@
+# version: "3.9"
+services:
+  frontend:
+    build:
+      context: ./client1
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - user-facing
+      - back-office
+    depends_on:
+      - backend
+
+  database:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456789
+      POSTGRES_DB: ropa
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - back-office
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    ports:
+      - "3001:3001"
+    networks:
+      - back-office
+
+networks:
+  user-facing:
+  back-office:
+
+volumes:
+  postgres_data:

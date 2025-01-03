@@ -126,7 +126,7 @@ const BasicTable = () => {
                   fontSize: "2rem",
                 }}
               />
-              Activities Table
+              ตาราง ข้อมูลกิจกรรม
             </Typography>
             <Typography variant="h3">
               <Fab

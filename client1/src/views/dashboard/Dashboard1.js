@@ -56,9 +56,9 @@ const Dashboard1 = () => {
     return <div>Loading....</div>;
   }
 
-  if (!activity.length) {
-    return <div>No data</div>;
-  }
+  // if (!activity.length) {
+  //   return <div>No data</div>;
+  // }
 
   return (
     <Box sx={{ padding: { xs: 2, sm: 3 } }}>

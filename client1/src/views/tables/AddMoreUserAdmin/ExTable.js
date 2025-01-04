@@ -201,7 +201,7 @@ const ExTable = (userList) => {
         <TableHead>
           <TableRow>
             <TableCell>
-              <Typography variant="h6">Id</Typography>
+              <Typography variant="h6">No.</Typography>
             </TableCell>
             <TableCell>
               <Typography variant="h6">Name</Typography>

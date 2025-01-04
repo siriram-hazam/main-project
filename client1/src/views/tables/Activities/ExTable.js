@@ -364,6 +364,19 @@ const ExTable = (props) => {
     }
   };
 
+  const formatDate = (isoDate) => {
+    const date = new Date(isoDate);
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      timeZone: "Asia/Bangkok",
+    }).format(date);
+  };
+
   return (
     <>
       <Box sx={{ overflowX: "auto" }}>
@@ -372,27 +385,27 @@ const ExTable = (props) => {
             <TableRow>
               <TableCell>
                 <Typography color="textSecondary" variant="h6">
-                  เลขที่
+                  No.
                 </Typography>
               </TableCell>
               <TableCell>
                 <Typography color="textSecondary" variant="h6">
-                  ชื่อ & ชื่อ-เอกสาร
+                  Document Name
                 </Typography>
               </TableCell>
               <TableCell>
                 <Typography color="textSecondary" variant="h6">
-                  สร้างโดย
+                  Created By
                 </Typography>
               </TableCell>
               <TableCell align="center">
                 <Typography color="textSecondary" variant="h6">
-                  สถานะ
+                  Status
                 </Typography>
               </TableCell>
               <TableCell align="left">
                 <Typography color="textSecondary" variant="h6">
-                  เวลาที่บันทีก
+                  Created Time
                 </Typography>
               </TableCell>
               <TableCell align="center">
@@ -407,7 +420,7 @@ const ExTable = (props) => {
                   </TableCell>
                   <TableCell align="center">
                     <Typography color="textSecondary" variant="h6">
-                      {/* Approve */}
+                      Approve
                     </Typography>
                   </TableCell>
                 </>
@@ -415,7 +428,7 @@ const ExTable = (props) => {
               {props.user.data.users.role === "superadmin" && (
                 <TableCell>
                   <Typography color="textSecondary" variant="h6">
-                    ชื่อบริษัท
+                    Company Name
                   </Typography>
                 </TableCell>
               )}
@@ -512,14 +525,7 @@ const ExTable = (props) => {
                 </TableCell>
                 <TableCell align="left">
                   <Typography variant="h6">
-                    {new Date(item.create_time).toLocaleString("th-TH", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                    })}
+                    {formatDate(item.create_time)}
                   </Typography>
                 </TableCell>
                 <TableCell align="center">
@@ -763,17 +769,7 @@ const ExTable = (props) => {
                     <Grid item xs={12} sm={6}>
                       <TextField
                         label="เวลาที่บันทีก"
-                        value={new Date(editData.create_time).toLocaleString(
-                          "th-TH",
-                          {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                          }
-                        )}
+                        value={formatDate(editData.create_time)}
                         InputProps={{
                           readOnly: true,
                         }}

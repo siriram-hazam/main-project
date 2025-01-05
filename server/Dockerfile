@@ -22,10 +22,22 @@ RUN npm rebuild bcrypt --build-from-source
 # Copy the rest of the files so prisma/schema.prisma is available
 COPY . .
 
+
 # Generate the Prisma client
 RUN npx prisma generate
 
 # Run migrations and start app
-CMD ["sh", "-c", "npx prisma migrate deploy && node scripts/seed.js && node index.js"]
+CMD ["sh", "-c", "\
+    echo 'Starting database migration...' && \
+    npx prisma migrate deploy && \
+    echo 'Starting application...' && \
+    node index.js & \
+    echo 'Waiting for the application to seed data 🌱...' && \
+    sleep 10 && \
+    node scripts/seed.js && \
+    echo 'Restarting application...' && \
+    pkill node && \
+    node index.js \
+    "]
 
 EXPOSE 3001

@@ -926,7 +926,7 @@ const ActivitiesAdd = () => {
                                     renderInput={(params) => (
                                       <TextField
                                         {...params}
-                                        label="รูปแบบของข้อมูล"
+                                        label="ประเภทของข้อมูลส่วนบุคคล (ข้อมูลอ่อนไหว/ข้อมูลทั่วไป หรือ อื่นๆ)"
                                       />
                                     )}
                                     value={
@@ -975,7 +975,7 @@ const ActivitiesAdd = () => {
                                     renderInput={(params) => (
                                       <TextField
                                         {...params}
-                                        label="วัตถุประสงค์ของการเก็บข้อมูล"
+                                        label="รูปแบบของข้อมูล (กลุ่มของข้อมูล)"
                                       />
                                     )}
                                     value={
@@ -1022,7 +1022,7 @@ const ActivitiesAdd = () => {
                                     renderInput={(params) => (
                                       <TextField
                                         {...params}
-                                        label="ประเภทของข้อมูลส่วนบุคคล"
+                                        label="วัตถุประสงค์ของการเก็บข้อมูล"
                                       />
                                     )}
                                     value={

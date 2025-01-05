@@ -232,6 +232,7 @@ const ExTable = (comapany) => {
                       backgroundColor: "red",
                       p: 1,
                     }}
+                    disabled={item.companyName === "Default"}
                   >
                     <DeleteForeverOutlinedIcon
                       sx={{

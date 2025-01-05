@@ -342,7 +342,9 @@ const CompanyUserSuper = () => {
               sx={{ mb: 1 }}
             />
             <Autocomplete
-              options={companyList.data.data}
+              options={companyList.data.data.filter(
+                (company) => company.companyName !== "Default"
+              )}
               getOptionLabel={(option) => option.companyName}
               value={selectedOption}
               onChange={(event, newValue) => {

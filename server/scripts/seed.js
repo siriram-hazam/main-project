@@ -22,10 +22,10 @@ async function checkIfSuperadminExists() {
 async function seedSuperadmin() {
   try {
     const response = await axios.post("http://backend:3001/api/user/", {
-      username: "siriram",
-      password: "123456",
-      fullname: "Siriram Hazam",
-      email: "siriram.work@gmail.com",
+      username: "ropa_admin",
+      password: "ropa_admin",
+      fullname: "System Admin",
+      email: "ropa@default.com",
       role: "superadmin",
       company_id: 0,
     });

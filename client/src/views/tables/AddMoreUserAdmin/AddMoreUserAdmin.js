@@ -276,7 +276,7 @@ const EditProfileTable = () => {
                 mt: 2,
               }}
             >
-              <ExTable userList={userCompanyList.data} />
+              <ExTable user={user} userList={userCompanyList.data} />
             </Box>
           </CardContent>
         </Card>

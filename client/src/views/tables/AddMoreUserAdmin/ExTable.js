@@ -28,7 +28,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 
-const ExTable = (userList) => {
+const ExTable = (props) => {
   const [open, setOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [formValues, setFormValues] = useState({});
@@ -218,7 +218,7 @@ const ExTable = (userList) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {userList.userList.userslist
+          {props.userList.userslist
             .filter(
               // (item) => item.role !== "admin" && item.role !== "superadmin"
               (item) => item.role !== "superadmin"
@@ -287,13 +287,21 @@ const ExTable = (userList) => {
                         event.stopPropagation();
                         openDeleteDialog(item);
                       }}
+                      disabled={props.user.data.users.id === item.id}
                       sx={{
                         mb: {
                           xs: 1,
                           sm: 0,
                           lg: 0,
                         },
-                        backgroundColor: "red",
+                        backgroundColor:
+                          props.user.data.users.id === item.id
+                            ? "grey.500"
+                            : "red",
+                        "&.Mui-disabled": {
+                          backgroundColor: "grey.500",
+                          opacity: 0.5,
+                        },
                         p: 1,
                       }}
                     >

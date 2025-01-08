@@ -37,7 +37,6 @@ function Login() {
         <div className="hidden md:flex md:w-1/2 bg-[#FFF8E7] dark:bg-gray-800 items-center justify-center">
           {/* Center content container */}
           <div className="text-3xl font-semibold text-gray-800 text-center px-8">
-            {/* Welcome Back */}
             <a className="flex items-center justify-center mb-6 text-5xl font-semibold text-gray-900 dark:text-white">
               {/* <TextScramble
                 text="Welcome to Record of Processing"
@@ -96,15 +95,6 @@ function Login() {
                   >
                     Sign in
                   </button>
-                  {/* <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                  Don’t have an account yet?{" "}
-                  <a
-                    href="#"
-                    className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-                  >
-                    Sign up
-                  </a>
-                </p> */}
                 </form>
               </div>
             </div>

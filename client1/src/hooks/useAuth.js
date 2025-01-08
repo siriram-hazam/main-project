@@ -31,21 +31,6 @@ const checkLoginStatus = async () => {
         if (res.data.status === "authenticated") {
           // console.log("User is authenticated");
 
-          // checkUser().then(
-          //   (res) => {
-          //     // console.log(res);
-          //     // window.location = "/dashboards";
-          //   },
-          //   (error) => {
-          //     console.log("Error useAuth checkAuthStatus checkUser : ", error);
-          //   }
-          // );
-
-          // -- Check Response
-          // checkUser().then((res) => {
-          //   console.log(res);
-          // });
-
           window.location = "/dashboards";
 
           return true;

@@ -45,45 +45,6 @@ const ActivitiesAdd = () => {
   );
 
   const [formData, setFormData] = useState(initialFormState);
-
-  // const [formData, setFormData] = useState({
-  //   activity: "",
-  //   status: "pending",
-  //   createBy: "",
-  //   company_id: "",
-  //   department_id: "",
-  //   categories: [
-  //     {
-  //       category: "",
-  //       poi_relations: [
-  //         {
-  //           poi_info: "",
-  //           poi_info_owner: "",
-  //           poi_info_from: "",
-  //           poi_info_format: "",
-  //           poi_info_type: "",
-  //           poi_info_objective: "",
-  //           poi_info_lawbase: [],
-  //         },
-  //       ],
-  //     },
-  //   ],
-  //   // categories: [],
-  //   info_stored_period: [],
-  //   info_placed: [],
-  //   info_allowed_ps: [],
-  //   info_allowed_ps_condition: [],
-  //   info_access: [],
-  //   info_access_condition: [],
-  //   info_ps_usedbyrole_inside: [],
-  //   info_ps_sendto_outside: [],
-  //   info_ps_destroying: [],
-  //   info_ps_destroyer: [],
-  //   m_organization: [],
-  //   m_technical: [],
-  //   m_physical: [],
-  // });
-
   const [optionData, setOptionData] = useState(null);
   const [isFormComplete, setIsFormComplete] = useState(false);
   const [expandedIndexes, setExpandedIndexes] = useState({}); // State for tracking expanded sections
@@ -170,58 +131,6 @@ const ActivitiesAdd = () => {
     // console.log("Form data", formData);
   }, [formData]);
 
-  // const checkFormCompletion = () => {
-  //   if (!formData) return setIsFormComplete(false);
-
-  //   const requiredFieldsComplete = requiredFields.every((field) => {
-  //     const value = formData[field];
-  //     const isFilled =
-  //       value &&
-  //       (Array.isArray(value)
-  //         ? value.length > 0
-  //         : typeof value === "string"
-  //         ? value.trim() !== ""
-  //         : true);
-  //     if (!isFilled) {
-  //       console.log(`Field ${field} is incomplete.`);
-  //     }
-  //     return isFilled;
-  //   });
-
-  //   const categoriesComplete =
-  //     formData.categories.length > 0 &&
-  //     formData.categories.every((categoryItem, index) => {
-  //       if (!categoryItem.category) {
-  //         console.log(`Category ${index + 1} is incomplete.`);
-  //         return false;
-  //       }
-  //       return categoryItem.poi_relations.every((poi, poiIndex) => {
-  //         return requiredPoiFields.every((field) => {
-  //           const poiValue = poi[field];
-  //           const isFilled =
-  //             poiValue &&
-  //             (Array.isArray(poiValue)
-  //               ? poiValue.length > 0
-  //               : typeof poiValue === "string"
-  //               ? poiValue.trim() !== ""
-  //               : true);
-  //           if (!isFilled) {
-  //             console.log(
-  //               `POI Relation ${poiIndex + 1} in Category ${
-  //                 index + 1
-  //               } has incomplete field ${field}.`
-  //             );
-  //           }
-  //           return isFilled;
-  //         });
-  //       });
-  //     });
-
-  //   const isComplete = requiredFieldsComplete && categoriesComplete;
-  //   console.log("Form complete:", isComplete);
-  //   setIsFormComplete(isComplete);
-  // };
-
   const checkFormCompletion = () => {
     // Early return if no form data
     if (!formData) {
@@ -307,33 +216,6 @@ const ActivitiesAdd = () => {
     checkFormCompletion();
   };
 
-  // const handleAutocompleteChange = (event, value, field) => {
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     [field]: value && value.id ? value.id : value,
-  //   }));
-  //   checkFormCompletion();
-  // };
-
-  // const handleCategoryChange = (event, value, categoryIndex) => {
-  //   setFormData((prevFormData) => {
-  //     const updatedCategories = [...prevFormData.categories];
-  //     updatedCategories[categoryIndex].category =
-  //       value && value.id ? value.id : value;
-  //     return { ...prevFormData, categories: updatedCategories };
-  //   });
-  //   checkFormCompletion();
-  // };
-
-  // const handleCategoryInputChange = (event, newInputValue, categoryIndex) => {
-  //   setFormData((prevFormData) => {
-  //     const updatedCategories = [...prevFormData.categories];
-  //     updatedCategories[categoryIndex].category = newInputValue;
-  //     return { ...prevFormData, categories: updatedCategories };
-  //   });
-  //   checkFormCompletion();
-  // };
-
   const handleCategoryInputChange = (event, newInputValue, categoryIndex) => {
     setFormData((prevFormData) => {
       const updatedCategories = [...prevFormData.categories];
@@ -342,31 +224,6 @@ const ActivitiesAdd = () => {
     });
     checkFormCompletion();
   };
-
-  // const handleNestedAutocompleteChange = (
-  //   event,
-  //   value,
-  //   categoryIndex,
-  //   index,
-  //   field
-  // ) => {
-  //   setFormData((prevFormData) => {
-  //     const updatedCategories = [...prevFormData.categories];
-  //     const updatedRelations = [
-  //       ...updatedCategories[categoryIndex].poi_relations,
-  //     ];
-  //     updatedRelations[index] = {
-  //       ...updatedRelations[index],
-  //       [field]: value && value.id ? value.id : value,
-  //     };
-  //     updatedCategories[categoryIndex].poi_relations = updatedRelations;
-  //     return {
-  //       ...prevFormData,
-  //       categories: updatedCategories,
-  //     };
-  //   });
-  //   checkFormCompletion();
-  // };
 
   const handleNestedAutocompleteChange = (
     event,

@@ -11,13 +11,13 @@ import { ThemeProvider } from "@mui/material/styles";
 import { baseTheme } from "./assets/global/Theme-variable.js";
 
 //Router
-import Themeroutes from "./routes/Router";
+import Themeroutes from "./routes/Router.js";
 
 //Hooks
-import authUtils from "./hooks/useAuth";
+import authUtils from "./hooks/useAuth.js";
 
 //Pages
-import Login from "./pages/Login/Login";
+import Login from "./pages/Login/Login.js";
 
 function App() {
   const [auth, setAuth] = React.useState(null);

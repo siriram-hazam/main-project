@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, Box, Typography, Fab } from "@mui/material";
-import ExTable from "../../tables/Activities/ExTable";
+import ExTable from "./ExTable";
 import AllInboxOutlinedIcon from "@mui/icons-material/AllInboxOutlined";
 import AddToPhotosOutlinedIcon from "@mui/icons-material/AddToPhotosOutlined";
 import authUtils from "../../../hooks/useAuth";

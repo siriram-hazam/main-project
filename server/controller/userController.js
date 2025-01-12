@@ -212,19 +212,15 @@ export const fetchUserLogin = async (req, res) => {
         return res
           .cookie("token", token, {
             domain: process.env.COOKIE_DOMAIN,
-            secure: true,
-            path: "/",
-            httpOnly: true,
-            sameSite: "none",
             maxAge: 3 * 60 * 60 * 1000, // cookie delete after 3 hours
+            sameSite: "none",
+            secure: true,
           })
           .cookie("user", user, {
             domain: process.env.COOKIE_DOMAIN,
-            path: "/",
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
             maxAge: 3 * 60 * 60 * 1000, // cookie delete after 3 hours
+            sameSite: "none",
+            secure: true,
           })
           .json({ status: 200, user });
       }

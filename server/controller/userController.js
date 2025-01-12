@@ -215,16 +215,16 @@ export const fetchUserLogin = async (req, res) => {
             secure: false,
             path: "/",
             httpOnly: true,
-            sameSite: "none",
-            maxAge: new Date(Date.now() + 3 * 60 * 60 * 1000), //cookie delete after 3 hour
+            sameSite: "lax", // or "strict"
+            maxAge: 3 * 60 * 60 * 1000, // cookie delete after 3 hours
           })
           .cookie("user", user, {
             domain: process.env.COOKIE_DOMAIN,
             path: "/",
             httpOnly: true,
             secure: false,
-            sameSite: "none",
-            maxAge: new Date(Date.now() + 3 * 60 * 60 * 1000), //cookie delete after 3 hour
+            sameSite: "lax", // or "strict"
+            maxAge: 3 * 60 * 60 * 1000, // cookie delete after 3 hours
           })
           .json({ status: 200, user });
       }

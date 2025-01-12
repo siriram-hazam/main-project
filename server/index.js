@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3001;
 // * Middleware
 app.use(
   cors({
-    origin: "*",
+    origin: "http://20.255.153.125:3000",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })

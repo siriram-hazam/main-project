@@ -204,7 +204,7 @@ export const fetchUserLogin = async (req, res) => {
           { expiresIn: "3h" }
         );
 
-        // console.log(token);
+        console.log(token);
 
         delete user.password;
         delete user.role;
@@ -212,16 +212,12 @@ export const fetchUserLogin = async (req, res) => {
         return res
           .cookie("token", token, {
             domain: process.env.COOKIE_DOMAIN,
-            maxAge: 3 * 60 * 60 * 1000,
-            sameSite: "none",
             secure: false,
             httpOnly: true,
             path: "/",
           })
           .cookie("user", user, {
             domain: process.env.COOKIE_DOMAIN,
-            maxAge: 3 * 60 * 60 * 1000,
-            sameSite: "none",
             secure: false,
             httpOnly: true,
             path: "/",

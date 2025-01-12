@@ -7,24 +7,10 @@ import cookieParser from "cookie-parser";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const allowedOrigins = [
-  process.env.CLIENT_ORIGIN, // Your primary frontend URL
-  "http://192.168.1.111:3000", // Public IP
-  "http://localhost:3000", // Localhost
-];
-
 // * Middleware
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.indexOf(origin) === -1) {
-        return callback(new Error("CORS not allowed"), false);
-      }
-      return callback(null, true);
-    },
+    origin: "*",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],

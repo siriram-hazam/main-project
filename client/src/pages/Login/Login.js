@@ -42,7 +42,9 @@ function Login() {
                 text="Welcome to Record of Processing"
                 duration={70}
               /> */}
-              Welcome to Record of Processing
+              Welcome to <br />
+              Record of Processing <br />
+              WebAPP
             </a>
           </div>
         </div>

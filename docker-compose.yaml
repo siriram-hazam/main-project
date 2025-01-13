@@ -18,8 +18,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456789
       POSTGRES_DB: ropa
-    ports:
-      - "5432:5432"
+    ports: []
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -31,8 +30,7 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - database
-    ports:
-      - "3001:3001"
+    ports: []
     networks:
       - back-office
 

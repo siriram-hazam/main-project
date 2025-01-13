@@ -10,7 +10,10 @@ const PORT = process.env.PORT || 3001;
 // * Middleware
 app.use(
   cors({
-    origin: "http://20.255.153.125:3000",
+    // origin: "http://20.255.153.125:3000",
+    origin: (origin, callback) => {
+      callback(null, true); // Dynamically allow all origins
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })

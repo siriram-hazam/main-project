@@ -5,7 +5,11 @@ services:
       context: ./client
       dockerfile: Dockerfile
     ports:
-      - "3000:80"
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./client/server.cert:/etc/nginx/server.cert:ro
+      - ./client/server.key:/etc/nginx/server.key:ro
     networks:
       - user-facing
       - back-office

@@ -8,8 +8,8 @@ services:
       - "443:443"
       - "80:80"
     volumes:
-      - ./client/server.cert:/etc/nginx/server.cert:ro
-      - ./client/server.key:/etc/nginx/server.key:ro
+      - ./client/ssl.crt:/etc/nginx/ssl.crt:ro
+      - ./client/ssl_private.key:/etc/nginx/ssl_private.key:ro
     networks:
       - user-facing
       - back-office

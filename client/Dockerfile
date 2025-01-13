@@ -12,8 +12,8 @@ COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy SSL certificate and key
-COPY server.cert /etc/nginx/server.cert
-COPY server.key /etc/nginx/server.key
+COPY ssl.crt /etc/nginx/ssl.crt
+COPY ssl_private.key /etc/nginx/ssl_private.key
 
 EXPOSE 80 443
 CMD ["nginx", "-g", "daemon off;"]

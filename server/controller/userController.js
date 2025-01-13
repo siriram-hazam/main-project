@@ -211,13 +211,11 @@ export const fetchUserLogin = async (req, res) => {
 
         return res
           .cookie("token", token, {
-            domain: process.env.COOKIE_DOMAIN,
             secure: false,
             httpOnly: true,
             path: "/",
           })
           .cookie("user", user, {
-            domain: process.env.COOKIE_DOMAIN,
             secure: false,
             httpOnly: true,
             path: "/",

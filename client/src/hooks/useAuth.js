@@ -1,7 +1,5 @@
 import axios from "axios";
-axios.defaults.withCredentials = true; // เปิดการส่ง Cookies
-axios.defaults.headers.common["Content-Type"] = "application/json"; // Content-Type เริ่มต้น
-axios.defaults.headers.common["Accept"] = "application/json"; // Accept header
+axios.defaults.withCredentials = true;
 
 const authLogin = async (username, password) => {
   try {
@@ -121,7 +119,9 @@ const companyAdmin = async () => {
 const logout = async () => {
   try {
     await axios.get(`${process.env.REACT_APP_SERVER_SIDE}/user/logout`);
-    window.location = "/";
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = "/";
   } catch (error) {
     console.error("Error useAuth logout : ", error);
   }

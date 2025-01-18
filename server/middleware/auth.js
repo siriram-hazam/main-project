@@ -6,7 +6,17 @@ export const auth = async (req, res, next) => {
 
     if (token == null)
       return (
-        res.clearCookie("token"), res.clearCookie("user"), res.sendStatus(403)
+        res.clearCookie("token", {
+          httpOnly: true,
+          secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+          sameSite: "lax",
+        }),
+        res.clearCookie("user", {
+          httpOnly: true,
+          secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+          sameSite: "lax",
+        }),
+        res.sendStatus(403)
       );
 
     await jwt.verify(token, process.env.JWT_SECRET, (err, user) => {

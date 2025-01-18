@@ -211,14 +211,12 @@ export const fetchUserLogin = async (req, res) => {
 
         return res
           .cookie("token", token, {
-            secure: false,
             httpOnly: true,
-            path: "/",
+            secure: req.secure || req.headers["x-forwarded-proto"] === "https"
           })
           .cookie("user", user, {
-            secure: false,
             httpOnly: true,
-            path: "/",
+            secure: req.secure || req.headers["x-forwarded-proto"] === "https"
           })
           .json({ status: 200, user });
       }

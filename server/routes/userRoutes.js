@@ -24,7 +24,10 @@ router.get("/status", auth, (req, res) => {
 });
 router.get("/checkUser", auth, fetchUser);
 router.get("/logout", (req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: req.secure || req.headers["x-forwarded-proto"] === "https"
+  });
   res.json({ status: 200, message: "Logout Success" });
 });
 router.put("/updatePassword/:id", auth, updateUserPassword);

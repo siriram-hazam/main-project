@@ -1,7 +1,5 @@
 import axios from "axios";
-axios.defaults.withCredentials = true; // เปิดการส่ง Cookies
-axios.defaults.headers.common["Content-Type"] = "application/json"; // Content-Type เริ่มต้น
-axios.defaults.headers.common["Accept"] = "application/json"; // Accept header
+axios.defaults.withCredentials = true;
 
 const infoActivities = async () => {
   try {
